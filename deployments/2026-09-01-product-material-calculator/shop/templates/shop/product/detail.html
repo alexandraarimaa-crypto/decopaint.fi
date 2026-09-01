@@ -1,0 +1,1870 @@
+{% extends "shop/base/base.html" %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% block open_graph %}
+<meta property="og:title" content="{{ seo.title }}">
+<meta property="og:description" content="{{ seo.description }}">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="Deco Paint Finland">
+<meta property="og:locale" content="{% if LANGUAGE_CODE == 'sv' %}sv_SE{% elif LANGUAGE_CODE == 'en' %}en_GB{% elif LANGUAGE_CODE == 'ru' %}ru_RU{% else %}fi_FI{% endif %}">
+{% if product_image_url %}<meta property="og:image" content="{{ product_image_url }}">{% endif %}
+{% endblock %}
+{% block title %}
+{{ seo.title }}
+{% endblock %}
+{% load i18n %}
+{% load custom_tags %}
+{% block schema_markup %}
+<script id="product-structured-data" type="application/ld+json">{{ product_structured_data_json|safe }}</script>
+{% endblock %}
+{% block content %}
+{% load static %}
+{% load custom_filters %}
+
+<style>
+/* Search Console CLS safeguards */
+.price-display { min-height: 3.5rem; }
+.product-thumbs-list img,
+[id^="slide-thumb-"] img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+  .loading-overlay {
+    position: relative;
+  }
+
+  .loading-overlay::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      z-index: 9999;
+  }
+
+  .colors-loading {
+    position: relative;
+    min-height: 60px;
+  }
+
+  .colors-loading .loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 9999;
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  .colors-loading .loading-indicator .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    color: #007bff;
+  }
+
+  .colors-loading .loading-indicator span {
+    font-weight: 500;
+    color: #495057;
+    font-size: 14px;
+  }
+
+  .colors-loading #variant-details-container {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .product-name{
+    font-size: 18pt;
+  }
+
+  .uneffect-h h2{
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+  }
+
+  .display-none-h h2{
+    display: none;
+  }
+
+  .product-name{
+    font-size: 18pt;
+  }
+
+  .uneffect-h h2{
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+  }
+
+  .display-none-h h2{
+    display: none;
+  }
+
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+  }
+
+  .product-name{
+    font-size: 18pt;
+  }
+  
+   .uneffect-h h2{
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+.display-none-h h2{
+display: none;
+}
+
+#original-price-container {
+    font-size: 16px;
+    margin-left: 0;
+    line-height: 1.2;
+}
+
+.group-price-info {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.product-info-cell {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.quantity-price-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+
+.quantity-input-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 150px;
+}
+
+.quantity-input {
+    width: 100%;
+    text-align: center;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.quantity-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    width: 30px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6c757d;
+    z-index: 1;
+}
+
+.quantity-btn:hover {
+    color: #000;
+}
+
+.quantity-btn.minus {
+    left: 0;
+}
+
+.quantity-btn.plus {
+    right: 0;
+}
+
+.price-display {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 200px;
+}
+
+.current-price {
+    font-size: 32px;
+    font-weight: bold;
+    color: #212529;
+}
+
+.original-price {
+    font-size: 27px;
+    text-decoration: line-through;
+    color: #6c757d;
+    margin-right: 10px;
+}
+
+.discount-badge {
+    font-size: 24px;
+    padding: 4px 8px;
+}
+
+.stock-delivery-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+.stock-status, .delivery-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stock-in {
+    color: #198754;
+}
+
+.stock-out {
+    color: #dc3545;
+}
+
+.add-to-cart-btn {
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.price-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.price-loading .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+@media (max-width: 768px) {
+    .quantity-price-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .price-display {
+        align-items: center;
+        text-align: center;
+    }
+    
+    .quantity-input-container {
+        width: 100px;
+    }
+}
+
+/* Professional, accessible product reviews */
+.dp-review-jump {
+    color: #315b45;
+    font-weight: 600;
+    text-underline-offset: 3px;
+}
+
+.dp-review-jump:hover,
+.dp-review-jump:focus {
+    color: #1f4432;
+}
+
+.dp-reviews-section {
+    scroll-margin-top: 90px;
+}
+
+.dp-reviews-intro {
+    max-width: 680px;
+    margin-inline: auto;
+    color: #66726b;
+}
+
+.dp-reviews-eyebrow {
+    color: #4d765f;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.dp-review-summary,
+.dp-review-form-card,
+.dp-review-empty {
+    border: 1px solid #dce8df;
+    border-radius: 18px;
+    background: #fbfdfb;
+    box-shadow: 0 12px 35px rgba(42, 77, 57, .07);
+}
+
+.dp-review-summary {
+    overflow: hidden;
+}
+
+.dp-review-summary__top {
+    padding: 2rem 1.5rem 1.5rem;
+    background: linear-gradient(145deg, #eef6ef 0%, #f9fcf9 100%);
+}
+
+.dp-review-summary__score {
+    color: #244c37;
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.dp-review-summary__body {
+    padding: 1.5rem;
+}
+
+.dp-review-summary .progress {
+    background: #e8eee9;
+}
+
+.dp-review-summary .progress-bar {
+    background: #4f765f;
+}
+
+.dp-review-trust {
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f0f6f1;
+    color: #405348;
+    font-size: .875rem;
+    line-height: 1.5;
+}
+
+.dp-review-trust__icon {
+    display: inline-grid;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    place-items: center;
+    border-radius: 50%;
+    background: #315b45;
+    color: #fff;
+    font-weight: 700;
+}
+
+.dp-review-cta {
+    border-color: #315b45;
+    background: #315b45;
+    color: #fff;
+}
+
+.dp-review-cta:hover,
+.dp-review-cta:focus {
+    border-color: #244735;
+    background: #244735;
+    color: #fff;
+}
+
+.dp-review-form-card {
+    padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.dp-review-form-card .form-control,
+.dp-review-form-card .form-select {
+    min-height: 48px;
+    border-color: #ccd9d0;
+    border-radius: 10px;
+}
+
+.dp-review-form-card textarea.form-control {
+    min-height: 130px;
+}
+
+.dp-review-form-card .form-control:focus,
+.dp-review-form-card .form-select:focus {
+    border-color: #527861;
+    box-shadow: 0 0 0 .2rem rgba(49, 91, 69, .14);
+}
+
+.dp-review-form-note {
+    color: #69766f;
+    font-size: .875rem;
+}
+
+.dp-review-empty {
+    padding: clamp(2rem, 5vw, 3.5rem);
+    text-align: center;
+}
+
+.dp-review-empty__icon {
+    display: inline-grid;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1.25rem;
+    place-items: center;
+    border-radius: 50%;
+    background: #edf5ee;
+    color: #315b45;
+    font-size: 1.75rem;
+}
+
+.dp-review-card {
+    margin-bottom: 1rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    border: 1px solid #e0e9e2;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.dp-review-card__avatar {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center;
+    border-radius: 50%;
+    background: #e8f1ea;
+    color: #315b45;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.dp-review-card__name {
+    color: #243e30;
+    font-weight: 700;
+}
+
+.dp-review-card__verified {
+    display: inline-flex;
+    gap: .3rem;
+    align-items: center;
+    color: #4c705a;
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.dp-review-card__text {
+    color: #405048;
+    line-height: 1.75;
+    white-space: pre-line;
+}
+
+.dp-review-card__image {
+    overflow: hidden;
+    display: inline-block;
+    border: 1px solid #e0e9e2;
+    border-radius: 12px;
+}
+
+.dp-review-card__image img {
+    display: block;
+    width: 132px;
+    height: 132px;
+    object-fit: cover;
+}
+
+.dp-review-alert {
+    max-width: 720px;
+    margin: 0 auto 1.5rem;
+    border: 1px solid #e0c785;
+    border-radius: 12px;
+    background: #fff9e9;
+    color: #604f23;
+    padding: .9rem 1rem;
+}
+
+@media (max-width: 767.98px) {
+    .dp-review-summary {
+        position: static !important;
+    }
+
+    .dp-review-form-actions {
+        align-items: stretch !important;
+        flex-direction: column;
+    }
+
+    .dp-review-form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<section class="z-index-2 position-relative pb-2 mb-12 dp-product-breadcrumb">
+  <div class="bg-body-secondary mb-3">
+    <div class="container">
+      <nav class="py-4 lh-30px" aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center py-1 mb-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'shop:all_products' %}">{% translate "Tuotekatalogi" %}</a>
+          </li>
+          {% if product.category.all %}
+            {% with category=product.category.all.0 %}
+              <li class="breadcrumb-item">
+                <a href="{% url 'shop:product_list_by_category' category_slug=category.slug %}">
+                  {{ category.name }}
+                </a>
+              </li>
+            {% endwith %}
+          {% endif %}
+          <li class="breadcrumb-item active" aria-current="page">
+            {{ product.name }}
+          </li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<section class="container container-xxl pb-6 pb-lg-15 dp-product-page">
+  <div class="row ">
+
+    {% if messages %}
+      {% for message in messages %}
+          {% if message.tags == 'success' %}
+              <div class="alert alert-success text-center mb-8 alert-dismissible" role="alert">
+          {% elif message.tags == 'error' %}
+              <div class="alert alert-danger text-center mb-8 alert-dismissible" role="alert">
+          {% endif %}
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% translate 'Sulje' %}"></button>
+              </div>
+      {% endfor %}
+    {% endif %}
+    
+    <div class="col-md-6 pe-lg-13">
+      <div class="position-sticky top-0">
+				<div class="row">
+					<div class="col-xl-2 pe-xl-0 order-first order-xl-0 mt-5 mt-xl-0 product-thumbs-col">
+						<div id="slide-thumb-1" class="product-thumbs-list ps-1 ms-n3 me-n4 mx-xl-0">
+							
+              {% if product.thumbnail %}
+                <img src="{{ product.thumbnail.url }}" data-src="{{ product.thumbnail.url }}" data-slick-index="0"
+								class="bg-light object-fit-cover rounded cursor-pointer lazy-image mx-3 mx-xl-0 px-0 mb-4 active-thumb"
+								alt="{{ product.name }} {% translate 'tuotekuva' %}">
+              {% endif %}
+
+              {% for product_image in product.productimage_set.all %}
+                <img src="{{ product_image.thumbnail.url }}" data-src="{{ product_image.thumbnail.url }}" data-slick-index="{{ forloop.counter }}"
+                  class="bg-light object-fit-cover rounded cursor-pointer lazy-image mx-3 mx-xl-0 px-0 mb-4" 
+                  alt="{{ product.name }} {% translate 'lisäkuva' %}">
+               {% endfor %}
+              
+						</div>
+					</div>
+					<div class="col-xl-10 ps-xl-8 pe-xl-0 order-0 order-xl-1">
+						<div id="slide-5"
+							class="slick-slider slick-slider-arrow-inside slick-slider-dots-inside slick-slider-dots-light g-0"
+							data-slick-options='{&#34;arrows&#34;:false,&#34;dots&#34;:false,&#34;infinite&#34;:false,&#34;slidesToShow&#34;:1,&#34;vertical&#34;:true}'>
+							
+              {% if product.thumbnail %}
+                <a href="{{ product.image.url }}" data-gallery="gallery" data-thumb-src="{{ product.thumbnail.url }}"><img src="{{ product.thumbnail.url }}"
+                  data-src="{{ product.thumbnail.url }}" class="bg-light object-fit-contain rounded lazy-image"
+                  width="540" height="540" alt="{{product.name }}" style="height: 540px;" data-index="0"></a>
+			        {% endif %}
+
+              {% for product_image in product.productimage_set.all %}
+                <a href="{{ product_image.image.url }}" data-gallery="gallery" data-thumb-src="{{ product_image.thumbnail.url }}"><img src="{{ product_image.thumbnail.url }}"
+                  data-src="{{ product_image.thumbnail.url }}" class="bg-light object-fit-contain rounded lazy-image"
+                  width="540" height="540" alt="{{product.name }}" style="height: 540px;" data-index="{{ product_image.id }}"></a>
+              {% endfor %}
+
+						</div>
+            
+            <div class="container order-last" id="attributes-container">
+              {% include 'shop/product/attributes.html' %}
+            </div>
+
+            <script>
+              $(document).ready(function() {
+                  // Apply a translucent overlay to the container
+                  $('#attributes-container').addClass('loading-overlay');
+
+                  var selectedGrain = $('input[name="grain"]:checked').val();
+                  var selectedGloss = $('input[name="gloss"]:checked').val();
+
+                  loadAttributes(selectedGrain, selectedGloss);
+
+                  $('input[name="grain"]').change(function() {
+                      var selectedGrain = $(this).val();
+                      var selectedGloss = $('input[name="gloss"]:checked').val();
+                      loadAttributes(selectedGrain, selectedGloss);
+                  });
+
+                  $('input[name="gloss"]').change(function() {
+                      var selectedGrain = $('input[name="grain"]:checked').val();
+                      var selectedGloss = $(this).val();
+                      loadAttributes(selectedGrain, selectedGloss);
+                  });
+
+                  function loadAttributes(grain, gloss) {
+                      $.ajax({
+                        url: '{% url "shop:get_attributes" slug=product.slug %}',
+                          type: 'GET',
+                          data: {
+                              grain: grain,
+                              gloss: gloss
+                          },
+                          success: function(data) {
+                              // Remove the overlay when loading is complete
+                              $('#attributes-container').removeClass('loading-overlay');
+                              $('#attributes-container').html(data.html);
+                          },
+                          error: function(xhr, status, error) {
+                              console.error('Error:', error);
+                          }
+                      });
+                  }
+              });
+            </script>
+
+					</div>
+				</div>
+			</div>
+    </div>
+
+    <div class="col-md-6 pt-md-0 pt-10">
+      <h1 class="text-body-emphasis mb-5 uneffect-h product-name">{{ seo.h1 }}</h1>
+
+      <div class="d-flex align-items-center fs-15px mb-6">
+        <p class="mb-0 fw-semibold text-body-emphasis">{{ average_rating_value|floatformat:2 }}</p>
+        <div class="d-flex align-items-center fs-12px justify-content-center mb-0 px-6 rating-result">
+        <div class="rating">
+          <div class="empty-stars">
+            <span class="star">
+              <svg class="icon star-o">
+                <use xlink:href="#star-o"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star-o">
+                <use xlink:href="#star-o"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star-o">
+                <use xlink:href="#star-o"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star-o">
+                <use xlink:href="#star-o"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star-o">
+                <use xlink:href="#star-o"></use>
+              </svg>
+            </span>
+          </div>
+          <div class="filled-stars"
+            style="width: {{ average_rating|floatformat:0 }}%">
+            <span class="star">
+              <svg class="icon star text-primary">
+                <use xlink:href="#star"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star text-primary">
+                <use xlink:href="#star"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star text-primary">
+                <use xlink:href="#star"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star text-primary">
+                <use xlink:href="#star"></use>
+              </svg>
+            </span>
+            <span class="star">
+              <svg class="icon star text-primary">
+                <use xlink:href="#star"></use>
+              </svg>
+            </span>
+          </div>
+        </div></div>
+          <a href="#reviews" class="border-start ps-6 dp-review-jump" aria-label="{% translate 'Siirry tuotteen arvosteluihin' %}">{% if total_reviews == 0 %}{% translate "Kirjoita ensimmäinen arvostelu" %}{% elif total_reviews == 1%}{{ total_reviews }} {% translate "arvostelu" %}{% else %}{{ total_reviews }} {% translate "arvostelua" %}{% endif %}</a>
+      </div>
+
+      <ul class="dp-product-benefits d-lg-none" aria-label="Tuotteen tärkeimmät edut">
+        <li><span aria-hidden="true">✓</span> {% if product.available %}{% translate "Saatavilla verkkokaupasta" %}{% else %}{% translate "Tarkista saatavuus asiantuntijalta" %}{% endif %}</li>
+        <li><span aria-hidden="true">✓</span> {% translate "Tuotekohtaiset työ- ja tekniset ohjeet" %}</li>
+        <li><span aria-hidden="true">✓</span> {% translate "Deco Paintin asiantuntijatuki" %}</li>
+      </ul>
+      
+      {% if product.description %}
+      <div class="pb-2 text-justify uneffect-h display-none-h ">
+        <h2>{{product.name }}</h2> 
+
+        <section class="container">
+          <div class="category-info-wrapper position-relative">
+              <div id="short-info" class="short-info" style="overflow: hidden; max-height: 150px; position: relative;">
+                {{ product.description|safe }}
+                  <div class="fade-overlay" style="
+                      position: absolute;
+                      bottom: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 50px;
+                      background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+                  "></div>
+              </div>
+              <div class="text-center mt-3">
+                  <button id="toggle-info-btn" class="btn btn-sm btn-outline-primary">
+                      {% translate "Näytä lisää ↓" %}
+                  </button>
+              </div>
+          </div>
+      </section>
+      <script>
+          document.addEventListener("DOMContentLoaded", function() {
+              const shortInfo = document.getElementById("short-info");
+              const toggleButton = document.getElementById("toggle-info-btn");
+              const fadeOverlay = document.querySelector(".fade-overlay");
+          
+              let isExpanded = false;
+          
+              toggleButton.addEventListener("click", function() {
+                  if (isExpanded) {
+                      shortInfo.style.maxHeight = "150px";
+                      fadeOverlay.style.display = "block";
+                      toggleButton.innerText = "Näytä lisää ↓";
+                  } else {
+                      shortInfo.style.maxHeight = "none";
+                      fadeOverlay.style.display = "none";
+                      toggleButton.innerText = "Näytä vähemmän ↑";
+                  }
+                  isExpanded = !isExpanded;
+              });
+          });
+        </script>
+      </div>
+      {% endif %}
+      
+      <form class="pb-8" id="cart_form" action="{% url "cart:cart_add" product.id %}" method="post">
+        {% csrf_token %}
+    
+        {% if sizes %}
+          <div class="form-group shop-swatch mb-4">
+            <span class="fw-semibold text-body-emphasis me-7">{% translate "Koko:" %} </span>
+            <div class="d-flex flex-wrap">
+              {% for size in sizes %}
+              <div class="me-4 mb-4 fw-bold">
+                <input type="radio" id="size_{{ size }}" name="size" value="{{ size }}" class="product-info-size d-none" {% if selected_size == size %}checked{% else %}{% if forloop.first %}checked{% endif %}{% endif %}>
+                <label for="size_{{ size }}" class="btn btn-outline btn-hove-border-body-emphasis-color btn-border-1 py-4 px-6 fw-500" data-size="{{ size }}">{{ size }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+    
+        {% if glosses %}
+          <div class="form-group shop-swatch mb-4">
+            <span class="fw-semibold text-body-emphasis me-7">{% translate "Kiilto:" %}</span>
+            <div class="d-flex flex-wrap">
+              {% for gloss in glosses %}
+              <div class="me-4 mb-4 fw-bold">
+                <input type="radio" id="gloss_{{ gloss }}" name="gloss" value="{{ gloss }}" class="product-info-size d-none" {% if selected_gloss == gloss %}checked{% else %}{% if forloop.first %}checked{% endif %}{% endif %}>
+                <label for="gloss_{{ gloss }}" class="btn btn-outline btn-hove-border-body-emphasis-color btn-border-1 py-4 px-6 fw-500" data-size="{{ gloss }}">{{ gloss }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+    
+        {% if bases %}
+          <div class="form-group shop-swatch mb-4">
+            <span class="fw-semibold text-body-emphasis me-7">{% translate "Pohja:" %} </span>
+            <div class="d-flex flex-wrap">
+              {% for base in bases %}
+              <div class="me-4 mb-4 fw-bold">
+                <input type="radio" id="base_{{ base }}" name="base" value="{{ base }}" class="product-info-size d-none" {% if selected_base == base %}checked{% else %}{% if forloop.first %}checked{% endif %}{% endif %}>
+                <label for="base_{{ base }}" class="btn btn-outline btn-hove-border-body-emphasis-color btn-border-1 py-4 px-6 fw-500" data-size="{{ base }}">{{ base }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+    
+        {% if grains %}
+        <div class="form-group shop-swatch mb-4 mt-4">
+          <span class="fw-semibold text-body-emphasis me-7">{% translate "Raekoko:" %} </span>
+          <div class="d-flex flex-wrap">
+            {% for grain in grains %}
+            <div class="me-4 mb-4 fw-bold">
+              <input type="radio" id="grain_{{ grain }}" name="grain" value="{{ grain }}" class="product-info-size d-none" {% if selected_grain == grain %}checked{% else %}{% if forloop.first %}checked{% endif %}{% endif %}>
+              <label for="grain_{{ grain }}" class="btn btn-outline btn-hove-border-body-emphasis-color btn-border-1 py-4 px-6 fw-500" data-size="{{ grain }}">{{ grain }} mm</label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Colors Container with Loading Indicator -->
+        <div id="colors-container">
+          <div id="variant-details-container" style="display: none;">
+            {% include 'shop/product/variant_details.html' %}
+          </div>
+        </div>
+
+
+    <script>
+    $(document).ready(function () {
+        // Global price management variables
+        var priceLoading = false;
+        var pendingPriceUpdate = false;
+        var initialPriceShown = false;
+
+        function showColorsLoading() {
+            $('#colors-container').addClass('colors-loading');
+            $('#colors-container').prepend(
+                '<div class="loading-indicator">' +
+                '<div class="spinner-border spinner-border-sm" role="status"></div>' +
+                '<span>{% translate "Ladataan värejä..." as loading_colors_text %}{{ loading_colors_text|escapejs }}</span>' +
+                '</div>'
+            );
+            $('#variant-details-container').css('opacity', '0.3');
+        }
+
+        function hideColorsLoading() {
+            $('#colors-container').removeClass('colors-loading');
+            $('#colors-container').find('.loading-indicator').remove();
+            $('#variant-details-container').css('opacity', '1');
+            $('#variant-details-container').show();
+        }
+
+        // Show price loading spinner
+        function showPriceLoading() {
+            $('#price-container').hide();
+            $('#price-loading-container').show();
+        }
+
+        // Hide price loading spinner and show actual price
+        function hidePriceLoading() {
+            $('#price-loading-container').hide();
+            $('#price-container').show();
+        }
+
+        // Load price immediately without waiting for colors
+        function loadPriceImmediately() {
+            const size = getValueOrDefault($('input[name="size"]:checked').val());
+            const grain = getValueOrDefault($('input[name="grain"]:checked').val());
+            const gloss = getValueOrDefault($('input[name="gloss"]:checked').val());
+            const base = getValueOrDefault($('input[name="base"]:checked').val());
+            const quantity = $('#quantity').val();
+            const colorValue = $('#color_input').val() || "";
+            
+            loadPrice(size, colorValue, grain, gloss, base, quantity);
+        }
+
+        // Load color variants - always load all colors but control display
+        function loadColorVariants() {
+            showColorsLoading();
+
+            var base = $('input[name="base"]:checked').val();
+            var size = $('input[name="size"]:checked').val();
+            var grain = $('input[name="grain"]:checked').val();
+            var gloss = $('input[name="gloss"]:checked').val();
+            var currentColor = $('#color_input').val(); // Get current selected color
+
+            $.ajax({
+                url: '{% url "shop:get_variants" slug=product.slug %}',
+                data: { 
+                    base: base, 
+                    size: size, 
+                    grain: grain, 
+                    gloss: gloss,
+                    current_color: currentColor // Pass current color to backend
+                },
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    hideColorsLoading();
+                    $('#variant-details-container').html(data.html);
+                    $('#variant-details-container').show();
+                    
+                    // Update price if it wasn't loaded yet
+                    if (!initialPriceShown) {
+                        updatePrice();
+                    }
+                },
+                error: function (error) {
+                    hideColorsLoading();
+                    console.error('Error loading colors:', error);
+                    $('#variant-details-container').html('<div class="alert alert-danger">Virhe värejä ladatessa. Yritä uudelleen.</div>');
+                    $('#variant-details-container').show();
+                    
+                    // Update price even if colors failed
+                    if (!initialPriceShown) {
+                        updatePrice();
+                    }
+                }
+            });
+        }
+
+        // Update price based on selected options
+        function updatePrice() {
+            if (priceLoading) {
+                pendingPriceUpdate = true;
+                return;
+            }
+            
+            const size = getValueOrDefault($('input[name="size"]:checked').val());
+            const grain = getValueOrDefault($('input[name="grain"]:checked').val());
+            const gloss = getValueOrDefault($('input[name="gloss"]:checked').val());
+            const base = getValueOrDefault($('input[name="base"]:checked').val());
+            const quantity = $('#quantity').val();
+            
+            const colorValue = $('#color_input').val() || "";
+            
+            loadPrice(size, colorValue, grain, gloss, base, quantity);
+        }
+        
+        // Load price via AJAX
+        function loadPrice(size, color, grain, gloss, base, quantity) {
+            priceLoading = true;
+            showPriceLoading();
+            
+            $.ajax({
+                url: '{% url "shop:get_variant_price" slug=product.slug %}',
+                data: { 
+                    size: size, 
+                    color: color, 
+                    grain: grain, 
+                    gloss: gloss, 
+                    base: base, 
+                    quantity: quantity 
+                },
+                type: 'GET',
+                success: function (data) {
+                    priceLoading = false;
+                    hidePriceLoading();
+                    
+                    if (data.price !== undefined) {
+                        var unit_price = parseFloat(data.price);
+                        var total_price = unit_price * quantity;
+                        var original_price = data.original_price !== undefined ? parseFloat(data.original_price) * quantity : null;
+                        var discount_percent = data.discount_percent !== undefined ? data.discount_percent : 0;
+                        var stock = data.stock;
+                        var is_asiakas_group = data.is_asiakas_group !== undefined ? data.is_asiakas_group : true;
+
+                        // Show final price
+                        $('#price-container').text(total_price.toFixed(2) + '€').show();
+                        
+                        // For Asiakas group: show discounts if available
+                        if (is_asiakas_group && original_price !== null && discount_percent > 0) {
+                            $('#discount-container').html(
+                                '<span class="text-decoration-line-through me-4">' + original_price.toFixed(2) + '€</span>' +
+                                '<span class="badge text-bg-danger fw-semibold py-3">-' + discount_percent + '%</span>'
+                            ).show();
+                            $('#original-price-container').hide();
+                            $('#group-price-info').hide();
+                        } 
+                        // For other groups: show regular price (same as Asiakas) and group price
+                        else if (!is_asiakas_group && original_price !== null) {
+                            $('#discount-container').hide();
+                            // Show regular price (same as Asiakas group price) crossed out
+                            $('#original-price-container').html(
+                                '(norm. ' + original_price.toFixed(2) + '€)'
+                            ).show();
+                        } else {
+                            // No discounts available
+                            $('#discount-container').hide();
+                            $('#original-price-container').hide();
+                            $('#group-price-info').hide();
+                        }
+
+                        if (data.color !== undefined && data.color !== '') {
+                            $('#variant-details-container').show();
+                        }
+
+                        if (stock) {
+                            $('#stock-container').html('<span class="text-danger"><i class="fas fa-cancel fs-12px p-2 d-inline-flex align-items-center justify-content-center"></i> Tilaustuote</span>');
+                            var estimatedAvailability = new Date();
+                            estimatedAvailability.setDate(estimatedAvailability.getDate() + 28);
+                            var estimatedAvailabilityText = new Intl.DateTimeFormat('fi-FI', {
+                                day: 'numeric',
+                                month: 'numeric',
+                                year: 'numeric'
+                            }).format(estimatedAvailability);
+                            $('#delivery-container').html(
+                                'Toimitusaika on n. 2-4 viikkoa. ' +
+                                'Arvioitu lähetyspäivä viimeistään ' +
+                                estimatedAvailabilityText + '.'
+                            );
+                        } else {
+                            $('#stock-container').html('<span class="text-primary"><i class="fas fa-check fs-12px p-2 d-inline-flex align-items-center justify-content-center"></i> Tuotetta on varastossa</span>');
+                            $('#delivery-container').html('Toimituksen kesto on n. 1-3 arkipäivää.');
+                        }
+                        
+                        initialPriceShown = true;
+                    } else if (data.error) {
+                        $('#price-container').text('Hinta ei saatavilla').show();
+                    }
+                },
+                error: function (error) {
+                    priceLoading = false;
+                    hidePriceLoading();
+                    $('#price-container').text('Hinta ei saatavilla').show();
+                },
+                complete: function() {
+                    priceLoading = false;
+                    
+                    // Process pending price update if any
+                    if (pendingPriceUpdate) {
+                        pendingPriceUpdate = false;
+                        setTimeout(updatePrice, 100);
+                    }
+                }
+            });
+        }
+
+        // Helper function
+        function getValueOrDefault(value, defaultValue = '') {
+            return value === undefined || value === null || value === 'undefined' ? defaultValue : value;
+        }
+
+        // Event handlers for filter changes - UPDATE PRICE WHEN SETTINGS CHANGE
+        $('input[name="base"], input[name="size"], input[name="gloss"], input[name="grain"]').change(function () {
+            // Update price immediately when settings change
+            updatePrice();
+            
+            // Reload colors
+            loadColorVariants();
+        });
+
+        // Listen to quantity changes - UPDATE PRICE WHEN QUANTITY CHANGES
+        $('#quantity').off('change').on('change', function() {
+            updatePrice();
+        });
+
+        // Quantity buttons functionality - UPDATE PRICE WHEN QUANTITY CHANGES
+        $('.quantity-btn.minus').click(function(e) {
+            e.preventDefault();
+            var quantityInput = $('#quantity');
+            var currentValue = parseInt(quantityInput.val());
+            if (currentValue > 1) {
+                quantityInput.val(currentValue - 1);
+                updatePrice();
+            }
+        });
+
+        $('.quantity-btn.plus').click(function(e) {
+            e.preventDefault();
+            var quantityInput = $('#quantity');
+            var currentValue = parseInt(quantityInput.val());
+            quantityInput.val(currentValue + 1);
+            updatePrice();
+        });
+
+        // Global function to be called from color selection WHEN COLOR IS CONFIRMED
+        window.updatePriceFromColorChange = function(colorName) {
+            // Update the color input value
+            $('#color_input').val(colorName);
+            
+            // Update price with the new confirmed color
+            updatePrice();
+        };
+
+        // Make updatePrice available globally for variant_details.html
+        window.updatePrice = function() {
+            updatePrice();
+        };
+
+        // Make loadPrice available globally but don't use it for temporary color changes
+        window.loadPrice = loadPrice;
+
+        // Initial load - load price immediately, then colors
+        function initialLoad() {
+            // Show price loading immediately
+            showPriceLoading();
+            
+            // Load price without waiting for colors
+            loadPriceImmediately();
+            
+            // Load colors in background with small delay
+            setTimeout(function() {
+                loadColorVariants();
+            }, 100);
+        }
+
+        // Start initial loading
+        initialLoad();
+    });
+
+    // Attributes loading functionality
+    $(document).ready(function() {
+        // Apply a translucent overlay to the container
+        $('#attributes-container').addClass('loading-overlay');
+
+        var selectedGrain = $('input[name="grain"]:checked').val();
+        var selectedGloss = $('input[name="gloss"]:checked').val();
+
+        loadAttributes(selectedGrain, selectedGloss);
+
+        $('input[name="grain"]').change(function() {
+            var selectedGrain = $(this).val();
+            var selectedGloss = $('input[name="gloss"]:checked').val();
+            loadAttributes(selectedGrain, selectedGloss);
+        });
+
+        $('input[name="gloss"]').change(function() {
+            var selectedGrain = $('input[name="grain"]:checked').val();
+            var selectedGloss = $(this).val();
+            loadAttributes(selectedGrain, selectedGloss);
+        });
+
+        function loadAttributes(grain, gloss) {
+            $.ajax({
+              url: '{% url "shop:get_attributes" slug=product.slug %}',
+                type: 'GET',
+                data: {
+                    grain: grain,
+                    gloss: gloss
+                },
+                success: function(data) {
+                    // Remove the overlay when loading is complete
+                    $('#attributes-container').removeClass('loading-overlay');
+                    $('#attributes-container').html(data.html);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+    });
+
+    // Expandable description functionality
+    document.addEventListener("DOMContentLoaded", function() {
+        const shortInfo = document.getElementById("short-info");
+        const toggleButton = document.getElementById("toggle-info-btn");
+        const fadeOverlay = document.querySelector(".fade-overlay");
+
+        let isExpanded = false;
+
+        if (toggleButton && shortInfo) {
+            toggleButton.addEventListener("click", function() {
+                if (isExpanded) {
+                    shortInfo.style.maxHeight = "150px";
+                    if (fadeOverlay) fadeOverlay.style.display = "block";
+                    toggleButton.innerText = "Näytä lisää ↓";
+                } else {
+                    shortInfo.style.maxHeight = "none";
+                    if (fadeOverlay) fadeOverlay.style.display = "none";
+                    toggleButton.innerText = "Näytä vähemmän ↑";
+                }
+                isExpanded = !isExpanded;
+            });
+        }
+    });
+
+    // Make getValueOrDefault available globally
+    function getValueOrDefault(value, defaultValue = '') {
+        return value === undefined || value === null || value === 'undefined' ? defaultValue : value;
+    }
+    window.getValueOrDefault = getValueOrDefault;
+  </script>
+
+      {% if material_calculator %}
+      <style>
+        @media (min-width: 768px) {
+          .dp-material-calculator {
+            display: block;
+            margin: 24px 0;
+            padding: 24px;
+            border: 1px solid rgba(31, 111, 65, 0.14);
+            border-radius: 10px;
+            background: linear-gradient(135deg, #eff8f1 0%, #e4f2e8 100%);
+          }
+          .dp-material-calculator .dp-kicker {
+            color: #1f6f41;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+          }
+          .dp-material-calculator h2 {
+            margin: 6px 0 8px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 30px;
+            font-weight: 400;
+            letter-spacing: -0.03em;
+          }
+          .dp-material-calculator > p {
+            margin-bottom: 14px;
+            color: #48534b;
+            font-size: 14px;
+            line-height: 1.55;
+          }
+          .dp-material-calculator .dp-area-control {
+            height: 60px;
+            display: grid;
+            grid-template-columns: 64px 1fr 64px;
+            border: 1px solid #9ebaa6;
+            border-radius: 7px;
+            background: #fff;
+          }
+          .dp-material-calculator .dp-area-control button {
+            border: 0;
+            background: transparent;
+            color: #1f6f41;
+            font-size: 26px;
+          }
+          .dp-material-calculator .dp-area-control label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            border-inline: 1px solid #d0ddd3;
+          }
+          .dp-material-calculator .dp-area-control input {
+            width: 80px;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            text-align: right;
+            font-size: 18px;
+            font-weight: 800;
+          }
+          .dp-material-calculator .dp-area-control span {
+            margin-left: 5px;
+            color: #667269;
+            font-size: 14px;
+          }
+          .dp-material-calculator .dp-calculator-result {
+            margin: 12px 0 0 !important;
+            font-size: 15px;
+          }
+          .dp-material-calculator .dp-calculator-source {
+            margin-bottom: 0;
+            font-size: 12px;
+          }
+        }
+      </style>
+      <section class="dp-material-calculator" aria-labelledby="dp-calculator-title">
+        <span class="dp-kicker">{% translate "MENEKKILASKURI" %}</span>
+        <h2 id="dp-calculator-title">{% translate "Kuinka paljon tarvitset?" %}</h2>
+        <p>{% translate "Anna käsiteltävä pinta-ala. Laskelma käyttää tämän tuotteen menekkiasetuksia ja varmistaa riittävyyden vaihteluvälin suuremmalla menekillä." %}</p>
+        <div class="dp-area-control">
+          <button type="button" data-area-minus aria-label="Vähennä pinta-alaa">−</button>
+          <label for="dp-area-input">
+            <input id="dp-area-input" type="number" min="1" step="1" value="20" inputmode="decimal">
+            <span>{% translate "m²" %}</span>
+          </label>
+          <button type="button" data-area-plus aria-label="Lisää pinta-alaa">+</button>
+        </div>
+        <p class="dp-calculator-result" aria-live="polite">
+          {% translate "Arvio:" %} <strong data-material-required>{% translate "Lasketaan…" %}</strong>
+          <span data-material-coats data-coat-one="{% translate 'käsittelykerta' %}" data-coat-many="{% translate 'käsittelykertaa' %}"></span>
+        </p>
+        <p class="dp-calculator-result" aria-live="polite">
+          {% translate "Suositus:" %} <strong data-package-recommendation>{% translate "Lasketaan…" %}</strong>
+        </p>
+        <p class="dp-calculator-source">{% translate "Riittoisuus:" %} {{ material_calculator.raw }}</p>
+      </section>
+      {{ material_calculator|json_script:"dp-material-calculator-data" }}
+      {% endif %}
+
+      <!-- Unified product info cell -->
+      <div class="product-info-cell">
+        <div class="quantity-price-row">
+          <div class="quantity-selector">
+            <label class="text-body-emphasis fw-semibold fs-15px pb-2" for="quantity">{% translate "Määrä:" %}</label>
+            <div class="quantity-input-container">
+              <button class="quantity-btn minus" type="button">
+                <i class="far fa-minus"></i>
+              </button>
+              <input name="quantity" type="number" id="quantity" class="product-info-2-quantity form-control quantity-input" value="1" min="1" required="">
+              <button class="quantity-btn plus" type="button">
+                <i class="far fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="price-display">
+              <div class="d-flex align-items-center flex-wrap">
+                  <div class="d-flex align-items-center me-3">
+                      <div id="price-loading-container" class="price-loading" style="display: none;">
+                          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                          <span>{% translate "Ladataan hintaa..." %}</span>
+                      </div>
+                      <span class="current-price me-3" id="price-container" style="display:none;"></span>
+                      <div id="discount-container" class="d-flex align-items-center" style="display:none;"></div>
+                  </div>
+                  <div id="original-price-container" class="text-muted" style="display:none;"></div>
+              </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-hover-bg-primary btn-hover-border-primary btn btn-lg btn-dark add-to-cart-btn">
+          <i class="fas fa-shopping-cart"></i>
+          {% translate "Lisää koriin" %}
+        </button>
+        
+        <div class="stock-delivery-info">
+          <div class="stock-status">
+            <h3 class="text-body-emphasis fw-semibold fs-14px mb-0">{% translate "Varasto:" %}</h3>
+            <span id="stock-container"></span>
+          </div>
+          <div class="delivery-info">
+            <h3 class="text-body-emphasis fw-semibold fs-14px mb-0">{% translate "Toimitus:" %}</h3>
+            <span id="delivery-container"></span>
+          </div>
+        </div>
+      </div>
+    </form>
+
+      <div class="dp-mobile-sticky-buy d-lg-none">
+        <div>
+          <small>{% translate "Valittu hinta" %}</small>
+          <strong data-mobile-price data-empty-label="{% translate 'Valitse vaihtoehto' %}">{% translate "Valitse vaihtoehto" %}</strong>
+        </div>
+        <button type="submit" form="cart_form">{% translate "Lisää koriin" %}</button>
+      </div>
+
+      <div class="mt-7">
+        <div class="accordion accordion-flush" id="accordionFlushExample">
+          
+          {% if product.tech_info %}
+          <div class="accordion-item pb-4 mt-7">
+            <h2 class="accordion-header" id="flush-headingTwo">
+              <a class="product-info-accordion collapsed text-decoration-none" href="#" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                <span class="fs-4">{% translate "Tekniset tiedot" %}</span>
+              </a>
+            </h2>
+          </div>
+          <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo"
+            data-bs-parent="#accordionFlushExample">
+            <div class="pt-6 pb-3" style="line-height: normal;">
+              {{ product.tech_info|safe }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if product.properties %}
+          <div class="accordion-item pb-4 mt-7">
+            <h2 class="accordion-header" id="flush-headingThree">
+              <a class="product-info-accordion collapsed text-decoration-none" href="#" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                <span class="fs-4">{% translate "Ominaisuudet" %}</span>
+              </a>
+            </h2>
+          </div>
+          <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree"
+            data-bs-parent="#accordionFlushExample">
+            <div class="pt-6 pb-3" style="line-height: normal;">
+              {{ product.properties|safe }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if product.effects.all %}
+          <div class="accordion-item pb-4 mt-7">
+            <h2 class="accordion-header" id="flush-headingEffects">
+              <a class="product-info-accordion collapsed text-decoration-none" href="#" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseEffects" aria-expanded="false" aria-controls="flush-collapseEffects">
+                <span class="fs-4">{% translate "Efektit" %}</span>
+              </a>
+            </h2>
+          </div>
+          <div id="flush-collapseEffects" class="accordion-collapse collapse" aria-labelledby="flush-headingEffects"
+            data-bs-parent="#accordionFlushExample">
+            <div class="pt-4 pb-3" style="line-height: normal;">
+              {% for effect in product.effects.all %}
+                <div class="mb-4">
+                  <div class="effect-container position-relative">
+                    <!-- Effect name - always visible in top left corner -->
+                    <div class="effect-name position-absolute top-0 start-0 p-4 text-white">
+                      {{ effect.name }}
+                    </div>
+                    
+                    <img 
+                      src="{{ effect.photo.url }}" 
+                      alt="Effect Photo" 
+                      class="w-100">
+                    
+                    <!-- Information that will appear over the image on hover -->
+                    <div class="effect-info position-absolute bottom-0 start-0 p-3 text-white w-100">
+                      <div class="effect-description d-none d-md-block p-3">
+                        <strong>{% translate "Käyttötapa:" %}</strong> {{ effect.application_method }}<br>
+                        <strong>{% translate "Peittävyys:" %}</strong> {{ effect.coverage }}<br>
+                        <strong>{% translate "Työkalut (pohja):" %}</strong> {{ effect.tools_base }}<br>
+                        <strong>{% translate "Työkalut (viimeistely):" %}</strong> {{ effect.tools_finish }}<br>
+                        <strong>{% translate "Ohennus:" %}</strong> {{ effect.dilution }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+        
+        <style>
+          .effect-container {
+            position: relative;
+          }
+        
+          .effect-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+          }
+        
+          /* Style for always visible effect name */
+          .effect-name {
+            z-index: 2; /* Ensure it's above the image */
+            background-color: #009641;
+            font-weight: bold;
+            border-bottom-right-radius: 5px; /* Rounded corner on bottom right */
+          }
+        
+          .effect-info {
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            visibility: hidden; /* Hide by default */
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease-in-out;
+          }
+        
+          .effect-container:hover .effect-info {
+            visibility: visible; /* Show on hover */
+            opacity: 1;
+          }
+        
+          .effect-description {
+            line-height: 1.8;
+            font-size: 15px;
+          }
+        
+          .effect-info strong {
+            font-weight: bold;
+          }
+        </style>
+       
+        {% if product.documents.all or product.youtube_links.all %}
+          <div class="accordion-item pb-4 mt-7">
+            <h2 class="accordion-header" id="flush-headingDocuments">
+              <a class="product-info-accordion collapsed text-decoration-none" href="#" data-bs-toggle="collapse"
+                data-bs-target="#flush-collapseDocuments" aria-expanded="false" aria-controls="flush-collapseDocuments">
+                <span class="fs-4">{% translate "Ladattavat tiedostot ja video-ohjeet" %}</span>
+              </a>
+            </h2>
+          </div>
+          <div id="flush-collapseDocuments" class="accordion-collapse collapse" aria-labelledby="flush-headingDocuments"
+            data-bs-parent="#accordionFlushExample">
+            <div class="pt-8 pb-3">
+              <div class="container">
+                
+                <div class="row mb-4">
+                  {% for document in product.documents.all %}
+                  <div class="col-md-3 col-6 mb-3">
+                    <div class="card h-100">
+                      <div class="card-body d-flex flex-column align-items-center text-center">
+                        <a href="{{ document.document.url }}" class="d-block w-100" target="_blank">
+                          <img src="{% static "assets/images/shop/pdf.png" %}" alt="Document Icon" class="img-fluid w-50 mb-2"><br>
+                          <span>{{ document.name }}</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                  
+                  <div class="row mb-4">
+                    {% for youtube_link in product.youtube_links.all %}
+                      <div class="col-md-6 mb-3">
+                          <iframe width="320" height="240" src="https://www.youtube.com/embed/{{ youtube_link.youtube_link }}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+                          </iframe>
+                          {{ youtube_link.name }}
+                      </div>
+                    {% endfor %}
+                  </div>
+                  
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}          
+          
+        {% if product.related_products.all %}
+        <div class="accordion-item pb-4 mt-7">
+          <h2 class="accordion-header" id="flush-headingRelated">
+            <a class="product-info-accordion text-decoration-none" href="#" data-bs-toggle="collapse"
+              data-bs-target="#flush-collapseRelated" aria-expanded="false" aria-controls="flush-collapseRelated">
+              <span class="fs-4">{% translate "Liittyvät tuotteet" %}</span>
+            </a>
+          </h2>
+        </div>
+        <div id="flush-collapseRelated" class="accordion-collapse collapse show" aria-labelledby="flush-headingRelated"
+            data-bs-parent="#accordionFlushExample">
+            <div class="pt-8 pb-3">
+
+              <div class="container container-xxl">
+                <div class="slick-slider"
+                    data-slick-options='{&#34;arrows&#34;:false,&#34;dots&#34;:true,&#34;responsive&#34;:[{&#34;breakpoint&#34;:1560,&#34;settings&#34;:{&#34;arrows&#34;:false,&#34;dots&#34;:true}},{&#34;breakpoint&#34;:1200,&#34;settings&#34;:{&#34;arrows&#34;:false,&#34;dots&#34;:true,&#34;slidesToShow&#34;:3}},{&#34;breakpoint&#34;:992,&#34;settings&#34;:{&#34;arrows&#34;:false,&#34;dots&#34;:true,&#34;slidesToShow&#34;:2}},{&#34;breakpoint&#34;:576,&#34;settings&#34;:{&#34;arrows&#34;:false,&#34;dots&#34;:true,&#34;slidesToShow&#34;:1}}],&#34;slidesToShow&#34;:4}'>
+              
+                    {% for related_product in product.related_products.all %}
+                        <div>
+                            <div class="card card-product grid-1 bg-transparent border-0" data-animate="pulse">
+                                <figure class="card-img-top position-relative mb-7 overflow-hidden">
+                                    <a href="{% url 'shop:product_detail' slug=related_product.related_product.slug %}" class="hover-zoom-in d-block" title="{{ related_product.related_product.name }}">
+                                        {% if related_product.related_product.thumbnail %}
+                                            <img  src="{{ related_product.related_product.thumbnail.url }}" data-src="{{ related_product.related_product.thumbnail.url }}" class="img-fluid lazy-image w-100 bg-light rounded"alt="Liittyvät tuotteet - {{ related_product.related_product.name }}" width="330" height="330">
+                                        {% endif %}
+                                    </a>
+                                </figure>
+                                <div class="card-body text-center p-0">
+                                    <span class="d-flex align-items-center price text-body-emphasis fw-bold justify-content-center mb-3 fs-6">
+                                        <ins class="text-decoration-none">alk. {% calculate_total_price related_product.related_product request.user|floatformat:2 %}€</ins>
+                                    </span>
+                                    <h4 class="product-title card-title text-primary-hover text-body-emphasis fs-15px fw-500 mb-3">
+                                        <a class="text-decoration-none text-reset" href="{% url 'shop:product_detail' slug=related_product.related_product.slug %}">{{ related_product.related_product.name|truncatechars:50 }}</a>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="border-top w-100 h-1px"></div>
+
+<section id="reviews" class="container container-xxl pt-15 pb-15 pt-lg-17 pb-lg-20 dp-reviews-section" aria-labelledby="reviews-title">
+  <header class="text-center mb-10"><meta charset="utf-8">
+    <p class="dp-reviews-eyebrow mb-3">{% translate "Asiakkaiden kokemuksia" %}</p>
+    <h2 id="reviews-title" class="fs-3 mb-4">{% translate "Arvostelut" %}</h2>
+    <p class="dp-reviews-intro mb-0">{% translate "Lue muiden asiakkaiden kokemuksia tai jaa oma arviosi tuotteesta. Arvostelun voi jättää kirjautunut asiakas, joka on ostanut tuotteen Deco Paintilta." %}</p>
+  </header>
+
+  <div id="error-container" class="dp-review-alert d-none" role="alert" aria-live="assertive"></div>
+  <div id="review-status" class="alert alert-success d-none" role="status" aria-live="polite"></div>
+
+  <div class="row g-8 g-lg-10 align-items-start">
+    <aside class="col-lg-4 col-xl-3">
+      <div class="dp-review-summary position-sticky top-0">
+        <div class="dp-review-summary__top text-center">
+          {% if total_reviews > 0 %}
+            <div class="dp-review-summary__score">{{ average_rating_value|floatformat:1 }}</div>
+            <div class="d-flex align-items-center fs-15px ls-0 justify-content-center my-4" aria-label="Keskiarvo {{ average_rating_value|floatformat:1 }} tähteä viidestä">
+              <div class="rating" aria-hidden="true">
+                <div class="empty-stars">
+                  {% for _ in '12345' %}<span class="star"><svg class="icon star-o"><use xlink:href="#star-o"></use></svg></span>{% endfor %}
+                </div>
+                <div class="filled-stars" style="width: {{ average_rating|floatformat:0 }}%">
+                  {% for _ in '12345' %}<span class="star"><svg class="icon star text-primary"><use xlink:href="#star"></use></svg></span>{% endfor %}
+                </div>
+              </div>
+            </div>
+            <p class="mb-0">{{ total_reviews }} {% if total_reviews == 1 %}{% translate "arvostelu" %}{% else %}{% translate "arvostelua" %}{% endif %}</p>
+          {% else %}
+            <div class="dp-review-empty__icon" aria-hidden="true">☆</div>
+            <h3 class="fs-5 mb-2">{% translate "Ei vielä arvosteluja" %}</h3>
+            <p class="mb-0 text-body-secondary">{% translate "Sinun kokemuksesi voi auttaa seuraavaa asiakasta." %}</p>
+          {% endif %}
+        </div>
+
+        <div class="dp-review-summary__body">
+          {% if total_reviews > 0 %}
+            <div class="mb-7" aria-label="Arvosanojen jakauma">
+              {% for rating in review_stats %}
+                <div class="d-flex align-items-center mb-4">
+                  <span class="m-0 review-star small" style="width: 48px;">{{ rating.rating }} ★</span>
+                  <div class="mx-3 d-block w-100">
+                    <div class="progress" style="height: 6px;">
+                      <div class="progress-bar" role="progressbar" style="width: {{ rating.percent|floatformat:'0' }}%" aria-valuenow="{{ rating.percent|floatformat:'0' }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ rating.rating }} tähteä: {{ rating.percent|floatformat:'0' }} prosenttia"></div>
+                    </div>
+                  </div>
+                  <span class="m-0 review-percent small text-end" style="width: 38px;">{{ rating.percent|floatformat:"0" }}%</span>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="dp-review-trust mb-6">
+            <span class="dp-review-trust__icon" aria-hidden="true">✓</span>
+            <span><strong>{% translate "Vahvistettu ostos" %}</strong><br>{% translate "Arvostelu yhdistetään Deco Paintilta tehtyyn tilaukseen." %}</span>
+          </div>
+
+          {% if orders_with_product %}
+            <a href="#customer-review" class="btn dp-review-cta w-100" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="customer-review">
+              <svg class="icon me-2" aria-hidden="true"><use xlink:href="#icon-Pencil"></use></svg>{% translate "Kirjoita arvostelu" %}
+            </a>
+          {% elif user.is_authenticated %}
+            <p class="small text-body-secondary mb-4">{% translate "Voit arvioida tuotteen, kun se löytyy tilaushistoriastasi." %}</p>
+            <a href="{% url 'user:order_history' %}" class="btn btn-outline-dark w-100">{% translate "Avaa tilaushistoria" %}</a>
+          {% else %}
+            <p class="small text-body-secondary mb-4">{% translate "Kirjaudu samalla tunnuksella, jolla teit tilauksen." %}</p>
+            <a href="{% url 'user:login' %}?next={{ request.get_full_path|urlencode }}%23reviews" class="btn dp-review-cta w-100">{% translate "Kirjaudu ja arvioi" %}</a>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    <div class="col-lg-8 col-xl-9">
+      {% if orders_with_product %}
+        <div class="collapse mb-10" id="customer-review">
+          <div class="dp-review-form-card">
+            <div class="mb-7">
+              <p class="dp-reviews-eyebrow mb-2">{% translate "Oma kokemuksesi" %}</p>
+              <h3 class="fs-4 mb-2">{% translate "Kirjoita tuotearvostelu" %}</h3>
+              <p class="dp-review-form-note mb-0">{% translate "Tähdellä (*) merkityt kentät ovat pakollisia. Arvostelusi auttaa muita valitsemaan oikean tuotteen." %}</p>
+            </div>
+
+            <form action="{% url 'shop:save_review' slug=product.slug %}" method="post" enctype="multipart/form-data" class="product-review-form">
+              {% csrf_token %}
+              <div class="row g-6">
+                <div class="col-sm-6">
+                  <label class="mb-3 fs-6 fw-semibold text-body-emphasis" for="reviewName">{% translate "Näytettävä nimi *" %}</label>
+                  <input id="reviewName" class="form-control" type="text" value="{% if user.first_name %}{{ user.first_name }}{% endif %}{% if user.last_name %} {{ user.last_name|first }}.{% endif %}" name="name" autocomplete="name" required>
+                </div>
+                <div class="col-sm-6">
+                  <label class="mb-3 fs-6 fw-semibold text-body-emphasis" for="orderSelect">{% translate "Tilaus *" %}</label>
+                  <select id="orderSelect" class="form-select" name="order" required>
+                    {% for order in orders_with_product %}
+                      <option value="{{ order.id }}">Tilaus #{{ order.id }} · {{ order.created }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <fieldset class="mt-7 mb-7">
+                <legend class="mb-3 fs-6 fw-semibold text-body-emphasis">{% translate "Arvosana *" %}</legend>
+                <div class="rate-input" aria-label="Valitse arvosana yhdestä viiteen tähteä">
+                  <input type="radio" id="star5" name="rating" value="5" required><label for="star5" class="mb-0 me-1 lh-1" title="5 tähteä"><i class="far fa-star" aria-hidden="true"></i><span class="visually-hidden">{% translate "5 tähteä" %}</span></label>
+                  <input type="radio" id="star4" name="rating" value="4"><label for="star4" class="mb-0 me-1 lh-1" title="4 tähteä"><i class="far fa-star" aria-hidden="true"></i><span class="visually-hidden">{% translate "4 tähteä" %}</span></label>
+                  <input type="radio" id="star3" name="rating" value="3"><label for="star3" class="mb-0 me-1 lh-1" title="3 tähteä"><i class="far fa-star" aria-hidden="true"></i><span class="visually-hidden">{% translate "3 tähteä" %}</span></label>
+                  <input type="radio" id="star2" name="rating" value="2"><label for="star2" class="mb-0 me-1 lh-1" title="2 tähteä"><i class="far fa-star" aria-hidden="true"></i><span class="visually-hidden">{% translate "2 tähteä" %}</span></label>
+                  <input type="radio" id="star1" name="rating" value="1"><label for="star1" class="mb-0 me-1 lh-1" title="1 tähti"><i class="far fa-star" aria-hidden="true"></i><span class="visually-hidden">{% translate "1 tähti" %}</span></label>
+                </div>
+              </fieldset>
+
+              <div class="form-group mb-6">
+                <label class="mb-3 fs-6 fw-semibold text-body-emphasis" for="reviewTitle">{% translate "Otsikko" %} <span class="fw-normal text-body-secondary">{% translate "(vapaaehtoinen)" %}</span></label>
+                <input id="reviewTitle" type="text" name="title" class="form-control" maxlength="120" placeholder="Tiivistä kokemuksesi">
+              </div>
+              <div class="form-group mb-6">
+                <label class="mb-3 fs-6 fw-semibold text-body-emphasis" for="reviewMessage">{% translate "Kerro kokemuksestasi *" %}</label>
+                <textarea id="reviewMessage" class="form-control" name="text" rows="5" maxlength="2000" placeholder="Mihin käytit tuotetta ja millainen lopputulos oli?" required></textarea>
+              </div>
+              <div class="form-group mb-7">
+                <label class="mb-3 fs-6 fw-semibold text-body-emphasis" for="reviewAddPhoto">{% translate "Lisää kuva" %} <span class="fw-normal text-body-secondary">{% translate "(vapaaehtoinen)" %}</span></label>
+                <input type="file" name="image" class="form-control" id="reviewAddPhoto" accept="image/jpeg,image/png,image/webp">
+                <div class="dp-review-form-note mt-2">{% translate "JPG-, PNG- tai WebP-kuva tuotteesta tai valmiista pinnasta." %}</div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center gap-4 dp-review-form-actions">
+                <span class="dp-review-form-note">{% translate "Arvostelu julkaistaan tuotteen yhteydessä." %}</span>
+                <button type="submit" class="btn dp-review-cta px-8" data-default-label="Lähetä arvostelu">{% translate "Lähetä arvostelu" %}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="d-flex justify-content-between align-items-end gap-4 mb-6">
+        <div>
+          <p class="dp-reviews-eyebrow mb-2">{% translate "Tuotearviot" %}</p>
+          <h3 class="fs-4 mb-0">{{ total_reviews }} {% if total_reviews == 1 %}{% translate "arvostelu" %}{% else %}{% translate "arvostelua" %}{% endif %}</h3>
+        </div>
+        {% if orders_with_product %}
+          <a href="#customer-review" class="text-decoration-underline dp-review-jump" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="customer-review">{% translate "Kirjoita arvostelu" %}</a>
+        {% endif %}
+      </div>
+
+      <div id="reviews-container" aria-live="polite">
+        {% if total_reviews > 0 %}
+          {% include 'shop/product/reviews.html' %}
+        {% else %}
+          <div class="dp-review-empty">
+            <div class="dp-review-empty__icon" aria-hidden="true">♡</div>
+            <h3 class="fs-4 mb-3">{% translate "Ole ensimmäinen arvioija" %}</h3>
+            <p class="text-body-secondary mb-6">{% translate "Oletko käyttänyt tätä tuotetta? Kerro kokemuksestasi ja auta muita Deco Paintin asiakkaita." %}</p>
+            {% if orders_with_product %}
+              <a href="#customer-review" class="btn dp-review-cta" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="customer-review">{% translate "Kirjoita ensimmäinen arvostelu" %}</a>
+            {% elif user.is_authenticated %}
+              <a href="{% url 'user:order_history' %}" class="btn btn-outline-dark">{% translate "Tarkista tilaushistoria" %}</a>
+            {% else %}
+              <a href="{% url 'user:login' %}?next={{ request.get_full_path|urlencode }}%23reviews" class="btn dp-review-cta">{% translate "Kirjaudu ja arvioi" %}</a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+$(document).ready(function() {
+    var isSubmitting = false;
+    var $reviewForm = $('.product-review-form');
+    var $errorContainer = $('#error-container');
+    var $statusContainer = $('#review-status');
+
+    // Review-email links open the correct verified order directly in the form.
+    var requestedReviewOrder = new URLSearchParams(window.location.search).get('review_order');
+    if (requestedReviewOrder && $('#orderSelect option[value="' + requestedReviewOrder + '"]').length) {
+        $('#orderSelect').val(requestedReviewOrder);
+        var reviewCollapse = document.getElementById('customer-review');
+        if (reviewCollapse && window.bootstrap && window.bootstrap.Collapse) {
+            window.bootstrap.Collapse.getOrCreateInstance(reviewCollapse, {toggle: false}).show();
+        } else if (reviewCollapse) {
+            reviewCollapse.classList.add('show');
+        }
+    }
+
+    $('#customer-review').on('shown.bs.collapse', function() {
+        $('#reviewName').trigger('focus');
+    });
+
+    $reviewForm.submit(function(event) {
+        event.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
+
+        isSubmitting = true;
+        $errorContainer.addClass('d-none').text('');
+        $statusContainer.addClass('d-none').text('');
+
+        var $submitButton = $(this).find('button[type="submit"]');
+        var defaultLabel = $submitButton.data('default-label') || 'Lähetä arvostelu';
+        $submitButton.prop('disabled', true).attr('aria-busy', 'true').text('Lähetetään…');
+
+        var formData = new FormData(this);
+        formData.append('product', {{ product.id }});
+
+        $.ajax({
+            url: '{% url "shop:save_review" slug=product.slug %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    $statusContainer.removeClass('d-none').text('Kiitos arvostelustasi! Päivitämme sivun hetken kuluttua.');
+                    window.setTimeout(function() {
+                        window.location.hash = 'reviews';
+                        window.location.reload();
+                    }, 700);
+                } else {
+                    $errorContainer.removeClass('d-none').text('Arvostelua ei voitu lähettää. Tarkista tiedot ja yritä uudelleen.');
+                }
+            },
+            error: function() {
+                $errorContainer.removeClass('d-none').text('Arvostelun lähetys epäonnistui. Yritä hetken kuluttua uudelleen.');
+            },
+            complete: function() {
+                isSubmitting = false;
+                $submitButton.prop('disabled', false).removeAttr('aria-busy').text(defaultLabel);
+            }
+        });
+    });
+
+    // Custom Product Gallery Thumbnail Sync
+    $('.product-thumbs-list img').click(function() {
+        var index = $(this).data('slick-index');
+        $('#slide-5').slick('slickGoTo', index);
+        
+        $('.product-thumbs-list img').removeClass('active-thumb');
+        $(this).addClass('active-thumb');
+    });
+
+    $('#slide-5').on('afterChange', function(event, slick, currentSlide) {
+        $('.product-thumbs-list img').removeClass('active-thumb');
+        $('.product-thumbs-list img[data-slick-index="' + currentSlide + '"]').addClass('active-thumb');
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cartForm = document.getElementById('cart_form');
+    if (!cartForm || !window.DecoPaintAnalytics) return;
+
+    cartForm.addEventListener('submit', function() {
+        const basePayload = window.DecoPaintAnalytics.readPayload('ga4-product-payload');
+        if (!basePayload || !basePayload.items || !basePayload.items.length) return;
+
+        const payload = JSON.parse(JSON.stringify(basePayload));
+        const item = payload.items[0];
+        const quantityInput = document.getElementById('quantity');
+        const quantity = Math.max(parseInt(quantityInput ? quantityInput.value : '1', 10) || 1, 1);
+        const variantParts = ['size', 'color', 'grain', 'gloss', 'base'].map(function(name) {
+            const selected = cartForm.querySelector('[name="' + name + '"]:checked');
+            if (selected) return selected.value;
+            const hidden = cartForm.querySelector('[name="' + name + '"]');
+            return hidden ? hidden.value : '';
+        }).filter(Boolean);
+        const priceElement = document.getElementById('price-container');
+        const priceText = priceElement ? priceElement.textContent : '';
+        const parsedPrice = parseFloat(
+            priceText.replace(/\s/g, '').replace(',', '.').replace(/[^\d.]/g, '')
+        );
+
+        item.quantity = quantity;
+        if (variantParts.length) item.item_variant = variantParts.join(' / ');
+        if (Number.isFinite(parsedPrice)) item.price = parsedPrice;
+        payload.value = Number((item.price * quantity).toFixed(2));
+        window.DecoPaintAnalytics.track('add_to_cart', payload);
+    });
+});
+</script>
+
+{% endblock %}
