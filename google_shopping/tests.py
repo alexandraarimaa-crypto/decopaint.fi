@@ -286,4 +286,143 @@ class ExistingOnlyMerchantSyncTests(TestCase):
 
         self.assertEqual(
             plan,
-            [{"offer_id": "LEGACY-305",
+            [{"offer_id": "LEGACY-305", "product_id": product.id}],
+        )
+
+    @override_settings(MERCHANT_SYNC_ENABLED=True)
+    @patch("google_shopping.tasks.time.sleep")
+    @patch("google_shopping.tasks.async_task")
+    @patch("google_shopping.tasks.build_existing_merchant_update_plan")
+    @patch("google_shopping.tasks.list_all_products")
+    @patch("google_shopping.tasks.get_service")
+    def test_nightly_sync_schedules_existing_offers_only(
+        self,
+        service_mock,
+        list_products_mock,
+        plan_mock,
+        async_task_mock,
+        sleep_mock,
+    ):
+        service = service_mock.return_value
+        list_products_mock.return_value = [{"offerId": "EXISTING-1"}]
+        plan_mock.return_value = [
+            {"offer_id": "EXISTING-1", "product_id": 101},
+        ]
+
+        result = incremental_update_optimized_single_variant(product_batch_size=20)
+
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["products_to_update"], 1)
+        self.assertEqual(result["added_count"], 0)
+        self.assertEqual(result["removed_count"], 0)
+        plan_mock.assert_called_once_with(list_products_mock.return_value, service)
+        async_task_mock.assert_called_once_with(
+            "google_shopping.tasks.process_existing_merchant_batch",
+            [{"offer_id": "EXISTING-1", "product_id": 101}],
+            "https://decopaint.fi",
+            hook="google_shopping.tasks.single_variant_batch_complete_hook",
+            group="google_shopping_existing_batch_0",
+        )
+        sleep_mock.assert_called_once_with(0.2)
+
+    @override_settings(MERCHANT_SYNC_ENABLED=True)
+    @patch("google_shopping.tasks.time.sleep")
+    @patch("google_shopping.tasks.delete_product_by_offer_id")
+    @patch("google_shopping.tasks.add_product")
+    @patch("google_shopping.tasks.update_product")
+    @patch("google_shopping.tasks.build_product_data_from_variant")
+    @patch("google_shopping.tasks.get_storefront_variant_for_product")
+    @patch("google_shopping.tasks.list_all_products")
+    @patch("google_shopping.tasks.get_service")
+    def test_batch_updates_existing_offer_without_add_or_delete(
+        self,
+        service_mock,
+        list_products_mock,
+        storefront_variant_mock,
+        build_payload_mock,
+        update_product_mock,
+        add_product_mock,
+        delete_product_mock,
+        sleep_mock,
+    ):
+        service = service_mock.return_value
+        service.data_source_name = "accounts/1/dataSources/2"
+        list_products_mock.return_value = [
+            {
+                "offerId": "W03050TR0E",
+                "dataSource": service.data_source_name,
+            },
+        ]
+        storefront_variant = storefront_variant_mock.return_value
+        build_payload_mock.return_value = {
+            "offerId": "W03050TR0E",
+            "price": {"value": "26.83", "currency": "EUR"},
+        }
+
+        result = process_existing_merchant_batch(
+            [{"offer_id": "W03050TR0E", "product_id": 1435}]
+        )
+
+        self.assertEqual(result["updated"], 1)
+        self.assertEqual(result["added"], 0)
+        self.assertEqual(result["removed"], 0)
+        build_payload_mock.assert_called_once_with(
+            storefront_variant,
+            "https://decopaint.fi",
+            storefront_variant=storefront_variant,
+            offer_id="W03050TR0E",
+        )
+        update_product_mock.assert_called_once_with(build_payload_mock.return_value)
+        add_product_mock.assert_not_called()
+        delete_product_mock.assert_not_called()
+        sleep_mock.assert_called_once_with(1)
+
+    @override_settings(MERCHANT_SYNC_ENABLED=False)
+    @patch("google_shopping.tasks.get_service")
+    def test_nightly_sync_respects_kill_switch(self, service_mock):
+        result = incremental_update_optimized_single_variant()
+
+        self.assertEqual(result["status"], "disabled")
+        service_mock.assert_not_called()
+
+
+class OrderTriggeredMerchantSyncTests(SimpleTestCase):
+    @override_settings(MERCHANT_SYNC_ENABLED=True)
+    @patch("google_shopping.tasks.process_single_product_update")
+    @patch("order.models.OrderItem.objects")
+    def test_syncs_distinct_order_products_without_deletion(
+        self,
+        order_items_mock,
+        process_mock,
+    ):
+        values = (
+            order_items_mock
+            .filter.return_value
+            .exclude.return_value
+            .values_list.return_value
+        )
+        values.distinct.return_value = [101, 202]
+        process_mock.side_effect = [
+            {"status": "updated"},
+            {"status": "added"},
+        ]
+
+        result = sync_order_products(55)
+
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(result["product_count"], 2)
+        self.assertEqual(
+            process_mock.call_args_list,
+            [
+                call(
+                    101,
+                    "https://decopaint.fi",
+                    delete_if_unavailable=False,
+                ),
+                call(
+                    202,
+                    "https://decopaint.fi",
+                    delete_if_unavailable=False,
+                ),
+            ],
+        )
