@@ -18,7 +18,7 @@ FILES = {
     "cart": ROOT / "cart/templates/cart/cart.html",
     "checkout": ROOT / "cart/templates/cart/checkout.html",
     "css": ROOT / "shop/static/assets/css/mobile-modern-20260801-equal-cards.css",
-    "js": ROOT / "shop/static/assets/js/mobile-modern.js",
+    "js": ROOT / "shop/static/assets/js/mobile-modern-20260820-calculator.js",
 }
 
 
@@ -123,7 +123,10 @@ def main() -> int:
         "mobile-modern-20260801-equal-cards.css" in texts["base"],
         "Versioned mobile CSS is not linked",
     )
-    require("mobile-modern.js" in texts["base"], "Mobile JS is not linked")
+    require(
+        "mobile-modern-20260820-calculator.js" in texts["base"],
+        "Versioned mobile JS is not linked",
+    )
     require("Vain välttämättömät" in texts["base"], "Essential-only consent action is missing")
 
     require("dp-mobile-discovery" in texts["home"], "Home discovery block is missing")
