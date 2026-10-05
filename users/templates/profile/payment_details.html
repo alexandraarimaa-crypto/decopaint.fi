@@ -1,0 +1,13 @@
+{{ payed_time|date:"d.m.Y H:i" }}<br>
+{{ payment.provider }} {{ payed_sum }} {{ payment.currency }} 
+{% if payment.status == 'new' %}
+    maksu luotu
+{% elif payment.status == 'ok' %}
+    maksu onnistui
+{% elif payment.status == 'fail' %}
+    maksu epäonnistui
+{% elif payment.status == 'pending' %}
+    vireillä
+{% elif payment.status == 'delayed' %}
+    maksu lykätty
+{% endif %}

@@ -1,0 +1,77 @@
+{% load static %}
+<footer class="pt-16 pt-lg-20 pb-16 footer d-print-none" style="background-color: #009641;">
+    <div class="container container-xxl pt-4">
+        <div class="row">
+            <div class="col-lg-4 col-12 mb-lg-0 text-white">
+                <h3 class="mb-6 text-white">Deco Paint Finland Oy</h3>
+                <p class="pe-xl-24 mb-lg-11">
+                    Asessorinkatu 12, 20780 Kaarina<br>
+                    Puh: +358 400 414 838<br>
+                    Email: info@decopaint.fi<br>
+                    Y-tunnus: 3367753-6
+                </p>
+                <span class="text-with-shadow border-top pt-4 border-success fw-light">
+                    Made by <a href="http://www.softecs.fi" target="_blank" class="text-white">Softec Solutions</a>
+                </span>
+
+            </div>
+
+
+            <div class="col-6">
+                <div class="col-sm-12 col-lg-8 text-md-center order-1 order-lg-2 mb-10">
+                    <a class="d-inline-block" href="https://www.oikos-paint.fi/" target="_blank">
+                        <img src="{% static "assets/images/footer/logo-footer.svg" %}" height="50" alt="logo decopaint.fi" class="img-fluid lazy-image">
+                    </a>
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-8 order-3 text-sm-start text-lg-end mt-11 mt-lg-0">
+                    <img src="{% static "assets/images/footer/paytrail.png" %}" alt="paytrail" height="64" class="img-fluid lazy-image bg-body">
+                </div>
+            </div>
+
+
+            <div class="col-lg-2 col-md-4 col-12">
+                <h3 class="fs-5 mb-6 text-white">Linkit</h3>
+                <ul class="list-unstyled mb-0">
+                    <li class="pt-3 mb-4">
+                        <a href="{% url 'b2b:start' %}" class="text-white">Yritysmyynti</a>
+                    </li>
+                    <li class="pt-3 mb-4">
+                        <a href="{% url 'shop:terms' %}" class="text-white">Tietosuoja ja evästeet</a>
+                    </li>
+                    <li class="pt-3 mb-4">
+                        <button type="button" class="btn btn-link text-white p-0 text-decoration-none" onclick="openCookieSettings()">
+                            Muuta evästeasetuksia
+                        </button>
+                    </li>
+                    <li class="pt-3 mb-4">
+                        <a href="{% url 'shop:contact' %}" class="text-white">Ota yhteyttä</a>
+                    </li>
+                </ul>
+                <ul class="list-inline fs-18px mt-10">
+                    <li class="list-inline-item me-8">
+                        <a href="https://www.facebook.com/DecoPaintFinland" target="_blank"><i class="fab fa-facebook-f text-white"></i></a>
+                    </li>
+                    <li class="list-inline-item me-8">
+                        <a href="https://www.instagram.com/deco_paint_finland/" target="_blank"><i class="fab fa-instagram text-white"></i></a>
+                    </li>
+                    <li class="list-inline-item me-8">
+                        <a href="https://www.linkedin.com/company/99878877/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in text-white"></i></a>
+                    </li>
+                    <li class="list-inline-item me-8">
+                        <a href="https://www.youtube.com/@DecoPaintFinland" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube text-white"></i></a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+
+    </div>
+</footer>
+
+<div class="position-fixed z-index-10 bottom-0 end-0 p-10">
+    <a href="#"
+        class="gtf-back-to-top text-decoration-none bg-body text-primary bg-primary-hover text-light-hover shadow square p-0 rounded-circle d-flex align-items-center justify-content-center"
+        title="Back To Top" style="--square-size: 48px"><i class="fa-solid fa-arrow-up"></i></a>
+</div>

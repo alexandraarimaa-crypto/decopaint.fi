@@ -1,0 +1,58 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+Käyttöehdot
+{% endblock %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+  <div class="bg-body-secondary mb-3">
+    <div class="container">
+      <nav class="py-4 lh-30px" aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center py-1 mb-0">
+          <li class="breadcrumb-item"><a title="Home" href="{% url 'shop:main' %}">Decopaint</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Käyttöehdot</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
+
+<div class="container">
+  <div class="mb-16">
+    <div class="row">
+      
+      {{ terms|safe }}
+
+      <section class="mt-8" aria-labelledby="analytics-privacy-heading">
+        <h2 id="analytics-privacy-heading">Google Analytics 4 ja evästevalinnat</h2>
+        <p>
+          Käytämme Google Analytics 4 -palvelua sivuston käytön, tuotenäkymien,
+          ostoskorin, kassavaiheiden ja vahvistettujen tilausten mittaamiseen
+          vain, kun analytiikkaevästeet on hyväksytty. Mittaustiedot eivät
+          sisällä asiakkaan nimeä, sähköpostiosoitetta, puhelinnumeroa,
+          postiosoitetta, tilauksen vapaata tekstiä tai maksupalvelun
+          tapahtumatunnusta.
+        </p>
+        <p>
+          Kirjautuneelle käyttäjälle voidaan välittää Deco Paintin muodostama
+          pseudonyymi tunniste, jonka avulla saman käyttäjän suostumukselliset
+          käynnit voidaan yhdistää. Tunniste ei ole käyttäjän sähköpostiosoite
+          eikä muu suoraan tunnistava tieto. Voit muuttaa tai peruuttaa
+          valintasi milloin tahansa sivun alareunan
+          <button type="button" class="btn btn-link p-0 align-baseline" onclick="openCookieSettings()">
+            Muuta evästeasetuksia
+          </button>
+          -painikkeesta.
+        </p>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}

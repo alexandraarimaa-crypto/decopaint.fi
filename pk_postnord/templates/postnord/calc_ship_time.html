@@ -1,0 +1,21 @@
+<!-- get_postal_address.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Time</title>
+</head>
+<body>
+    {% if delivery_time and delivery_date %}
+        <h1>Shipping Time Information:</h1>
+        <p>Delivery Time: {{ delivery_time }}</p>
+        <p>Delivery Date: {{ delivery_date }}</p>
+    {% elif error_message %}
+        <h1>Error:</h1>
+        <p>{{ error_message }}</p>
+    {% else %}
+        <h1>No information available</h1>
+    {% endif %}
+</body>
+</html>

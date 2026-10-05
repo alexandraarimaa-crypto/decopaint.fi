@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y default-libmysqlclient-dev pkg-config
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+      - name: Compile source
+        run: python -m compileall -q .
+      - name: Run static release validators
+        run: |
+          python scripts/validate_mobile_ui.py
+          python scripts/validate_search_engine.py \
+            --index search-data/knowledge-base-draft.json \
+            --overrides search-data/search-overrides.json
+          python scripts/validate_seo_p0.py
+      - name: Run isolated regression suite
+        run: >-
+          python manage.py test
+          users.tests pk_paytrail.tests google_shopping.tests
+          shop.tests_analytics shop.tests_search_engine shop.tests_search_view
+          shop.tests_seo config.tests_legacy_urls
+          --settings=config.test_settings

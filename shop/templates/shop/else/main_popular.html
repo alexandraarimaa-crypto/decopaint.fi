@@ -1,0 +1,101 @@
+<div class="row gy-50px">
+
+    {% for product in products %}
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+        <div class="card card-product grid-1 bg-transparent border-0">
+
+            <figure class="card-img-top position-relative mb-7 overflow-hidden ">
+                <a href="{% url 'shop:product_detail' slug=product.slug %}" class="hover-shine d-block bg-light">
+                    {% if product.thumbnail %}
+                        <img src="{{ product.thumbnail.url }}" data-src="{{ product.thumbnail.url }}"
+                        class="img-fluid lazy-image w-100" width="330" height="330"
+                        alt="{{ product.attributes.first.family }} {{ product.name }}">
+                    {% endif %}
+                </a>
+                {% if product.discount_percentage > 0 %}
+                <div class="position-absolute product-flash z-index-2 ">
+                    <span class="badge badge-product-flash on-sale bg-primary">-{{ product.discount_percentage }}%</span>
+                </div>
+                {% endif %}
+            </figure>
+
+
+            <div class="card-body text-center p-0">
+                <span class="d-flex align-items-center price text-body-emphasis fw-bold justify-content-center mb-3 fs-6">
+                    <ins class="text-decoration-none">alk. {{ product.total_price }}€</ins>
+                </span>
+
+                <h4 class="product-title card-title text-primary-hover text-body-emphasis fs-15px fw-500 mb-3">
+                    <a class="text-decoration-none text-reset" href="{% url 'shop:product_detail' slug=product.slug %}">
+                        {{ product.attributes.first.family }} {{ product.name|truncatechars:50 }}
+                    </a>
+                </h4>
+            </div>
+
+            <div class="d-flex align-items-center fs-12px justify-content-center">
+                <div class="rating">
+                    <div class="empty-stars">
+                        <span class="star">
+                            <svg class="icon star-o">
+                                <use xlink:href="#star-o"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star-o">
+                                <use xlink:href="#star-o"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star-o">
+                                <use xlink:href="#star-o"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star-o">
+                                <use xlink:href="#star-o"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star-o">
+                                <use xlink:href="#star-o"></use>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="filled-stars" style="width: {{ product.rating_percent|floatformat:"0" }}%">
+                        <span class="star">
+                            <svg class="icon star text-primary">
+                                <use xlink:href="#star"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star text-primary">
+                                <use xlink:href="#star"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star text-primary">
+                                <use xlink:href="#star"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star text-primary">
+                                <use xlink:href="#star"></use>
+                            </svg>
+                        </span>
+                        <span class="star">
+                            <svg class="icon star text-primary">
+                                <use xlink:href="#star"></use>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <span class="reviews ms-4 pt-3 fs-14px">
+                    {% if product.total_reviews == 0 %}Ei vielä arvosteluja{% elif product.total_reviews == 1 %}{{ product.total_reviews }} arvostelu{% else %}{{ product.total_reviews }} arvostelua{% endif %}
+                </span>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>

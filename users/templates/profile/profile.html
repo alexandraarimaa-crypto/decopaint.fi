@@ -1,0 +1,105 @@
+{% extends "shop/base/base.html" %}
+{% block title %}
+Profiili
+{% endblock %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+  <div class="bg-body-secondary mb-3">
+    <div class="container">
+      <nav class="py-4 lh-30px" aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center py-1 mb-0">
+          <li class="breadcrumb-item"><a title="Home" href="">Käyttäjä</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Profiili</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<section class="pb-lg-20 pb-16">
+  <div class="container">
+    <div class="row no-gutters">
+
+      <div class="">
+
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'success' %}
+            <div class="alert alert-success text-center mb-8 alert-dismissible" role="alert">
+          {% elif message.tags == 'error' %}
+            <div class="alert alert-danger text-center mb-8 alert-dismissible" role="alert">
+          {% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+      {% endif %}
+
+        <div class="row mb-10">
+          <div class="col-6">
+            
+            <h2 class="text-black mr-2">Hei, {% if request.user.first_name %}{{ request.user.first_name }}{% endif %}</h2>
+            <h6>Edellinen kirjautuminen: {{ request.user.last_login }}</h6>
+          </div>
+
+          <div class="col-6">
+            <a class="btn m-2 btn-primary btn-sm float-end" href="{% url 'user:logout' %}">Kirjaudu ulos</a>
+            <a class="btn m-2 btn-dark btn-sm float-end" href="{% url 'user:order_history' %}">Tilaushistoria</a>
+            <a class="btn m-2 btn-dark btn-sm float-end" href="{% url 'password_change' %}">Vaihda salasana</a>
+          </div>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+        <div class="row no-gutters">
+
+          <div class="col-lg-6 mb-15 mb-lg-0 pe-xl-2">
+            <div class="form-group">
+              <h3 class="fs-4 mb-6">Käyttäjätiedot</h3>
+              <label class="small mb-1">Etunimi:</label>
+              {{ user_form.first_name }}
+              <label class="small mb-1">Sukunimi:</label>
+              {{ user_form.last_name }}
+              <label class="small mb-1">Email:</label>
+              <p class="form-control mb-0">{{ user.email }}</p>
+              <label class="small mb-1">Puhelinnumero:</label>
+              {{ user_form.phone }}
+            </div>
+            <div class="form-group mt-6">
+              <h3 class="fs-4 mb-6">Yritystiedot</h3>
+              <label class="small mb-1">Yritys:</label>
+              {{ user_form.company }}
+              <label class="small mb-1">Y-tunnus:</label>
+              {{ user_form.vat }}
+            </div>
+          </div>
+          <div class="col-lg-6 ps-lg-6 ps-xl-12">
+            <h3 class="fs-4 mb-6">Toimitusosoite</h3>
+            <label class="small mb-1">Osoite:</label>
+            {{ user_form.address }}
+            <label class="small mb-1">Postinumero:</label>
+            {{ user_form.postal }}
+            <label class="small mb-1">Postitoimipaikka:</label>
+            {{ user_form.city }}
+            <h3 class="fs-4 mb-6 mt-6">Laskutusosoite</h3>
+            <label class="small mb-1">Osoite:</label>
+            {{ user_form.bill_address }}
+            <label class="small mb-1">Postinumero:</label>
+            {{ user_form.bill_postal }}
+            <label class="small mb-1">Postitoimipaikka:</label>
+            {{ user_form.bill_city }}
+          </div>
+
+          <div class="col-12 mt-6">
+            <button type="submit" class="btn btn-dark btn-lg float-end">Tallenna</button>
+          </div>
+          
+        </div>
+        
+      </form>
+      </div>
+    </div>
+</section>
+    
+{% endblock %}    

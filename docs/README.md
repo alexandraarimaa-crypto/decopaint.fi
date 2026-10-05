@@ -1,0 +1,17 @@
+# Документация проекта
+
+- [Initial audit](initial-audit.md)
+- [Architecture](architecture.md)
+- [Security audit](security-audit.md)
+- [SEO audit](seo-audit.md)
+- [Keyword map](keyword-map.md)
+- [Analytics measurement plan](analytics-measurement-plan.md)
+- [Data model](data-model.md)
+- [Retention policy](retention-policy.md)
+- [Privacy flow](privacy-flow.md)
+- [CRO backlog](cro-backlog.md)
+- [Testing](testing.md)
+- [Staging runbook](staging-runbook.md)
+- [Deployment](deployment.md)
+- [Rollback](rollback.md)
+- [Changelog](changelog.md)

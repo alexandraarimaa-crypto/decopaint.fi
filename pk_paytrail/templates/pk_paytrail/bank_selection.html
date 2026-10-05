@@ -1,0 +1,15 @@
+<ul class="bank">
+    {% for bank in banks %}
+        <li class="bank">
+            <form id="bankForm{{ forloop.counter }}" method="POST" action="{{ bank.url }}">
+                {% csrf_token %}
+                {% for parameter in bank.parameters %}
+                    <input type="hidden" name="{{ parameter.name }}" value="{{ parameter.value }}" />
+                {% endfor %}
+                <button class="bank-button" onclick="createOrderAndSubmit()"><img src="{{ bank.svg }}" alt="{{ bank.name }}" /></button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
+<div class="text-center">{{ terms|safe }}</div>
+

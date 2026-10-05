@@ -1,0 +1,52 @@
+# Runtime configuration and secrets
+.env
+.env.*
+!.env.example
+config/settings.py
+!config/settings.py
+**/client_secret.json
+**/credentials*.json
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+
+# Django runtime data
+media/
+/static/
+/staticfiles/
+*.sqlite3
+*.log
+*.pid
+
+# Backups and exports
+*.sql
+*.sql.gz
+*.tar
+*.tar.gz
+*.zip
+*.xlsx
+*.xls
+
+# JavaScript build output
+node_modules/
+.next/
+dist/
+coverage/
+
+# Additional credential formats
+*.p12
+*service-account*.json
+*oauth*.json
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

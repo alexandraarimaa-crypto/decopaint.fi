@@ -1,0 +1,128 @@
+{% extends "shop/base/base.html" %}
+{% block title %}
+Rekisteröinti
+{% endblock %}
+{% block content %}
+    
+<section class="z-index-2 position-relative pb-2 mb-12">
+  <div class="bg-body-secondary mb-3">
+    <div class="container">
+      <nav class="py-4 lh-30px" aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center py-1 mb-0">
+          <li class="breadcrumb-item"><a title="Home" href="{% url 'user:profile' %}">Käyttäjä</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Rekisteröidy</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
+
+<section class="pb-lg-20 pb-16">
+  <div class="container">
+      <div class="row no-gutters">
+          <div class="col-lg-10 mx-auto">
+              <div class="row no-gutters">
+                  <div class="col-lg-6 mb-15 mb-lg-0 pe-xl-2">
+                      <h3 class="fs-4 mb-10">Kirjaudu sisään</h3>
+                      <form id="registerForm">
+                        <input name="email" type="email" class="form-control border-1 mb-5" placeholder="Sähköpostiosoite" required>
+                        <input name="password1" type="password" class="form-control border-1 mb-5" placeholder="Salasana" required>
+                        <input name="password2" type="password" class="form-control border-1 mb-7" placeholder="Toista salasana" required>
+                        <button type="submit" class="btn btn-primary btn-hover-bg-dark btn-hover-border-dark w-100">Rekisteröidy</button>
+                        <div id="register-error-message" class="text-danger mt-4"></div>
+                    </form>
+
+                    <script>
+                        $(document).ready(function() {
+                            $('#registerForm').submit(function(e) {
+                                e.preventDefault(); 
+                                var email = $(this).find('input[name="email"]').val();
+                                var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                                var formData = $(this).serialize();
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url "user:signup" %}',
+                                    headers: {
+                                        'X-CSRFToken': csrfToken
+                                    },
+                                    data: formData,
+                                    success: function(data) {
+                                        if (data.success) {
+                                            location.reload();
+                                            sendEmail(email);
+                                        } else {
+                                            // If registration fails, display error message
+                                            if (data.error) {
+                                                $('#register-error-message').text(data.error).show();
+                                            }
+                                            // If registration fails due to form errors, display form errors
+                                            if (data.errors) {
+                                                var errorMessage = '';
+                                                var errors = data.errors;
+                                                for (var key in errors) {
+                                                    errorMessage += key + ': ' + errors[key] + '\n';
+                                                }
+                                                $('#register-error-message').text(errorMessage).show();
+                                            }
+                                        }
+                                    },
+                                    error: function(xhr, textStatus, errorThrown) {
+                                        // If AJAX request fails, display error message
+                                        var errorMessage = "Tapahtui virhe: " + xhr.responseText;
+                                        alert(errorMessage);
+                                    }
+                                });
+                            });
+                        });
+
+                        function getCookie(name) {
+                            var cookieValue = null;
+                            if (document.cookie && document.cookie !== '') {
+                                var cookies = document.cookie.split(';');
+                                for (var i = 0; i < cookies.length; i++) {
+                                    var cookie = cookies[i].trim();
+                                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                        break;
+                                    }
+                                }
+                            }
+                            return cookieValue;
+                        }
+
+                        function sendEmail(email) {
+                            var csrfToken = getCookie('csrftoken');
+                            var requestData = {
+                                'email': email,
+                            };
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url "user:send_register_email" %}',
+                                headers: {
+                                    'X-CSRFToken': csrfToken
+                                },
+                                data: requestData,
+                                success: function(data) {
+                                    if (data.success) {
+                                        console.log('Email sent successfully');
+                                    } else {
+                                        console.error('Failed to send email:', data.error);
+                                    }
+                                },
+                                error: function(xhr, textStatus, errorThrown) {
+                                    console.error('Error sending email:', xhr.responseText);
+                                }
+                            });
+                        }
+                    </script>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+
+{% endblock %}

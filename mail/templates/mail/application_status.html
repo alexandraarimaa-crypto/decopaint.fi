@@ -1,0 +1,10 @@
+{% extends "mail/mail.html" %}
+{% block content %}
+
+<p>Arvoisa {{ app.first_name }},
+<br><br>
+hakemuksenne Decopaint yritysmyyntiportaaliin on <b>{{ status }}</b>.
+<br><br>
+Ystävällisin terveisin,<br>
+Deco Paint Finland Oy -tiimi
+{% endblock %}

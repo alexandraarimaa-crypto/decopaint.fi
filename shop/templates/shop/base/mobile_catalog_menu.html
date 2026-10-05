@@ -1,0 +1,297 @@
+{% load i18n %}
+
+<!-- CSS Styles for Sliding Menu Panels -->
+<style>
+    /* display: contents allows children of #catalog-menu-mobile to act as direct children of .mobile-menu-container */
+    #catalog-menu-mobile {
+        display: contents;
+    }
+
+    /* Force offcanvas body to not scroll, since panels will handle their own scrolling */
+    #offCanvasNavBar .offcanvas-body {
+        overflow: hidden !important;
+    }
+
+    .mobile-menu-container {
+        position: relative;
+        width: 100%;
+        height: 100%; /* Fill the offcanvas body height exactly */
+        overflow: hidden;
+    }
+
+    .mobile-menu-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling for iOS */
+        overscroll-behavior: contain; /* Prevent scroll chaining to parent page body */
+        background-color: var(--bs-body-bg);
+        transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transform: translateX(100%); /* Hidden on the right */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-menu-panel.active {
+        transform: translateX(0); /* Active view */
+    }
+
+    .mobile-menu-panel.parent {
+        transform: translateX(-100%); /* Parent view shifted left */
+    }
+
+    .mobile-menu-list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .mobile-menu-list .nav-item {
+        border-bottom: 1px solid var(--bs-border-color-translucent);
+    }
+
+    .mobile-menu-list .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--bs-body-color);
+        text-decoration: none;
+        transition: color 0.15s ease-in-out;
+    }
+
+    .mobile-menu-list .nav-link:hover,
+    .mobile-menu-list .nav-link:active {
+        color: var(--bs-primary);
+    }
+
+    .panel-back-btn {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--bs-border-color);
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        border-radius: 50%;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .panel-back-btn:hover,
+    .panel-back-btn:active {
+        background-color: var(--bs-primary);
+        color: #fff;
+        border-color: var(--bs-primary);
+    }
+
+    .panel-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .mobile-menu-list .bi-chevron-right {
+        font-size: 14px;
+        color: var(--bs-secondary-color);
+    }
+
+    /* Highlight active menu item */
+    .mobile-menu-panel a.active-menu-item,
+    .mobile-menu-panel button.active-menu-item,
+    .mobile-menu-list a.active-menu-item,
+    .mobile-menu-list button.active-menu-item {
+        color: var(--bs-primary) !important;
+        font-weight: 700 !important;
+    }
+</style>
+
+<!-- Main Catalog Panel -->
+<div id="panel-catalog" class="mobile-menu-panel">
+    <div class="px-8 py-6">
+        <div class="panel-header">
+            <div class="d-flex align-items-center mb-4 cursor-pointer panel-back" data-target="panel-main">
+                <button class="panel-back-btn me-3">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="fs-14px fw-medium text-muted text-uppercase letter-spacing-1">{% trans "Päävalikko" %}</span>
+            </div>
+            <h4 class="mb-0 fw-bold text-dark">{% trans "Tuotekatalogi" %}</h4>
+        </div>
+        
+        <ul class="mobile-menu-list navbar-nav">
+            {% for cat in categories %}
+                {% if cat.parent == None %}
+                    <li class="nav-item">
+                        {% if not cat.is_leaf_node %}
+                            <button class="nav-link text-dark d-flex align-items-center justify-content-between w-100 border-0 bg-transparent text-start panel-trigger"
+                                data-target="panel-cat-{{ cat.id }}">
+                                <span>{{ cat.name }}</span>
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        {% else %}
+                            <a class="nav-link text-dark"
+                                href="{% url 'shop:product_list_by_category' category_slug=cat.slug %}">
+                                {{ cat.name }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- Category Sub-panels for categories with child items -->
+{% for cat in categories %}
+    {% if not cat.is_leaf_node %}
+        <div id="panel-cat-{{ cat.id }}" class="mobile-menu-panel">
+            <div class="px-8 py-6">
+                <div class="panel-header">
+                    <div class="d-flex align-items-center mb-4 cursor-pointer panel-back" 
+                        data-target="{% if cat.parent %}panel-cat-{{ cat.parent.id }}{% else %}panel-catalog{% endif %}">
+                        <button class="panel-back-btn me-3">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <span class="fs-14px fw-medium text-muted text-uppercase letter-spacing-1">
+                            {% if cat.parent %}{{ cat.parent.name }}{% else %}{% trans "Katalogi" %}{% endif %}
+                        </span>
+                    </div>
+                    <h4 class="mb-0 fw-bold text-dark">{{ cat.name }}</h4>
+                </div>
+                
+                <ul class="mobile-menu-list navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-primary fw-bold"
+                            href="{% url 'shop:product_list_by_category' category_slug=cat.slug %}">
+                            {% trans "Näytä kaikki:" %} {{ cat.name }}
+                        </a>
+                    </li>
+                    {% for subcat in categories %}
+                        {% if subcat.parent == cat %}
+                            <li class="nav-item">
+                                {% if not subcat.is_leaf_node %}
+                                    <button class="nav-link text-dark d-flex align-items-center justify-content-between w-100 border-0 bg-transparent text-start panel-trigger"
+                                        data-target="panel-cat-{{ subcat.id }}">
+                                        <span>{{ subcat.name }}</span>
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                {% else %}
+                                    <a class="nav-link text-dark"
+                                        href="{% url 'shop:product_list_by_category' category_slug=subcat.slug %}">
+                                        {{ subcat.name }}
+                                    </a>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+
+<!-- Script for Stack-Based Panel Navigation with Persistent State -->
+<script>
+    (function() {
+        var pathStack = ['panel-main'];
+
+        // Clean up previous event handlers (handles AJAX hot reloading)
+        $(document).off('click', '.panel-trigger');
+        $(document).off('click', '.panel-back');
+
+        // Function to normalize path for accurate URL matching
+        function normalizePath(p) {
+            if (!p) return "";
+            return p.replace(/\/$/, ""); // Remove trailing slash
+        }
+
+        // Highlight active link based on current page URL
+        var currentPath = normalizePath(window.location.pathname);
+        $('.mobile-menu-panel a, #panel-main a').each(function() {
+            var href = $(this).attr('href');
+            if (href) {
+                var normalizedHref = normalizePath(href);
+                // Also handle full URLs just in case
+                if (normalizedHref === currentPath || href === window.location.href) {
+                    $(this).addClass('active-menu-item');
+                    
+                    // Highlight the parent panel triggers recursively
+                    var $panel = $(this).closest('.mobile-menu-panel');
+                    var panelId = $panel.attr('id');
+                    if (panelId) {
+                        var $trigger = $('.panel-trigger[data-target="' + panelId + '"]');
+                        $trigger.addClass('active-menu-item');
+                        
+                        // If the trigger itself is in a sub-panel, highlight parent triggers
+                        var $parentPanel = $trigger.closest('.mobile-menu-panel');
+                        var parentPanelId = $parentPanel.attr('id');
+                        if (parentPanelId) {
+                            $('.panel-trigger[data-target="' + parentPanelId + '"]').addClass('active-menu-item');
+                        }
+                    }
+                }
+            }
+        });
+
+        // Restore state from localStorage on load
+        var savedPath = localStorage.getItem('mobileMenuPath');
+        if (savedPath) {
+            try {
+                var parsedPath = JSON.parse(savedPath);
+                // Validate that all panels in the saved path actually exist in the DOM
+                var allExist = parsedPath.every(function(id) {
+                    return document.getElementById(id) !== null;
+                });
+                if (allExist && parsedPath.length > 0) {
+                    pathStack = parsedPath;
+                    
+                    // Reset all panels
+                    $('.mobile-menu-panel').removeClass('active parent');
+                    
+                    // Mark all parents except the last active panel
+                    for (var i = 0; i < pathStack.length - 1; i++) {
+                        $('#' + pathStack[i]).addClass('parent');
+                    }
+                    // Mark the last panel as active
+                    $('#' + pathStack[pathStack.length - 1]).addClass('active');
+                }
+            } catch(e) {
+                console.error("Error restoring menu path:", e);
+            }
+        }
+
+        // Forward transition
+        $(document).on('click', '.panel-trigger', function(e) {
+            e.preventDefault();
+            var targetId = $(this).attr('data-target');
+            var currentId = pathStack[pathStack.length - 1];
+            
+            // Move current to left, slide target in from right
+            $('#' + currentId).removeClass('active').addClass('parent');
+            $('#' + targetId).addClass('active');
+            
+            pathStack.push(targetId);
+            localStorage.setItem('mobileMenuPath', JSON.stringify(pathStack));
+        });
+
+        // Backward transition
+        $(document).on('click', '.panel-back', function(e) {
+            e.preventDefault();
+            if (pathStack.length <= 1) return;
+            
+            var currentId = pathStack.pop();
+            var parentId = pathStack[pathStack.length - 1];
+            
+            // Slide current out to right, slide parent back to center from left
+            $('#' + currentId).removeClass('active');
+            $('#' + parentId).removeClass('parent').addClass('active');
+            
+            localStorage.setItem('mobileMenuPath', JSON.stringify(pathStack));
+        });
+    })();
+</script>

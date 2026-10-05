@@ -1,0 +1,525 @@
+{% load static %}
+
+<div class="navbar">
+
+    <div id="offCanvasNavBar" class="offcanvas offcanvas-start dp-mobile-menu" style="--bs-offcanvas-width: min(100vw, 420px)">
+
+        <div class="offcanvas-header bg-body-tertiary py-5 px-6 align-items-start">
+            <div>
+                <span class="dp-kicker">VALIKKO</span>
+                <h2 class="offcanvas-title text-dark mb-0">Mitä etsit?</h2>
+            </div>
+            <button type="button" class="btn-close fs-12px" data-bs-dismiss="offcanvas" aria-label="Sulje valikko"></button>
+        </div>
+        <hr class="my-0">
+        <div class="offcanvas-body p-0">
+            <div class="mobile-menu-container">
+                
+                <!-- Main Menu Panel -->
+                <div id="panel-main" class="mobile-menu-panel active">
+                    <div class="px-8 py-6">
+                        <form action="{% url "shop:search_results" %}" method="get" class="w-100 mb-6">
+                            <div class="input-group position-relative">
+                                <input type="search" id="mobile-search-input" name="q" class="form-control bg-transparent border-primary pe-10"
+                                    placeholder="Hae tuotteita ja ohjeita" autocomplete="off" aria-label="Hae tuotteita ja ohjeita">
+                                <div id="mobile-search-loading" style="display: none; z-index: 10;" class="position-absolute end-0 top-50 translate-middle-y px-4 py-2">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 1rem; height: 1rem;"></div>
+                                </div>
+                                <button type="button" id="mobile-search-clear" style="display: none; z-index: 10;" class="position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent px-4 py-2 text-muted">
+                                    <i class="bi bi-x-lg fs-14px"></i>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Mobile Search Results Container -->
+                        <div id="mobile-search-results" style="display: none;"></div>
+
+                        <ul class="mobile-menu-list navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'shop:main' %}"><span><small>01</small> Etusivu</span></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <button class="nav-link text-dark d-flex align-items-center justify-content-between w-100 border-0 bg-transparent text-start panel-trigger"
+                                    data-target="panel-catalog">
+                                    <span><small>02</small> Tuotteet</span>
+                                    <i class="bi bi-chevron-right fs-14px"></i>
+                                </button>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'b2b:start' %}"><span><small>03</small> Ammattilaisille</span></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'courses:course_list' %}"><span><small>04</small> Kurssit</span></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'services:service_list' %}"><span><small>05</small> Palvelut</span></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'blog:blog_list' %}"><span><small>06</small> Ideat ja ohjeet</span></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'shop:terms' %}"><span><small>07</small> Toimitus ja palautukset</span></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'shop:contact' %}"><span><small>08</small> Yhteystiedot</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Catalog Submenu Panels (loaded via AJAX) -->
+                <div id="catalog-menu-mobile">
+                    {% include 'shop/base/mobile_catalog_menu.html' %}
+                </div>
+
+                <div class="dp-menu-shortcuts px-8 pb-6">
+                    <span class="dp-kicker">NOPEAT POLUT</span>
+                    <a href="{% url 'shop:product_list_by_tag' tag_slug='sisustusmaalit' %}">Maalaan sisäseiniä <span>→</span></a>
+                    <a href="{% url 'shop:product_list_by_tag' tag_slug='sisustuslaastit' %}">Haluan elävän laastipinnan <span>→</span></a>
+                    <a href="{% url 'shop:product_list_by_tag' tag_slug='ulkomaalit' %}">Tarvitsen ulkomaalin <span>→</span></a>
+                </div>
+
+                <div class="dp-menu-help mx-8 mb-8">
+                    <span class="dp-kicker">ASIANTUNTIJA APUNA</span>
+                    <h3>Epävarma oikeasta tuotteesta?</h3>
+                    <p>Lähetä kohteen tiedot. Autamme valitsemaan sopivan pintaratkaisun.</p>
+                    <a class="btn" href="{% url 'shop:contact' %}">Pyydä maksuton arvio</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="searchModal" data-bs-scroll="false" class="offcanvas offcanvas-top" style="--bs-offcanvas-height: auto">
+    <div class="container-wide container-xxl">
+        <nav class="navbar navbar-expand-xl px-0 py-6 py-xl-12 row align-items-start">
+            <div class="col-xl-3 d-flex justify-content-center justify-content-xl-start">
+                
+            </div>
+            <div class="col-xl-6 d-flex justify-content-center">
+                <form action="{% url "shop:search_results" %}" method="get" class="w-xl-100 w-sm-75 w-100 mt-6 mt-xl-0 px-6 px-xl-0">
+                    <div class="input-group mx-auto">
+                        <input type="search" name="q" class="form-control form-control bg-transparent border-primary"
+                            placeholder="Hae tuote...">
+                    </div>
+                </form>
+            </div>
+        
+            <div class="offcanvas-header fs-4 ms-10">
+                <button type="button" class="btn-close btn-close-bg-none" data-bs-dismiss="offcanvas" aria-label="Close">
+                    <i class="far fa-times"></i>
+                </button>
+            </div>
+
+        </nav>
+
+        
+        <div id="search-loading" class="text-center mb-10" style="display: none;">Haku käynnissä...</div>
+
+        <!-- Div to display search results -->
+        <div id="search-result">
+        </div>
+        
+    </div>
+</div>
+
+<!-- JavaScript for AJAX search -->
+<script>
+     // detect modal view by id
+     var modal = document.getElementById('searchModal');
+
+    // when modal is opened, select search input
+    modal.addEventListener('shown.bs.offcanvas', function () {
+        var input = document.querySelector('#searchModal input[type="search"]');
+        if (input) {
+            input.focus();
+        }
+    });
+
+    function searchProducts() {
+        var query = document.querySelector('#searchModal input[name="q"]').value;
+        var loadingIndicator = document.getElementById('search-loading');
+        var searchResultContainer = document.getElementById('search-result');
+
+        // Show loading indicator
+        loadingIndicator.style.display = 'block';
+        // Hide previous search results
+        searchResultContainer.innerHTML = '';
+
+        // Execute AJAX request
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{% url "shop:search_results" %}?q=' + query, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // Set AJAX header
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // Insert HTML response into search results div
+                document.getElementById('search-result').innerHTML = xhr.responseText;
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+            }
+        };
+        xhr.send();
+    }
+
+    // Bind event to call search function when search input changes
+    document.querySelector('#searchModal input[name="q"]').addEventListener('input', searchProducts);
+</script>
+
+
+
+
+<div id="shoppingCart" data-bs-scroll="false" class="offcanvas offcanvas-end">
+    
+</div>
+
+
+<div class="modal" id="signInModal" tabindex="-1" aria-labelledby="signInModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-center border-0 pb-0">
+                <button type="button" class="btn-close position-absolute end-5 top-5" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+                <h3 class="modal-title w-100" id="signInModalLabel">Kirjaudu</h3>
+            </div>
+            <div class="modal-body px-sm-13 px-8 mb-10">
+                <p class="text-center fs-16 mb-10">Eikö ole vielä tunnusta? <a href="https://www.decopaint.fi" data-bs-toggle="modal"
+                        data-bs-target="#signUpModal" class="text-black">Rekisteröidy</a>.</p>
+                <form id="loginForm">
+                    {% csrf_token %}
+                    <input name="email" type="email" class="form-control mb-5" placeholder="Sähköpostiosoite" required>
+                    <input name="password" type="password" class="form-control" placeholder="Salasana" required>
+                    <div class="d-flex align-items-center justify-content-between mt-8 mb-7 float-end">
+                        <a href="https://www.decopaint.fi" class="text-secondary">Unohditko salasanasi?</a>
+                    </div>
+                    <button type="submit" value="Login"
+                        class="btn btn-dark btn-hover-bg-primary btn-hover-border-primary w-100">Kirjaudu</button>
+                        <div id="error-message" class="text-center text-danger mt-4" style="display: none;"></div>
+                </form>
+
+                <script>
+                    $(document).ready(function() {
+                        $('#loginForm').submit(function(e) {
+                            e.preventDefault(); 
+                
+                            var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                            var formData = $(this).serialize();
+                    
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url "user:login" %}',
+                                headers: {
+                                    'X-CSRFToken': csrfToken
+                                },
+                                data: formData,
+                                success: function(data) {
+                                    if (data.success) {
+                                        location.reload();
+                                    } else {
+                                        $('#error-message').text(data.error).show();
+                                    }
+                                },
+                                error: function(xhr, textStatus, errorThrown) {
+                                    var errorMessage = "Tapahtui virhe: " + xhr.responseText;
+                                    alert(errorMessage);
+                                }
+                            });
+                        });
+                    });
+                </script>
+    
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" id="signUpModal" tabindex="-1" aria-labelledby="signUpModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-center border-0 pb-0">
+                <button type="button" class="btn-close position-absolute end-5 top-5" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+                <h3 class="modal-title w-100" id="signUpModalLabel">Rekisteröidy</h3>
+            </div>
+            <div class="modal-body px-sm-13 px-8 mb-10">
+                <p class="text-center fs-16 mb-10">Oletko jo rekisteröitynyt? <a href="https://www.decopaint.fi" data-bs-toggle="modal"
+                        data-bs-target="#signInModal" class="text-black">Kirjaudu tästä</a>.</p>
+                    <form id="registerForm">
+                        <input name="email" type="email" class="form-control border-1 mb-5" placeholder="Sähköpostiosoite" required>
+                        <input name="password1" type="password" class="form-control border-1 mb-5" placeholder="Salasana" required>
+                        <input name="password2" type="password" class="form-control border-1 mb-7" placeholder="Toista salasana" required>
+                        <button type="submit" class="btn btn-primary btn-hover-bg-dark btn-hover-border-dark w-100">Rekisteröidy</button>
+                        <div id="register-error-message" class="text-danger mt-4"></div>
+                    </form>
+
+                    <script>
+                        $(document).ready(function() {
+                            $('#registerForm').submit(function(e) {
+                                e.preventDefault(); 
+                                var email = $(this).find('input[name="email"]').val();
+                                var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                                var formData = $(this).serialize();
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url "user:signup" %}',
+                                    headers: {
+                                        'X-CSRFToken': csrfToken
+                                    },
+                                    data: formData,
+                                    success: function(data) {
+                                        if (data.success) {
+                                            location.reload();
+                                            sendEmail(email);
+                                        } else {
+                                            // If registration fails, display error message
+                                            if (data.error) {
+                                                $('#register-error-message').text(data.error).show();
+                                            }
+                                            // If registration fails due to form errors, display form errors
+                                            if (data.errors) {
+                                                var errorMessage = '';
+                                                var errors = data.errors;
+                                                for (var key in errors) {
+                                                    errorMessage += key + ': ' + errors[key] + '\n';
+                                                }
+                                                $('#register-error-message').text(errorMessage).show();
+                                            }
+                                        }
+                                    },
+                                    error: function(xhr, textStatus, errorThrown) {
+                                        // If AJAX request fails, display error message
+                                        var errorMessage = "Tapahtui virhe: " + xhr.responseText;
+                                        alert(errorMessage);
+                                    }
+                                });
+                            });
+                        });
+
+                        function getCookie(name) {
+                            var cookieValue = null;
+                            if (document.cookie && document.cookie !== '') {
+                                var cookies = document.cookie.split(';');
+                                for (var i = 0; i < cookies.length; i++) {
+                                    var cookie = cookies[i].trim();
+                                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                        break;
+                                    }
+                                }
+                            }
+                            return cookieValue;
+                        }
+
+                        function sendEmail(email) {
+                            var csrfToken = getCookie('csrftoken');
+                            var requestData = {
+                                'email': email,
+                            };
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url "user:send_register_email" %}',
+                                headers: {
+                                    'X-CSRFToken': csrfToken
+                                },
+                                data: requestData,
+                                success: function(data) {
+                                    if (data.success) {
+                                        console.log('Email sent successfully');
+                                    } else {
+                                        console.error('Failed to send email:', data.error);
+                                    }
+                                },
+                                error: function(xhr, textStatus, errorThrown) {
+                                    console.error('Error sending email:', xhr.responseText);
+                                }
+                            });
+                        }
+                    </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Live Search CSS & JS -->
+<style>
+    /* Mobile Search styling overrides */
+    #mobile-search-results .container {
+        padding: 0 !important;
+    }
+    #mobile-search-results .row {
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 1.5rem !important;
+        --bs-gutter-y: 0px !important;
+        --bs-gutter-x: 0px !important;
+    }
+    #mobile-search-results .col-6 {
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 0 8px 0 !important; /* Tight margin between rows */
+    }
+    #mobile-search-results .card-product {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        text-align: left !important;
+        background: var(--bs-body-bg) !important;
+        border: 1px solid var(--bs-border-color-translucent) !important;
+        border-radius: 6px !important;
+        padding: 6px 10px !important; /* Compact padding */
+        margin: 0 !important;
+    }
+    #mobile-search-results .card-product figure {
+        width: 44px !important; /* Smaller compact thumbnail */
+        height: 44px !important;
+        margin: 0 10px 0 0 !important;
+        flex-shrink: 0 !important;
+    }
+    #mobile-search-results .card-product figure a {
+        background: transparent !important;
+    }
+    #mobile-search-results .card-product figure img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+    }
+    #mobile-search-results .card-product .card-body {
+        text-align: left !important;
+        padding: 0 !important;
+        flex-grow: 1 !important;
+    }
+    #mobile-search-results .card-product .price {
+        justify-content: flex-start !important;
+        margin-bottom: 0 !important;
+        font-size: 13px !important;
+    }
+    #mobile-search-results .card-product .product-title {
+        margin-bottom: 1px !important;
+        font-size: 13px !important; /* Compact font size */
+        font-weight: 600 !important;
+        line-height: 1.2 !important;
+    }
+    #mobile-search-results .card-product .d-flex.align-items-center.fs-12px {
+        display: none !important; /* Hide stars and rating reviews */
+    }
+</style>
+
+<script>
+    $(document).ready(function() {
+        var $searchInput = $('#mobile-search-input');
+        var $loading = $('#mobile-search-loading');
+        var $results = $('#mobile-search-results');
+        var $clearBtn = $('#mobile-search-clear');
+        var $menuList = $('#panel-main .mobile-menu-list');
+        var searchTimeout = null;
+
+        // Restore saved search query and results from localStorage on load
+        var savedQuery = localStorage.getItem('mobileSearchQuery');
+        var savedResults = localStorage.getItem('mobileSearchResultsHtml');
+        if (savedQuery && savedResults) {
+            $searchInput.val(savedQuery);
+            $clearBtn.show();
+            $menuList.hide();
+            $results.html(savedResults).show();
+            
+            // Override the menu navigation path so it stays on panel-main where search is shown
+            localStorage.setItem('mobileMenuPath', JSON.stringify(['panel-main']));
+        }
+
+        // Prevent form submission on enter and hide keyboard
+        $searchInput.closest('form').on('submit', function(e) {
+            e.preventDefault();
+            $searchInput.blur();
+        });
+
+        $searchInput.on('input', function() {
+            var query = $(this).val().trim();
+            
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            if (query.length === 0) {
+                $loading.hide();
+                $clearBtn.hide();
+                $results.hide().html('');
+                $menuList.show();
+                localStorage.removeItem('mobileSearchQuery');
+                localStorage.removeItem('mobileSearchResultsHtml');
+                return;
+            }
+
+            if (query.length === 1) {
+                $loading.hide();
+                $clearBtn.show();
+                $results.hide().html('');
+                $menuList.show();
+                localStorage.setItem('mobileSearchQuery', query);
+                localStorage.removeItem('mobileSearchResultsHtml');
+                return;
+            }
+
+            // During search loading: show spinner and hide clear button
+            $loading.show();
+            $clearBtn.hide();
+            $menuList.hide();
+            $results.show();
+
+            // Debounce search requests to avoid overloading the server
+            searchTimeout = setTimeout(function() {
+                $.ajax({
+                    url: '{% url "shop:search_results" %}',
+                    type: 'GET',
+                    data: { q: query },
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    success: function(html) {
+                        $results.html(html);
+                        $loading.hide();
+                        $clearBtn.show(); // Show clear button back after load
+                        
+                        // Save to localStorage
+                        localStorage.setItem('mobileSearchQuery', query);
+                        localStorage.setItem('mobileSearchResultsHtml', html);
+                    },
+                    error: function() {
+                        $results.html('<p class="text-danger px-4">Virhe haettaessa tuloksia.</p>');
+                        $loading.hide();
+                        $clearBtn.show(); // Show clear button back on error
+                    }
+                });
+            }, 300); // 300ms debounce
+        });
+
+        // Clear button click handler
+        $clearBtn.on('click', function() {
+            $searchInput.val('');
+            $clearBtn.hide();
+            $loading.hide();
+            $results.hide().html('');
+            $menuList.show();
+            
+            // Clear from localStorage
+            localStorage.removeItem('mobileSearchQuery');
+            localStorage.removeItem('mobileSearchResultsHtml');
+            $searchInput.focus();
+        });
+    });
+</script>

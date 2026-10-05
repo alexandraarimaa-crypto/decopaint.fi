@@ -1,0 +1,17 @@
+<div class="nav nav-tabs border-0" role="tablist">
+    <h4 class="mb-4 mt-8">Valitse pankki ja maksa tilaus</h4>
+    <ul class="bank">
+    {% for bank in banks %}
+        <li class="bank">
+            <form id="bankForm{{ forloop.counter }}" method="POST" action="{{ bank.url }}">
+                {% csrf_token %}
+                {% for parameter in bank.parameters %}
+                    <input type="hidden" name="{{ parameter.name }}" value="{{ parameter.value }}" />
+                {% endfor %}
+                <button class="bank-button btn btn-payment nav-link"><img src="{{ bank.svg }}" alt="{{ bank.name }}" /></button>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+    <div class="col-12 text-center">{{ terms|safe }}.</div>
+</div>

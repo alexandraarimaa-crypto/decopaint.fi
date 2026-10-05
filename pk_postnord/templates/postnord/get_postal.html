@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Points</title>
+</head>
+<body>
+    
+{% if error_message %}
+<p>{{ error_message }}</p>
+{% else %}
+
+<h1>Service Points</h1>
+<ul>
+    {% for point in service_points %}
+        <li>
+            <strong>Name:</strong> {{ point.name }}<br>
+            <strong>Postal Code:</strong> {{ point.visitingAddress.postalCode }}<br>
+            <strong>City:</strong> {{ point.visitingAddress.city }}<br>
+            
+        </li>
+    {% endfor %}
+</ul>
+
+{{ response }}
+{% endif %}
+
+
+
+   
+</body>
+</html>

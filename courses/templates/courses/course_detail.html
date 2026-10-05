@@ -1,0 +1,130 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}{{ course.title }} - Kurssit - Deco Paint{% endblock %}
+
+{% block content %}
+<section class="page-title z-index-2 position-relative pt-10 pb-5 bg-body-tertiary">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+                <li class="breadcrumb-item"><a href="{% url 'shop:main' %}">Etusivu</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'courses:course_list' %}">Kurssit</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="section pt-8 pb-10">
+    <div class="container">
+        <div class="row">
+            <!-- Course Content -->
+            <div class="col-lg-7 mb-5 mb-lg-0 pe-lg-5">
+                <h1 class="mb-4">{{ course.title }}</h1>
+
+                {% if course.image %}
+                <div class="ratio ratio-16x9 mb-6 overflow-hidden rounded-3 shadow-sm">
+                    <img src="{{ course.image.url }}" class="object-fit-cover" alt="{{ course.title }}">
+                </div>
+                {% endif %}
+
+                <div class="service-content lead text-dark">
+                    {{ course.content|safe }}
+                </div>
+
+                <!-- Additional Images -->
+                {% if course.additional_images.all %}
+                <div class="row g-3 mt-4">
+                    {% for additional in course.additional_images.all %}
+                    <div class="col-md-6">
+                        <div class="ratio ratio-4x3 overflow-hidden rounded-3 shadow-sm">
+                            <img src="{{ additional.image.url }}" class="object-fit-cover w-100 h-100"
+                                alt="{{ course.title }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Registration Sidebar -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg bg-white rounded-3 position-sticky"
+                    style="top: 100px; z-index: 10;">
+                    <div class="card-body p-5">
+                        <h3 class="card-title mb-4 fw-bold">Ilmoittaudu kurssille</h3>
+                        <p class="text-muted mb-4">Kiinnostuitko kurssista? Täytä lomake, niin vahvistamme paikkasi.</p>
+
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-4" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Nimi *</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Sähköposti
+                                    *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label fw-bold">Puhelinnumero
+                                    *</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.message.id_for_label }}" class="form-label fw-bold">Viesti *</label>
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                <div class="text-danger small mt-1">{{ form.message.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Hidden input for now as registration typically doesn't need file upload, 
+                                 but the form has it. I'll include it just in case logic changes or it's needed. -->
+                            <!--
+                            <div class="mb-4">
+                                <label for="{{ form.images.id_for_label }}" class="form-label fw-bold">Liitteet</label>
+                                {{ form.images }}
+                            </div>
+                            -->
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg fw-bold text-uppercase">Lähetä
+                                    ilmoittautuminen</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

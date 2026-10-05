@@ -1,0 +1,11 @@
+<h2>Uusi kurssi-ilmoittautuminen</h2>
+
+<p><strong>Kurssi:</strong> {{ registration.course.title }}</p>
+<p><strong>Nimi:</strong> {{ registration.name }}</p>
+<p><strong>Sähköposti:</strong> {{ registration.email }}</p>
+<p><strong>Puhelin:</strong> {{ registration.phone }}</p>
+
+<h3>Viesti:</h3>
+<p>{{ registration.message|linebreaks }}</p>
+
+<p><em>Tämä viesti on lähetetty Deco Paint -verkkosivuston kautta.</em></p>

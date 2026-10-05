@@ -1,0 +1,119 @@
+{% load static %}
+
+<style>
+.uneffect-h h4{
+display: inline;
+    font-size: inherit;
+    font-weight: inherit;
+}
+</style>
+
+{% for att in attributes %}
+    <div class="">
+        <div class="row pt-0 pb-4 uneffect-h">
+            
+            {% if att.a_class %}
+            <div class="col-4 p-6 fs-14px shadow-sm-sm text-center mt-2">
+                <span class="text-body-emphasis fw-semibold"><img src="{% static "assets/images/shop/a.png" %} " alt="La classe A+ icon"></span>
+            </div>
+            {% endif %}
+
+            {% if att.epd %}
+            <div class="col-4 p-6 fs-14px shadow-sm text-center mt-2">
+                <span class="text-body-emphasis fw-semibold"><img src="{% static "assets/images/shop/epd.png" %}" alt="epd icon"></span></span>
+            </div>
+            {% endif %}
+
+            {% if att.ch2o %}
+            <div class="col-4 p-6 fs-14px shadow-sm text-center mt-2">
+                <span class="text-body-emphasis fw-semibold"><img src="{% static "assets/images/shop/ch2o.png" %}" alt="ch2o icon"></span>
+            </div>
+            {% endif %}
+
+            {% if att.haccp %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><h4>HACCP:</h4></span><br> <span class="text-primary">{{ att.haccp }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.purpose %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/purpose.png" %}" alt="Käyttötarkoitus icon"><h4>Käyttötarkoitus:</h4></span><br> <span class="text-primary">{{ att.purpose }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.application %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/application.png" %}" alt="Käyttökohde icon"><h4>Käyttökohde:</h4></span><br> <span class="text-primary">{{ att.application }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.family %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/family.png" %}" alt="Tuoteperhe icon"><h4>Tuoteperhe:</h4></span><br> <span class="text-primary">{{ att.family }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.sufficiency %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/m2.png" %}" alt="Rittoisuus icon"><h4>Rittoisuus:</h4></span><br> <span class="text-primary">{{ att.sufficiency }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.grain %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/grain.png" %}" alt="Raekoko icon"><h4>Raekoko:</h4></span><br> <span class="text-primary">{{ att.grain }} mm</span>
+            </div>
+            {% endif %}
+
+            {% if att.gloss %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/gloss.png" %}" alt="Kiilto icon"><h4>Kiilto:</h4></span><br> <span class="text-primary">{{ att.gloss }}</span>
+            </div>
+            {% endif %}
+
+
+            {% if att.voc %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/voc.png" %}" alt="EU VOC raja/arvo icon"><h4>EU VOC raja/arvo:</h4></span><br> <span class="text-primary">{{ att.voc }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.thinning %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/thinner.png" %}" alt="Ohennus icon"><h4>Ohennus:</h4></span><br> <span class="text-primary">{{ att.thinning }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.density %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/density.png" %}" alt="Tiheys icon"><h4>Tiheys:</h4></span><br> <span class="text-primary">{{ att.density }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.method %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/method.png" %}" alt="Työtapa icon"><h4>Työtapa:</h4></span><br> <span class="text-primary">{{ att.method }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.primer %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/primer.png" %}" alt="Pohjuste icon"><h4>Pohjuste:</h4></span><br> <span class="text-primary">{{ att.primer }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.ph %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/ph.png" %}" alt="PH icon"><h4>PH:</h4></span><br> <span class="text-primary">{{ att.ph }}</span>
+            </div>
+            {% endif %}
+
+            {% if att.abrasion_class %}
+            <div class="col-4 p-6 fs-14px shadow-sm">
+                <span class="text-body-emphasis fw-semibold"><img class="float-end p-4" src="{% static "assets/images/shop/friction.png" %}" alt="Hankausluokka icon"><h4>Hankausluokka:</h4></span><br> <span class="text-primary">{{ att.abrasion_class }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}

@@ -1,0 +1,270 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+{{ seo.title }}
+{% endblock %}
+{% block content %}
+
+{% if category.bg_image %}
+<section class="dp-category-visual-hero">
+    <div class="slick-slider hero hero-header-05 mb-10 shadow-lg"
+        data-slick-options='{&#34;arrows&#34;:false,&#34;autoplay&#34;:true,&#34;cssEase&#34;:&#34;ease-in-out&#34;,&#34;dots&#34;:false,&#34;fade&#34;:true,&#34;infinite&#34;:true,&#34;slidesToShow&#34;:1,&#34;speed&#34;:600}'>
+        <div class="vh-100 d-flex align-items-center">
+            <div class="z-index-2 container container-xxl py-21 pt-xl-10 pb-xl-11">
+                <div class="hero-content text-center">
+                    <div data-animate="fadeInDown">
+                        <h1 class="mb-11 hero-title-5 {% if category.invert_colors %}text-dark{% else %}text-light text-with-shadow{% endif %}">{% if seo.h1 %}{{ seo.h1 }}{% elif category %}{{ category.name }}{% else %}Kaikki tuotteet{% endif %}</h1>
+                        {% if category.title %}<p class="{% if category.invert_colors %}text-dark{% else %}text-light text-with-shadow{% endif %} mb-8 fw-semibold fs-4">{{ category.title|safe }}</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if category.bg_image %}
+            <div class="lazy-bg bg-overlay position-absolute z-index-1 w-100 h-100 light-mode-img"
+                data-bg-src="{{ category.bg_image.url }}">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% else %}
+<section class="z-index-2 position-relative pb-2 mb-12 dp-category-breadcrumb">
+    <div class="bg-body-secondary mb-3">
+        <div class="container">
+            <nav class="py-4 lh-30px" aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center py-1 mb-0">
+                    <li class="breadcrumb-item active" aria-current="page">Tuotekatalogi</li>
+                    {% if category %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'shop:product_list_by_category' category_slug=category.slug %}">
+                          {{ category.name }}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if not category.bg_image %}
+<section class="container container-xxl mt-8 mb-8 dp-category-plain-heading">
+    <span class="dp-kicker">TUOTEVALIKOIMA</span>
+    <h1>{% if seo.h1 %}{{ seo.h1 }}{% elif category %}{{ category.name }}{% else %}Kaikki tuotteet{% endif %}</h1>
+    {% if seo.intro %}<p>{{ seo.intro }}</p>{% elif category.title %}<p>{{ category.title|striptags }}</p>{% endif %}
+</section>
+{% endif %}
+
+<section class="dp-mobile-category-intro d-lg-none">
+    <div class="container">
+        {% if category.bg_image %}
+        <span class="dp-kicker">TUOTEVALIKOIMA</span>
+        <h2>{% if seo.h1 %}{{ seo.h1 }}{% elif category %}{{ category.name }}{% else %}Kaikki tuotteet{% endif %}</h2>
+        {% if seo.intro %}<p>{{ seo.intro }}</p>{% elif category.title %}<p>{{ category.title|striptags|truncatechars:150 }}</p>{% endif %}
+        {% endif %}
+        <div class="dp-category-guide">
+            <span aria-hidden="true">i</span>
+            <p><strong>Tarvitsetko apua valintaan?</strong><br>Asiantuntija auttaa löytämään oikean materiaalin.</p>
+            <a href="{% url 'shop:contact' %}">Kysy →</a>
+        </div>
+    </div>
+</section>
+
+{% if category.info %}
+<section class="container my-16 dp-category-description">
+    <div class="category-info-wrapper position-relative">
+        <div id="short-info" class="short-info" style="overflow: hidden; max-height: 200px; position: relative;">
+            {{ category.info|safe }}
+            <div class="fade-overlay" style="
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 50px;
+                background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+            "></div>
+        </div>
+        <div class="text-center mt-3">
+            <button id="toggle-info-btn" class="btn btn-outline-primary">
+                Näytä lisää ↓
+            </button>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const shortInfo = document.getElementById("short-info");
+        const toggleButton = document.getElementById("toggle-info-btn");
+        const fadeOverlay = document.querySelector(".fade-overlay");
+    
+        let isExpanded = false;
+    
+        toggleButton.addEventListener("click", function() {
+            if (isExpanded) {
+                shortInfo.style.maxHeight = "200px";
+                fadeOverlay.style.display = "block";
+                toggleButton.innerText = "Näytä lisää ↓";
+            } else {
+                shortInfo.style.maxHeight = "none";
+                fadeOverlay.style.display = "none";
+                toggleButton.innerText = "Näytä vähemmän ↑";
+            }
+            isExpanded = !isExpanded;
+        });
+    });
+    </script>
+{% endif %}
+
+<section class="dp-mobile-catalog-toolbar d-lg-none" aria-label="Tuoteluettelon työkalut">
+    <button type="button" data-bs-toggle="offcanvas" data-bs-target="#offCanvasNavBar" aria-controls="offCanvasNavBar">
+        <i class="bi bi-sliders" aria-hidden="true"></i> Rajaa tuotteita
+    </button>
+    <button type="button" data-bs-toggle="offcanvas" data-bs-target="#searchModal" aria-controls="searchModal">
+        <i class="bi bi-search" aria-hidden="true"></i> Hae
+    </button>
+</section>
+
+<section class="container container-xxl mt-6 dp-catalog-count">
+    <div class="tool-bar mb-11 align-items-center justify-content-between d-lg-flex">
+        <div class="tool-bar-left mb-6 mb-lg-0 fs-18px">Löydetty <span class="text-body-emphasis fw-semibold">{{ total_products }}</span> {% if total_products == 1 %}tuote{% else %}tuotetta{% endif %}.</span></div>
+    </div>
+</section>
+
+<div class="container container-xxl pb-16 pb-lg-18 mb-lg-3 dp-product-catalog">
+    <div class="row gy-50px">
+
+        {% for product in products %}
+        <div class="col-6 col-md-4 col-lg-3 mb-4">
+            <article class="card card-product grid-1 bg-transparent border-0 dp-product-card">
+
+                <figure class="card-img-top position-relative mb-7 overflow-hidden ">
+                    <a href="{% url 'shop:product_detail' slug=product.slug %}" class="hover-zoom-in d-block bg-light">
+                        {% if product.thumbnail %}
+                            <img src="{{ product.thumbnail.url }}" alt="{{ product.attributes.first.family }} {{ product.name }}" data-src="{{ product.thumbnail.url }}"
+                            class="img-fluid lazy-image w-100" width="330" height="330">
+                        {% endif %}
+                    </a>
+                    {% if product.discount_percentage > 0 %}<div class="position-absolute product-flash z-index-2 "><span class="badge badge-product-flash on-sale bg-primary">-{{ product.discount_percentage }}%</span></div>{% endif %}
+                </figure>
+
+                <div class="card-body text-center p-0">
+                    {% if product.attributes.first.family %}<small class="dp-product-family">{{ product.attributes.first.family }}</small>{% endif %}
+                    <span
+                        class="d-flex align-items-center price text-body-emphasis fw-bold justify-content-center mb-3 fs-6">
+                        <ins class="text-decoration-none">alk. {{ product.total_price|floatformat:2 }}€</ins></span>
+
+                    <h2 class="product-title card-title text-primary-hover text-body-emphasis fs-15px fw-500 mb-3"><a
+                            class="text-decoration-none text-reset" href="{% url 'shop:product_detail' slug=product.slug %}">{{ product.attributes.first.family }} {{ product.name|truncatechars:50 }}</a></h2>
+                </div>
+
+                <div class="d-flex align-items-center fs-12px justify-content-center dp-product-rating">
+                    <div class="rating">
+                        <div class="empty-stars">
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="filled-stars" style="width: {{ product.rating_percent|floatformat:"0" }}%">
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                        </div>
+                    </div><span class="ms-4 pt-3 fs-14px">{% if product.total_reviews == 0 %}Ei arvosteluja{% elif product.total_reviews == 1 %}{{ product.total_reviews }} arvostelu{% else %}{{ product.total_reviews }} arvostelua{% endif %}</span></div>
+
+                <span class="dp-product-availability {% if product.available %}is-available{% endif %}">
+                    {% if product.available %}● Saatavilla{% else %}● Tilapäisesti poissa{% endif %}
+                </span>
+                <a class="dp-card-cta" href="{% url 'shop:product_detail' slug=product.slug %}">Tutustu tuotteeseen</a>
+            </article>
+        </div>
+        {% endfor %}
+
+    </div>
+
+
+    <nav class="d-flex mt-13 pt-3 justify-content-center" aria-label="pagination" data-animate="fadeInUp">
+        <ul class="pagination m-0">
+            {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page=1" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+    
+            {% for i in products.paginator.page_range %}
+                <li class="page-item {% if products.number == i %}active{% endif %}">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+            {% endfor %}
+    
+            {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page={{ products.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page={{ products.paginator.num_pages }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    
+
+
+</div>
+
+
+{% endblock %}

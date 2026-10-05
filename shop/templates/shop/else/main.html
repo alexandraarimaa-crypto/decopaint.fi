@@ -1,0 +1,324 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}{{ seo.title }}{% endblock %}
+{% block content %}
+
+{% if slider %}
+<section class="dp-home-hero">
+    <div class="slick-slider hero hero-header-05 slick-slider-dots-inside"
+    data-slick-options='{&#34;arrows&#34;:false,&#34;autoplay&#34;:true,&#34;autoplaySpeed&#34;:5000,&#34;cssEase&#34;:&#34;ease-in-out&#34;,&#34;dots&#34;:true,&#34;fade&#34;:true,&#34;infinite&#34;:true,&#34;slidesToShow&#34;:1,&#34;speed&#34;:1600}'
+    >
+        {% for slide in slider %}
+            {% if slide.active %}
+            <div class="vh-100 d-flex align-items-center">
+                <div class="z-index-2 container container-xxl py-21 pt-xl-10 pb-xl-11">
+                    <div class="hero-content text-start">
+                        <div data-animate="fadeInDown">
+                                <span class="dp-hero-kicker d-lg-none">LUONNOLLINEN PINTA · AJATON TUNNELMA</span>
+                                <h1 class="mb-11 hero-title-5 text-light text-with-shadow">{{ slide.title|safe }}</h1>
+                            {% if slide.info %}<p class="text-light mb-8 fw-semibold fs-4 text-with-shadow">{{ slide.info|safe }}</p>{% endif %}
+                            {% if slide.link %}
+                                <a href="{{ slide.link }}" data-animate="fadeInUp" class="btn btn-lg btn-dark btn-hover-bg-primary btn-hover-border-primary dp-primary-cta">
+                                    {% if slide.link_text %}{{ slide.link_text }}{% else %}Tutustu{% endif %}
+                                    <svg class="icon">
+                                        <use xlink:href="#icon-arrow-right"></use>
+                                    </svg>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if slide.image %}
+                <div class="dp-hero-media bg-overlay position-absolute z-index-1 w-100 h-100 light-mode-img">
+                    <img src="{{ slide.image.url }}"
+                        alt=""
+                        width="1920"
+                        height="1080"
+                        {% if forloop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="dp-mobile-discovery d-lg-none" aria-label="Tuotehaku ja suositut käyttökohteet">
+    <div class="container">
+        <form action="{% url 'shop:search_results' %}" method="get" class="dp-home-search">
+            <label for="dp-home-search-input">Mitä olet maalaamassa?</label>
+            <div>
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input id="dp-home-search-input" type="search" name="q" placeholder="Esim. patterimaali">
+                <button type="submit">Hae</button>
+            </div>
+        </form>
+        <nav class="dp-quick-links" aria-label="Suositut käyttökohteet">
+            <a href="{% url 'shop:product_list_by_category' category_slug='sisustusmaali' %}">Sisäseinät</a>
+            <a href="{% url 'shop:product_list_by_category' category_slug='sisustuslaasti' %}">Sisustuslaastit</a>
+            <a href="{% url 'shop:product_list_by_category' category_slug='ulkomaalit' %}">Ulkopinnat</a>
+        </nav>
+    </div>
+</section>
+
+<section class="bg-body-secondary pt-12 pb-lg-13 pb-13 dp-home-benefits" data-animated-id="4">
+
+    <div class="container container-xxl">
+        <div class="dp-home-section-heading">
+            <span class="dp-kicker">PALVELUN EDUT</span>
+            <h2>Sujuvampi ostokokemus</h2>
+        </div>
+        <div class="row">
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated rounded" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center">
+                    <div class="icon-box-icon card-img fs-70px text-primary" aria-hidden="true">
+                        <svg class="icon">
+                            <use xlink:href="#icon-box-01"></use>
+                        </svg>
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">Nopea toimitus</h3>
+                        <p class="dp-mobile-card-caption">Varastotuotteet 1–3 arkipäivässä</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Toimitus on 1-3 arkipäivää varastossa oleville
+                            tuotteille.</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated rounded" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center">
+                    <div class="icon-box-icon card-img fs-70px text-primary" aria-hidden="true">
+                        <svg class="icon">
+                            <use xlink:href="#icon-box-02"></use>
+                        </svg>
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">Ympäristöystävälliset maalit</h3>
+                        <p class="dp-mobile-card-caption">Ekologisia, myrkyttömiä maaleja</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Vuodesta 1984 Oikos on tuottanut ekologisia, myrkyttömiä maaleja.</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated rounded" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center">
+                    <div class="icon-box-icon card-img fs-70px text-primary" aria-hidden="true">
+                        <svg class="icon">
+                            <use xlink:href="#icon-box-03"></use>
+                        </svg>
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">Online-tuki</h3>
+                        <p class="dp-mobile-card-caption">Apua maalin ja sävyn valintaan</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Asiantuntijamme auttaa valittaessa oikeaa maalia ja
+                            sävyä.</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated rounded" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center">
+                    <div class="icon-box-icon card-img fs-70px text-primary" aria-hidden="true">
+                        <svg class="icon">
+                            <use xlink:href="#icon-box-04"></use>
+                        </svg>
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">Monipuoliset maksutavat</h3>
+                        <p class="dp-mobile-card-caption">Pankki, kortti, mobiili ja lasku</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Verkkopankkimaksut, korttimaksut, mobiilimaksut,
+                            osamaksut ja laskut.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+<section class="container container-xxl py-14 py-lg-17 dp-home-needs">
+    <div class="mb-13">
+        <div class="text-center" data-animate="fadeInUp">
+            <span class="dp-kicker d-lg-none">ALOITA TÄSTÄ</span>
+            <h2 class="mb-6">Mihin tarvitset ratkaisun?</h2>
+            <p class="fs-18px mb-0">Löydä sopiva materiaali käyttökohteen mukaan</p>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-6" data-animate="fadeInUp">
+            <div class="card border-0 rounded-0 hover-zoom-in hover-shine dp-need-card">
+
+                <img class="lazy-image card-img object-fit-cover light-mode-img" src="{% static "assets/images/main/sisustus.jpg" %}" data-src="{% static "assets/images/main/sisustus.jpg" %}" width="690" height="690" alt="Sisustusmaalilla viimeistelty vihreä seinäpinta">
+                <div class="card-img-overlay d-inline-flex flex-column p-8 justify-content-end text-center">
+                    <div><a href="{% url 'shop:product_list_by_category' category_slug='sisustusmaali' %}" class="btn btn-white px-12">Sisustusmaalit <span>→</span></a></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-6 mt-9 pt-2 mt-lg-0 pt-lg-0">
+            <div class="row">
+                <div class="col-md-6" data-animate="fadeInUp">
+                    <div class="card border-0 rounded-0 hover-zoom-in hover-shine dp-need-card">
+
+                        <img class="lazy-image card-img object-fit-cover light-mode-img" src="{% static "assets/images/main/sisustuslaastit.jpg" %}"
+                            data-src="{% static "assets/images/main/sisustuslaastit.jpg" %}" width="330" height="330"
+                            alt="Sisustuslaastilla toteutettu vaalea mineraalipinta">
+                        <div class="card-img-overlay d-inline-flex flex-column p-8 justify-content-end text-center">
+                            <div><a href="{% url 'shop:product_list_by_category' category_slug='sisustuslaasti' %}" class="btn btn-white px-12">Sisustuslaastit <span>→</span></a></div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-6 mt-9 pt-2 mt-md-0 pt-md-0" data-animate="fadeInUp">
+                    <div class="card border-0 rounded-0 hover-zoom-in hover-shine dp-need-card">
+
+                        <img class="lazy-image card-img object-fit-cover light-mode-img" src="{% static "assets/images/main/ulkomaalit.jpg" %}"
+                            data-src="{% static "assets/images/main/ulkomaalit.jpg" %}" width="330" height="330"
+                            alt="Maalattu moderni julkisivu">
+                        <div class="card-img-overlay d-inline-flex flex-column p-8 justify-content-end text-center">
+                            <div><a href="{% url 'shop:product_list_by_category' category_slug='ulkomaalit' %}" class="btn btn-white px-12">Ulkopinnat <span>→</span></a></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 mt-9 pt-2" data-animate="fadeInUp">
+                    <div class="card border-0 rounded-0 hover-zoom-in hover-shine dp-need-card">
+
+                        <img class="lazy-image card-img object-fit-cover" src="{% static "assets/images/main/koristemaalit.jpg" %}"
+                            data-src="{% static "assets/images/main/koristemaalit.jpg" %}" width="690" height="330"
+                            alt="Koristemaalilla toteutettu efektipinta">
+                        <div class="card-img-overlay d-inline-flex flex-column p-8 justify-content-end text-center">
+                            <div><a href="{% url 'shop:product_list_by_category' category_slug='koristemaali' %}" class="btn btn-white px-12">Efektipinnat <span>→</span></a></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="dp-home-tools d-lg-none">
+    <div class="container">
+        <article class="dp-tool-card dp-calculator-card">
+            <span class="dp-tool-icon" aria-hidden="true">▦</span>
+            <div>
+                <span class="dp-kicker">MATERIAALILASKURI</span>
+                <h2>Osta oikea määrä kerralla.</h2>
+                <p>Anna pinta-ala tuotesivulla, niin saat arvion tarvittavasta määrästä.</p>
+                <a href="{% url 'shop:all_products' %}">Valitse tuote ja laske <span>→</span></a>
+            </div>
+        </article>
+
+        <article class="dp-tool-card dp-consultation-card">
+            <span class="dp-tool-icon" aria-hidden="true">?</span>
+            <div>
+                <span class="dp-kicker">ASIANTUNTIJA APUNA</span>
+                <h2>Epävarma oikeasta tuotteesta?</h2>
+                <p>Lähetä kohteen tiedot. Autamme valitsemaan sopivan maalin, pinnoitteen ja sävyn.</p>
+                <a class="btn" href="{% url 'shop:contact' %}">Pyydä maksuton arvio</a>
+            </div>
+        </article>
+    </div>
+</section>
+
+
+<section class="bg-body-tertiary pt-12 pb-lg-13 pb-13 dp-home-values" data-animated-id="4">
+
+    <div class="container container-xxl">
+        <div class="dp-home-section-heading">
+            <span class="dp-kicker">OIKOS-LAATU</span>
+            <h2>Laatuominaisuudet</h2>
+        </div>
+        <div class="row gx-30px gy-30px">
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center bg-transparent">
+                    <div class="icon-box-icon card-img fs-70px text-primary">
+                        <img src="{% static 'assets/images/main/bollo-ecologia-bollo-since1984.svg' %}" width="100" height="100" alt="">
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">VIHREÄ VUODESTA 1984</h3>
+                        <p class="dp-mobile-card-caption">Ekologiset maalit vuodesta 1984</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Oikos on valmistanut ekologisia maaleja ja koristetuotteita vuodesta 1984 lähtien.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center bg-transparent">
+                    <div class="icon-box-icon card-img fs-70px text-primary">
+                        <img src="{% static 'assets/images/main/antibacterial.png' %}" width="100" height="100" alt="">
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">ANTIBAKTEERINEN</h3>
+                        <p class="dp-mobile-card-caption">Suojaa bakteereja vastaan</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Antibakteerinen maali Oikos tarjoaa erinomaista suojaa bakteereja vastaan. Se parantaa sisäilman laatua ja ehkäisee homeongelmia.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center bg-transparent">
+                    <div class="icon-box-icon card-img fs-70px text-primary">
+                        <img src="{% static 'assets/images/main/bollo-washability.svg' %}" width="100" height="100" alt="">
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">ERINOMAINEN PESTÄVYYS</h3>
+                        <p class="dp-mobile-card-caption">Kestävämpi hankaukselle</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Mitä pestävämpi tuote on, sitä kestävämpi se on hankaukselle. Maalin kestävyyden arviointi: UNI EN ISO 11998:2003</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 animate__fadeInUp animate__animated" data-animate="fadeInUp">
+                <div class="icon-box icon-box-style-1 card border-0 text-center bg-transparent">
+                    <div class="icon-box-icon card-img fs-70px text-primary">
+                        <img src="{% static 'assets/images/main/bollo-HACCP.svg' %}" width="100" height="100" alt="">
+                    </div>
+                    <div class="icon-box-content card-body pt-4">
+                        <h3 class="icon-box-title card-title fs-5 mb-4 pb-2">HACCP - SERTIFIOITU</h3>
+                        <p class="dp-mobile-card-caption">Elintarvikkeiden käsittelyyn</p>
+                        <p class="icon-box-desc card-text fs-18px mb-0">Kyseessä on protokolla, joka otetaan käyttöön elintarvikkeiden käsittelyn, pakkaamisen ja myynnin yhteydessä.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section id="our_best_seller_3" class="pt-12 dp-home-popular">
+    <div class="container container-xxl mb-20">
+        <div class="mb-13 text-center" data-animate="fadeInUp">
+            <span class="dp-kicker d-lg-none">SUOSITUT NYT</span>
+            <h2 class="mb-5">Suositut ja ajankohtaiset tuotteet</h2>
+            <p class="fs-18px mb-0 mw-xl-35 mw-lg-50 mw-md-75 ms-auto me-auto px-xl-5">Tutustu asiakkaidemme suosikkeihin ja ajankohtaisiin tarjouksiin</p>
+        </div>
+
+        <div id="popular-products">
+        </div>  
+    </div>
+</section>
+
+
+<script>
+    $.ajax({
+        url: '{% url "shop:load_main_popular" %}',
+        type: 'GET',
+        success: function(data) {
+            $('#popular-products').html(data.html);
+        },
+        error: function(xhr, status, error) {
+            $('#popular-products').html('Tapahtui virhe: ' + error);
+        }
+    });
+</script>
+
+
+
+
+{% endblock %}

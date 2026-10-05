@@ -1,0 +1,77 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+{{ post.title }}
+{% endblock %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+    <div class="bg-body-secondary mb-3">
+        <div class="container">
+            <nav class="py-4 lh-30px" aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center py-1 mb-0">
+                    <li class="breadcrumb-item"><a title="Home" href="{% url 'shop:main' %}">Deco Paint Finland Oy</a></li>
+                    <li class="breadcrumb-item"><a title="Blogi" href="{% url 'blog:blog_list' %}">Blogi</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ post.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+
+<section class="pt-10 pb-16 pb-lg-18 container">
+    <div class="px-lg-25 px-0">
+        <div class="text-center mb-13">
+            <a href="#" class="btn btn-light btn-hover-bg-dark btn-hover-border-dark btn-hover-text-light shadow-none py-0 px-6 mb-6">
+                {{ post.category }}
+            </a>
+            <h1 class=" px-6 text-body-emphasis border-0 fw-500 mb-4 fs-3 ">
+                {{ post.title }}
+            </h1>
+            <ul class="list-inline fs-15px fw-semibold letter-spacing-01 d-flex justify-content-center align-items-center">
+                <li class="list-inline-item px-6">{{ post.created_at|date:"d.m.Y" }}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="">
+        <div class="px-0">
+            <p class="text-body-emphasis mt-4 mb-6">{{ post.content|safe }}</p>
+        </div>
+    </div>
+
+
+    <!-- Related Products -->
+    {% if post.products.all %}
+    <h3 class="text-center my-12">Liittyvät tuotteet</h3>
+    <div class="row gy-50px">
+        {% for product in post.products.all %}
+        <div class="col-6 col-md-4 col-lg-3 mb-4">
+            <div class="card card-product grid-1 bg-transparent border-0">
+
+                <figure class="card-img-top position-relative mb-7 overflow-hidden ">
+                    <a href="{% url 'shop:product_detail' slug=product.slug %}" class="hover-zoom-in d-block bg-light">
+                        {% if product.thumbnail %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name}}"data-src="{{ product.thumbnail.url }}"
+                            class="img-fluid lazy-image w-100" width="330" height="330">
+                        {% endif %}
+                    </a>
+                </figure>
+
+                <div class="card-body text-center p-0">
+                    <span
+                        class="d-flex align-items-center price text-body-emphasis fw-bold justify-content-center mb-3 fs-6">
+                        <ins class="text-decoration-none">alk. {{ product.total_price }}€</ins></span>
+
+                    <h4 class="product-title card-title text-primary-hover text-body-emphasis fs-15px fw-500 mb-3"><a
+                            class="text-decoration-none text-reset" href="{% url 'shop:product_detail' slug=product.slug %}">{{ product.attributes.first.family }} {{ product.name|truncatechars:50 }}</a></h4>   
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+</section>
+
+{% endblock %}

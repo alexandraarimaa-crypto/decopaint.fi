@@ -1,0 +1,56 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}Palvelut - Deco Paint{% endblock %}
+
+{% block content %}
+<section class="page-title z-index-2 position-relative pt-10 pb-5">
+    <div class="container">
+        <h1 class="text-center mb-0">Palvelut</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+                <li class="breadcrumb-item"><a href="{% url 'shop:main' %}">Etusivu</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Palvelut</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="section pt-5 pb-10">
+    <div class="container">
+        <div class="row">
+            {% for service in services %}
+            <div class="col-md-6 col-lg-4 mb-5">
+                <div class="card border-0 hover-zoom-in h-100 shadow-sm">
+                    <a href="{{ service.get_absolute_url }}" class="card-img ratio ratio-4x3 overflow-hidden">
+                        {% if service.thumbnail %}
+                        <img src="{{ service.thumbnail.url }}" class="img-fluid object-fit-cover w-100 h-100"
+                            alt="{{ service.title }}">
+                        {% elif service.image %}
+                        <img src="{{ service.image.url }}" class="img-fluid object-fit-cover w-100 h-100"
+                            alt="{{ service.title }}">
+                        {% else %}
+                        <img src="{% static 'assets/images/default-service.jpg' %}"
+                            class="img-fluid object-fit-cover w-100 h-100" alt="{{ service.title }}">
+                        {% endif %}
+                    </a>
+                    <div class="card-body p-4 text-center">
+                        <h4 class="card-title fw-bold mb-3"><a href="{{ service.get_absolute_url }}"
+                                class="text-decoration-none text-dark">{{ service.title }}</a></h4>
+                        <div class="card-text text-muted mb-4 line-clamp-3">
+                            {{ service.content|striptags|truncatewords:20|safe }}
+                        </div>
+                        <a href="{{ service.get_absolute_url }}"
+                            class="btn btn-outline-primary fw-bold text-uppercase">Lue lisää</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">Ei palveluita tällä hetkellä.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

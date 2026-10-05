@@ -1,0 +1,182 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+Ota yhteyttä
+{% endblock %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+  <div class="bg-body-secondary mb-3">
+    <div class="container">
+      <nav class="py-4 lh-30px" aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center py-1 mb-0">
+          <li class="breadcrumb-item"><a title="Home" href="{% url 'shop:main' %}">Deco Paint Finland Oy</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Ota yhteyttä</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
+
+<section class="mb-13 px-8">
+  <div class="row">
+    <div class="col-md-3 mb-9 mb-md-0 animate__backInLeft animate__animated" data-animate="backInLeft">
+      <div class="card border-0 hover-zoom-in">
+        <div class="image-box-4">
+          <img class="img-fluid loaded" src="{% static "assets/images/banner/contact1.jpg" %}"
+            data-src="{% static "assets/images/banner/contact1.jpg" %}" width="620" height="400" alt="" loading="lazy"
+            data-ll-status="loaded">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-9 mb-md-0 animate__backInUp animate__animated" data-animate="backInUp">
+      <div class="card border-0 hover-zoom-in">
+        <div class="image-box-4">
+          <img class="img-fluid loaded" src="{% static "assets/images/banner/contact2.jpg" %}"
+            data-src="{% static "assets/images/banner/contact2.jpg" %}" width="620" height="400" alt="" loading="lazy"
+            data-ll-status="loaded">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-9 mb-md-0 animate__backInUp animate__animated" data-animate="backInUp">
+      <div class="card border-0 hover-zoom-in">
+        <div class="image-box-4">
+          <img class="img-fluid loaded" src="{% static "assets/images/banner/contact4.jpg" %}"
+            data-src="{% static "assets/images/banner/contact4.jpg" %}" width="620" height="400" alt="" loading="lazy"
+            data-ll-status="loaded">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-9 mb-md-0 animate__backInRight animate__animated" data-animate="backInRight">
+      <div class="card border-0 hover-zoom-in">
+        <div class="image-box-4">
+          <img class="img-fluid loaded" src="{% static "assets/images/banner/contact3.jpg" %}"
+            data-src="{% static "assets/images/banner/contact3.jpg" %}" width="620" height="400" alt="" loading="lazy"
+            data-ll-status="loaded">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<section>
+
+  <div class="container">
+    <div class="text-center">
+      <div class="text-center">
+        <h2 class="fs-36px mb-9">Deco Paint Finland Oy</h2>
+        <p class="fs-18px text-justify">
+          Deco Paint Finland Oy on virallinen OIKOS-tuotteiden maahantuoja ja ainoa edustaja Suomessa. Olemme ylpeitä siitä, että tuomme Suomeen tällaisen laadukkaan ja kilpailukykyisen tuotevalikoiman, jolla on pitkä historia maailmassa. Tänä vuonna OIKOS-ryhmä täyttää 40 vuotta, joten sen takana on vuosien kehitystä ja tuotteiden sekä yrityksen kasvua – tästä syystä OIKOS on maailmanjohtaja.
+        </p>
+        <p class="fs-18px mb-14 text-center">
+          Tervetuloa liittymään OIKOS-tuotteiden käyttäjien ja jälleenmyyjien joukkoon!
+        </p>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-12 mb-md-0">
+        <div class="d-flex align-items-start">
+          <div class="pe-lg-9 pe-8 text-primary">
+            <svg class="icon fs-2">
+              <use xlink:href="#icon-box-07"></use>
+            </svg>
+          </div>
+          <div>
+            <h3 class="fs-5 mb-6">Osoite</h3>
+            <div class="fs-6">
+              <p class="mb-2 pb-4 fs-6">
+                Asessorinkatu 12<br>
+                20780 Kaarina
+              </p>
+            </div>
+            <a href="https://maps.app.goo.gl/wo27UgDj9JZRmNYq7" target="_blank" class="text-decoration-none border-bottom border-currentColor fw-semibold fs-6">Reittiohjeet</a>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-md-4 mb-8 mb-md-0">
+        <div class="d-flex align-items-start">
+          <div class="pe-lg-9 pe-8 text-primary">
+            <svg class="icon fs-2">
+              <use xlink:href="#icon-box-05"></use>
+            </svg>
+          </div>
+          <div>
+            <h3 class="fs-5 mb-6">Yhteystiedot</h3>
+            <div class="fs-6">
+              <p class="mb-3 fs-6">Puhelinnumero:<span class="text-body-emphasis"> +358 400 414 838</span></p>
+              <p class="mb-3 fs-6">E-mail: <span class="text-body-emphasis">info@decopaint.fi</span></p>
+              <p class="mb-0 fs-6">Y-tunnus: <span class="text-body-emphasis">3367753-6</span></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-md-4 mb-12 mb-md-0">
+        <div class="d-flex align-items-start">
+          <div class="pe-lg-9 pe-8 text-primary">
+            <svg class="icon fs-2">
+              <use xlink:href="#icon-box-06"></use>
+            </svg>
+          </div>
+          <div>
+            {{ open_time|safe }}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if mapbox_public_token %}
+<section class="pt-9 pt-md-16 pt-lg-18">
+  <div class="container">
+    <div id="map" class="mapbox-gl map-point-animate map-box-has-effect " style="height:530px"
+      data-mapbox-access-token="{{ mapbox_public_token|escape }}"
+      data-mapbox-options='{&#34;center&#34;:[22.362801, 60.420849],&#34;setLngLat&#34;:[22.362801, 60.420849],&#34;style&#34;:&#34;mapbox://styles/mapbox/light-v10&#34;,&#34;zoom&#34;:11}'
+      data-mapbox-marker='[{&#34;backgroundImage&#34;:&#34;/assets/images/others/marker.png&#34;,&#34;backgroundRepeat&#34;:&#34;no-repeat&#34;,&#34;className&#34;:&#34;marker&#34;,&#34;height&#34;:&#34;70px&#34;,&#34;position&#34;:[22.362801, 60.420849],&#34;width&#34;:&#34;70px&#34;}]'>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="pb-16 pt-lg-14 pb-lg-18 mx-auto">
+  <div class="container">
+    <h2 class="mb-4 fs-3">Yhteydenottolomake</h2>
+    <p class="mb-6">Ota yhteyttä meihin minkä tahansa kysymyksen tai yhteistyömahdollisuuden suhteen.</p>
+    <form class="contact-form" method="post" action="#">
+      {% csrf_token %}
+      <div class="row mb-8 mb-md-10">
+        <div class="col-md-4 col-12 mb-8 mb-md-0">
+          <input type="text" class="form-control input-focus" name="name" value="{% if request.user.is_authenticated %}{{ request.user.first_name }} {{ request.user.last_name }}{% endif %}" placeholder="Nimi" required="">
+        </div>
+        <div class="col-md-4 col-12">
+          <input type="email" class="form-control input-focus" name="email" value="{% if request.user.is_authenticated %}{{ request.user.email }}{% endif %}" placeholder="Email" required="">
+        </div>
+        <div class="col-md-4 col-12">
+          <input type="phone" class="form-control input-focus" name="phone" value="{% if request.user.is_authenticated %}{{ request.user.phone }}{% endif %}" placeholder="Puhelinnumero">
+        </div>
+      </div>
+      <textarea class="form-control mb-6 input-focus" name="message" placeholder="Viesti" rows="7" required=""></textarea>
+      <button type="submit" class="btn btn-dark btn-hover-bg-primary btn-hover-border-primary px-11 float-end">Lähetä</button>
+    </form>
+
+  </div>
+</section>
+
+
+
+{% block javascript %}
+  <script src="{% static "assets/vendors/mapbox-gl/mapbox-gl.js" %}"></script>
+{% endblock %}
+
+
+{% endblock %}

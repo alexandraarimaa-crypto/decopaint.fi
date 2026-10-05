@@ -1,0 +1,166 @@
+{% load static %}
+<div class="offcanvas-header fs-4">
+    <h4 class="offcanvas-title fw-semibold">Ostoskori</h4>
+    <button type="button" class="btn-close btn-close-bg-none" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="far fa-times"></i>
+    </button>
+</div>
+
+<!-- Display messages -->
+{% if messages %}
+<div class="mt-3">
+    {% for message in messages %}
+        {% if message.tags == "error" %}
+            <div class="alert alert-danger text-center mb-3" role="alert">
+        {% else %}
+            <div class="alert alert-{{ message.tags }} text-center mb-3" role="alert">
+        {% endif %}
+                {{ message }}
+            </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="offcanvas-body me-xl-auto pt-0 mb-2 mb-xl-0">
+    <form class="table-responsive-md shopping-cart pb-8 pb-lg-10">
+        <table class="table table-borderless">
+            <thead>
+                <tr class="fw-500">
+                    <td colspan="3" class="border-bottom">{% if not cart %}Ostoskori on tyhjä{% endif %}</td>
+                </tr>
+            </thead>
+             <tbody>
+                {% for item in cart %}
+                <tr class="position-relative">
+                    <td class="align-middle text-center" style="width: 50px;">
+                        <!-- Remove item button -->
+                        {% if item.variant_info.id and item.variant_info.id != 0 %}
+                        <a href="{% url "cart:cart_remove" item.product_data.id item.variant_info.id %}" class="d-block text-secondary">
+                            <i class="fa fa-times"></i>
+                        </a>
+                        {% else %}
+                        <a href="{% url "cart:cart_remove" item.product_data.id 0 %}" class="d-block text-secondary">
+                            <i class="fa fa-times"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="shop-product">
+                        <div class="d-flex align-items-center">
+                            <div class="me-6">
+                                <a href="{{ item.product_data.get_absolute_url }}">
+                                    <img src="{% if item.product_data.thumbnail_url %}{{ item.product_data.thumbnail_url }}{% endif %}"
+                                            data-src="{% if item.product_data.thumbnail_url %}{{ item.product_data.thumbnail_url }}{% endif %}"
+                                            class="lazy-image bg-light rounded" width="80" height="80">
+                                </a>
+                                {% if item.is_asiakas_group and item.discount_percentage and item.discount_percentage > 0 %}
+                                    <div class="position-absolute product-flash z-index-2">
+                                        <span class="badge on-sale bg-primary">-{{ item.discount_percentage }}%</span>
+                                    </div>
+                                    {% endif %}
+                                <br>
+                                {% if item.variant_info.order_item %}
+                                 <span class="badge bg-primary rounded-0 shadow fs-11px py-2 p-0 mt-1 d-block text-center" style="width: 100%;" data-bs-toggle="tooltip" data-bs-title="Tuotteen toimitusaika on n. 2-4 viikkoa.">Tilaustuote</span>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="fw-500 mb-1 text-body-emphasis">
+                                    <span class="text-body">{{ item.quantity }} x</span> 
+                                    <a href="{{ item.product_data.get_absolute_url }}">{{ item.product_data.name }}</a>
+                                </p>
+                                {% if item.variant_info.id and item.variant_info.id != 0 %}
+                                <small class="text-muted">
+                                    {% if item.variant_info.size %}Koko: {{ item.variant_info.size }}{% endif %}
+                                    {% if item.variant_info.grain %}<br>Raekoko: {{ item.variant_info.grain }} mm{% endif %}
+                                    {% if item.variant_info.gloss %}<br>Kiilto: {{ item.variant_info.gloss }}{% endif %}
+                                    {% if item.variant_info.base %}<br>Pohja: {{ item.variant_info.base }}{% endif %}
+                                    {% if item.variant_info.color %}
+                                        <br>
+                                        <div class="d-flex align-items-center">
+                                            Väri: {{ item.variant_info.color }}
+                                            
+                                            <!-- Color display based on color type -->
+                                            {% if item.variant_info.color_type == 'color1' and item.variant_info.thumbnail_url %}
+                                                <!-- Color1 - display as image -->
+                                                <div style="display: inline-block; width: 24px; height: 24px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background: url('{{ item.variant_info.thumbnail_url }}') center/cover no-repeat;"></div>
+                                            {% elif item.variant_info.color_type == 'color2' and item.variant_info.r and item.variant_info.g and item.variant_info.b %}
+                                                <!-- Color2 - display as RGB color -->
+                                                <div style="display: inline-block; width: 24px; height: 24px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: rgb({{ item.variant_info.r }}, {{ item.variant_info.g }}, {{ item.variant_info.b }});"></div>
+                                            {% elif item.variant_info.color_type == 'color1' %}
+                                                <!-- Color1 without image - show default -->
+                                                <div style="display: inline-block; width: 24px; height: 24px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                            {% elif item.variant_info.color_type == 'color2' %}
+                                                <!-- Color2 without RGB - show default -->
+                                                <div style="display: inline-block; width: 24px; height: 24px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                            {% else %}
+                                                <!-- No color type or unknown - show default -->
+                                                <div style="display: inline-block; width: 24px; height: 24px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="align-middle p-0 text-center" style="width: 120px;">
+                        <!-- Price display based on user group -->
+                        {% if item.is_asiakas_group %}
+                            <!-- Asiakas group: show discounted price and original price if discount exists -->
+                            {% if item.discount_percentage and item.discount_percentage > 0 %}
+                                <div class="d-flex flex-column align-items-end">
+                                    <span class="mb-1 text-body-emphasis fw-bold">{{ item.total_price }}€</span>
+                                    <div class="d-flex align-items-center">
+                                        <span class="text-decoration-line-through text-muted me-2" style="font-size: 0.8rem;">{{ item.original_price }}€</span>
+                                        <span class="badge text-bg-danger fw-semibold py-1" style="font-size: 0.7rem;">-{{ item.discount_percentage }}%</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <!-- No discount for Asiakas -->
+                                <span class="mb-0 text-body-emphasis fw-bold">{{ item.total_price }}€</span>
+                            {% endif %}
+                        {% else %}
+                            <!-- Other groups: show group price and regular price in brackets -->
+                            <div class="d-flex flex-column align-items-end" style="width: 100px;">
+                                <span class="mb-0 text-body-emphasis fw-bold">{{ item.total_price }}€</span>
+                                <small class="text-muted" style="font-size: 0.8rem;">(norm. {{ item.original_price }}€)</small>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if not forloop.last %}
+                <tr>
+                    <td colspan="3" class="p-0">
+                        <hr class="my-4 mx-3">
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</div>
+<div class="offcanvas-footer flex-wrap">
+    <div class="d-flex align-items-center justify-content-between w-100 mb-3">
+        <span class="">Välisumma:</span>
+        <span class="">{{ cart.get_subtotal_price|floatformat:"2" }}€</span>
+    </div>
+    {% if cart.coupon %}
+        <div class="d-flex align-items-center justify-content-between w-100 mb-3">
+            <span class=""><span><a href="{% url 'cart:remove_discount' %}">[ <i class="fa fa-times me-3" data-bs-toggle="tooltip" data-bs-title="Poista alennus"></i>]</a> Alennus: ({{ cart.coupon }})</span></span>
+            {% if cart.discount_amount > 0 %}
+                <span class="d-block ml-auto text-danger">-{{ cart.discount_amount }}%</span>
+            {% endif %}
+            {% if cart.amount_discount > 0 %}
+                <span class="d-block ml-auto text-danger fw-bold">-{{ cart.amount_discount }}€</span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="d-flex align-items-center justify-content-between w-100 mb-5 border-top">
+        <span class="text-body-emphasis">Yhteensä:</span>
+        <span class="cart-total fw-bold text-body-emphasis">{{ cart.get_modal_total_price|floatformat:"2" }}€</span>
+    </div>
+    {% if cart %}
+    <a href="{% url 'cart:checkout' %}" class="btn w-100 btn-dark btn-hover-bg-primary btn-hover-border-primary mb-4" title="Check Out">Kassa</a>
+    {% endif %}
+</div>

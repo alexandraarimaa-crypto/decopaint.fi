@@ -1,0 +1,115 @@
+{% extends "shop/base/base.html" %}
+{% load l10n i18n %}
+{% block title %}
+Tilaus tehty
+{% endblock %}
+
+{% block head_scripts %}
+  {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+    <div class="bg-body-secondary mb-3">
+      <div class="container">
+        <nav class="py-4 lh-30px" aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-center py-1 mb-0">
+            <li class="breadcrumb-item"><a title="Home" href="{% url 'shop:all_products' %}">Kauppa</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Tilausvahvistus #{{ order_id }}</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+      <div class="text-center">
+        <div class="text-center">
+          <h2 class="fs-36px mb-9">Kiitos! Tilaus on tehty onnistuneesti.</h2>
+          
+          {% if payment_method == 'cod' %}
+            <div class="alert alert-secondary mb-4 mx-auto" style="max-width: 600px;">
+              <h5 class="alert-heading">Maksutapa: Maksaa noudettaessa</h5>
+              <p class="mb-0">
+                Maksat tilauksesi noudettaessa. Maksun voi suorittaa kortilla, käteisellä tai mahdollisuuksien mukaan sopimalla laskusta etukäteen. 
+              </p>
+              <p class="mt-6 fw-bold">
+                Ennen kuin tulet noutamaan tilausta, varmista noutoaika puhelimitse.<br>Yhteystiedot löytyvät sivun <a href="{% url 'shop:contact' %}">Yhteystiedot</a> -osiosta.
+              </p>
+            </div>
+          {% endif %}
+          
+          <p class="fs-18px mb-14">
+            Tilausvahvistus lähetetään antamaasi sähköpostiosoitteeseen.<br>
+            {% if user.is_authenticated %}
+            Pääset seuraamaan sekä hallitsemaan tilaustasi <a href="{% url 'user:order_history' %}">profiilisi</a> kautta.
+            {% endif %}
+          </p>
+          <p class="fs-18px mb-14">
+            Mikäli sinulla on kysyttävää tilaukseesi liittyen, älä epäröi <a href="{% url 'shop:contact' %}">ottaa meihin yhteyttä</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+</section>
+
+{% if google_ads_enhanced_conversion %}
+{{ google_ads_enhanced_conversion|json_script:"google-ads-enhanced-conversion-data" }}
+<script>
+  (function () {
+    var dataElement = document.getElementById('google-ads-enhanced-conversion-data');
+    if (!dataElement || typeof gtag !== 'function') {
+      return;
+    }
+
+    try {
+      var settingsMatch = document.cookie.match(/(?:^|;\s*)cookie_settings=([^;]*)/);
+      var consent = settingsMatch ? JSON.parse(decodeURIComponent(settingsMatch[1])) : {};
+      if (consent.ad_user_data !== 'granted') {
+        return;
+      }
+
+      gtag('set', 'user_data', JSON.parse(dataElement.textContent));
+    } catch (error) {
+      // The purchase event must still be sent if consent data is unavailable.
+    }
+  }());
+</script>
+{% endif %}
+
+{% if google_customer_reviews %}
+{{ google_customer_reviews|json_script:"google-customer-reviews-data" }}
+{% get_current_language as google_customer_reviews_language %}
+<script>
+  // Google otherwise chooses the browser/account locale, which can differ
+  // from the language used for this order.
+  window.___gcfg = window.___gcfg || {};
+  window.___gcfg.lang = "{{ google_customer_reviews_language|default:'fi'|escapejs }}";
+</script>
+<script>
+  (function () {
+    window.renderGoogleCustomerReviewsOptIn = function () {
+      var dataElement = document.getElementById('google-customer-reviews-data');
+      if (!dataElement || !window.gapi || !window.gapi.load) {
+        return;
+      }
+
+      try {
+        var reviewData = JSON.parse(dataElement.textContent);
+        window.gapi.load('surveyoptin', function () {
+          if (window.gapi.surveyoptin && window.gapi.surveyoptin.render) {
+            window.gapi.surveyoptin.render(reviewData);
+          }
+        });
+      } catch (error) {
+        // A review invitation must never affect the order confirmation page.
+      }
+    };
+  }());
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=renderGoogleCustomerReviewsOptIn" async defer></script>
+{% endif %}
+
+{% endblock %}
