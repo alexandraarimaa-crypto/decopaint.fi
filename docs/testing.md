@@ -13,6 +13,10 @@
   --settings=config.test_settings` on closed staging.
 - Confirm the 305 fixture keeps offer ID `W03050TR0E` but emits `26.83 EUR`
   from storefront variant `W03050000E`.
+- Confirm the automatic planner maps legacy offers by landing-page URL, skips
+  offers owned by another data source and schedules existing offers only.
+- Confirm each worker batch rechecks source ownership, calls update only, and
+  reports zero additions and zero removals.
 - Run a read-only catalog audit comparing each Merchant payload price with the
   initial visible regular price on its landing page; mismatches must be zero.
 - Production pilot: update only 305, wait for Merchant processing, then verify
@@ -605,9 +609,4 @@ Staging manual matrix:
 ## Google Customer Reviews language verification 2026-08-20
 
 - The production order-confirmation template compiles successfully.
-- The GCR locale expression renders `fi`, `sv` and `en` for the corresponding
-  active storefront languages.
-- Existing required transaction-payload tests pass; only the presentation
-  locale configuration changed.
-- Production readback matched the candidate; homepage and catalog returned
-  `200` after Passenger restart.
+- The GCR locale expression renders `fi`, `sv` an
