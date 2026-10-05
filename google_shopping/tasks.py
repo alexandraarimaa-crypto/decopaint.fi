@@ -1072,4 +1072,9 @@ def sync_missing_products_complete_hook(task):
     """
     try:
         if task.success:
-            resul
+            result = task.result
+            logger.info(f"Product synchronization completed: {result}")
+        else:
+            logger.error(f"Product synchronization failed: {task.result}")
+    except Exception as e:
+        logger.error(f"Error in product synchronization hook: {e}")
