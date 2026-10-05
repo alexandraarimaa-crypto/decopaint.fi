@@ -13,9 +13,9 @@
 - Enable a one-product pilot for 305 BioLavabile. Confirm Merchant offer
   `W03050TR0E` becomes `26.83 EUR` and links to the page whose initial public
   regular price is `26.83 EUR`.
-- Only after the pilot passes, run the existing optimized update in batches of
-  20. Do not use full-clean upload and do not delete stale offers in this
-  release.
+- Only after the pilot passes, run the existing-only update in batches of 20.
+  The nightly task must report zero additions and zero removals. Do not use
+  full-clean upload or any legacy missing-product cleanup in this release.
 - Verify queue failures are zero, compare a full Merchant export with the
   storefront audit, and keep the nightly schedule enabled.
 
@@ -439,5 +439,4 @@ Rollback не потребовался.
   `/home/decpai/public_html/deco/order/templates/order/created.html.bak-20260820-before-gcr-language`.
 - The candidate was compiled before upload, read back byte-for-byte and then
   activated with the standard Passenger restart marker.
-- No Python, database, order-processing, email, payment or Merchant payload
-  logic changed.
+- No Python, database, order

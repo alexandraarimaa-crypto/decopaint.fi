@@ -17,6 +17,17 @@
 - No Merchant deletion is part of this change. Rollout starts with dry-run and
   one control product before bounded catalog batches.
 
+### Automatic synchronization safety
+
+- The existing nightly task now refreshes only offers that already exist in
+  the configured Merchant API data source.
+- Existing offers are mapped to storefront products by historical item code,
+  then by their landing-page URL for legacy or Google-generated IDs.
+- Every worker batch rechecks that an offer still exists and is still owned by
+  the configured source before updating it.
+- The automatic path cannot add or delete Merchant products. It changes only
+  the payload of verified existing offers.
+
 ## 2026-08-21 - Transactional email UTF-8 headers
 
 ### Fixed
@@ -830,12 +841,4 @@ Production code, DB, Paytrail, Merchant Center, orders и customer records не
   `5f50a82871e8ffec627b14a4b7b2cb201adf5ad2285d51bfac831dcf9fc79c03`.
 - All 12 installed manifest entries passed; Python, static validation, ten
   unit tests, six-template compile and read-only real-catalog renders passed.
-- Homepage, catalog, search, exterior category, real product, checkout, login
-  and sitemap returned `200`; Paytrail security endpoints stayed `405/403/403`.
-- Merchant sync remains enabled; Analytics and mail imports passed without an
-  external write. The GA4 product payload contains no customer PII keys.
-- The error-log delta was 276 bytes, with zero critical or PII markers, and
-  remained stable on the repeat health check.
-- No database, order, customer, price, tax, stock, delivery, payment,
-  Merchant Center or Analytics configuration changed.
-- Full evidence: `docs/seo-fi-p0-production-2026-08-02.md`.
+- Homepage, catalog, search, exterior category, real product, checko

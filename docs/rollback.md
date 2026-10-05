@@ -4,12 +4,12 @@
 
 No database restore is required.
 
-1. Disable the nightly Merchant schedule before code rollback so incorrect
-   prices cannot be republished during the rollback window.
+1. Disable the nightly Merchant schedule before code rollback so no additional
+   existing-offer updates run during the rollback window.
 2. Restore the backed-up production `google_shopping/tasks.py` and restart
    Passenger plus Django-Q workers.
-3. Do not delete Merchant products. Re-run the last accepted payload only if a
-   rollback validation shows a partially processed batch.
+3. Do not delete or add Merchant products. Re-run the last accepted payload
+   only if rollback validation shows a partially processed update batch.
 4. Confirm the storefront, cart and checkout still return HTTP 200 and that no
    new queue failures or payment errors appeared.
 
@@ -500,4 +500,4 @@ database, catalog or external-system rollback is required.
 2. Refresh Passenger through `/home/decpai/public_html/deco/tmp/restart.txt`.
 3. Confirm homepage, catalog and a real product return `200`.
 
-No database, order, customer, email, payment or Merchant rollback is required.
+No database, order, customer, email, payment or Merchant rollback
