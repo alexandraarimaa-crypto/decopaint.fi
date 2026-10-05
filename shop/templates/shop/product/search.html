@@ -1,0 +1,166 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+{{ seo.title }}
+{% endblock %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+    <div class="bg-body-secondary mb-3">
+        <div class="container">
+            <nav class="py-4 lh-30px" aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center py-1 mb-0">
+                    <li class="breadcrumb-item"><a title="Home" href="{% url 'shop:all_products' %}">Tuotekatalogi</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{% if results_count %}Löydetty {{ results_count }} tuotetta.{% else %}Ei löytynyt mitään.{% endif %}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="container container-xxl">
+    <div class="tool-bar mb-11 align-items-center justify-content-between d-lg-flex">
+        <div class="tool-bar-left mb-6 mb-lg-0 fs-18px">{% if results_count %}Löydetty <span class="text-body-emphasis fw-semibold">{{ results_count }}</span> {% if total_products == 1 %}tuote{% else %}tuotetta{% endif %}.{% endif %}</div>
+    </div>
+</section>
+
+<div class="container container-xxl pb-16 pb-lg-18 mb-lg-3">
+    <div class="row gy-50px">
+        {% if query %}
+        {% for product in results %}
+        <div class="col-6 col-md-4 col-lg-3 mb-4">
+            <div class="card card-product grid-1 bg-transparent border-0">
+
+                <figure class="card-img-top position-relative mb-7 overflow-hidden ">
+                    <a href="{% url 'shop:product_detail' slug=product.slug %}"
+                        class="hover-zoom-in d-block bg-light">
+                        {% if product.thumbnail %}
+                        <img src="{{ product.thumbnail.url }}" alt="{{ product.name}}" data-src="{{ product.thumbnail.url }}"
+                            class="img-fluid lazy-image w-100" width="330" height="330">
+                        {% endif %}
+                    </a>
+                    {% if product.discount_percentage > 0 %}<div class="position-absolute product-flash z-index-2 "><span class="badge badge-product-flash on-sale bg-primary">-{{ product.discount_percentage }}%</span></div>{% endif %}
+                </figure>
+                <div class="card-body text-center p-0">
+                    <span
+                        class="d-flex align-items-center price text-body-emphasis fw-bold justify-content-center mb-3 fs-6">
+                        <ins class="text-decoration-none">alk. {{ product.total_price|floatformat:2 }}€</ins></span>
+
+                    <h4 class="product-title card-title text-primary-hover text-body-emphasis fs-15px fw-500 mb-3"><a
+                            class="text-decoration-none text-reset"
+                            href="{% url 'shop:product_detail' slug=product.slug %}">{{ product.attributes.first.family }} {{ product.name|truncatechars:50 }}</a></h4>
+                </div>
+                <div class="d-flex align-items-center fs-12px justify-content-center">
+                    <div class="rating">
+                        <div class="empty-stars">
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star-o">
+                                    <use xlink:href="#star-o"></use>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="filled-stars" style="width: {{ product.rating_percent|floatformat:"0" }}%">
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                            <span class="star">
+                                <svg class="icon star text-primary">
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </span>
+                        </div>
+                    </div><span class="reviews ms-4 pt-3 fs-14px">{% if product.total_reviews == 0 %}Ei arvosteluja{% elif product.total_reviews == 1 %}{{ product.total_reviews }} arvostelu{% else %}{{ product.total_reviews }} arvostelua{% endif %}</span></div>
+
+            </div>
+        </div>
+
+        {% empty %}
+
+        <h3 class="text-center">Ei löytynyt mitään.</h3>
+
+        {% endfor %}
+
+        {% endif %}
+
+    </div>
+
+    <nav class="d-flex mt-13 pt-3 justify-content-center" aria-label="pagination" data-animate="fadeInUp">
+        <ul class="pagination m-0">
+            {% if results.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                    href="?q={{ query }}&page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                    href="?q={{ query }}&page={{ results.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for i in results.paginator.page_range %}
+            <li class="page-item {% if results.number == i %}active{% endif %}">
+                <a class="page-link" href="?q={{ query }}&page={{ i }}">{{ i }}</a>
+            </li>
+            {% endfor %}
+
+            {% if results.has_next %}
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                    href="?q={{ query }}&page={{ results.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center"
+                    href="?q={{ query }}&page={{ results.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+</div>
+
+{% endblock %}

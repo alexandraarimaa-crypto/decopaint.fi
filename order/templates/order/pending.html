@@ -1,0 +1,13 @@
+{% extends "shop/base/base.html" %}
+
+{% block title %}Maksu odottaa vahvistusta{% endblock %}
+
+{% block content %}
+<section class="container py-5 text-center">
+  <h1 class="fs-36px mb-4">Maksu odottaa vahvistusta</h1>
+  <p class="fs-18px">
+    Tilauksen #{{ order_id }} maksua käsitellään vielä. Älä tee uutta maksua.
+    Saat tilausvahvistuksen, kun maksupalvelu on vahvistanut maksun.
+  </p>
+</section>
+{% endblock %}

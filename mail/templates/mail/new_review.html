@@ -1,0 +1,6 @@
+{% extends "mail/mail.html" %}
+{% block content %}
+
+Uusi <strong>{{ review.rating }}</strong> tähden arvostelu tuotteesta <strong>{{ review.product }}</strong>. Tarkista ja julkaise arvostelu <a href="https://decopaint.fi/admin/shop/review/{{ review.id }}/change/">tämän linkin kautta</a>.
+
+{% endblock %}

@@ -1,0 +1,90 @@
+--- a/shop/views.py
++++ b/shop/views.py
+@@ -718,6 +718,40 @@
+         if selected_values[key] not in values:
+             selected_values[key] = values[0] if values else ''
+     resolved_variant = _resolve_variant(product, selected_values)
++    if resolved_variant is None:
++        # Coloured products do not have an empty-colour variant, so the exact
++        # query above normally returns nothing during the first page load.
++        # Resolve one concrete variant with the visible non-colour selections
++        # instead of asking structured data to price every colour/variant.
++        schema_query = Q(product=product, active=True)
++        for field in ('size', 'grain', 'gloss', 'base'):
++            value = selected_values[field]
++            if value:
++                schema_query &= Q(**{field: value})
++            else:
++                schema_query &= (
++                    Q(**{field: ''}) | Q(**{f'{field}__isnull': True})
++                )
++        resolved_variant = Variant.objects.filter(schema_query).order_by('id').first()
++
++    if resolved_variant is None:
++        # Independent option lists can occasionally preselect a combination
++        # that does not exist. A single real active variant is still accurate
++        # and keeps Product structured data valid without an all-variant scan.
++        resolved_variant = (
++            Variant.objects.filter(product=product, active=True)
++            .order_by('id')
++            .first()
++        )
++
++    if resolved_variant is not None:
++        selected_values = {
++            'size': resolved_variant.size or '',
++            'color': resolved_variant.color1 or resolved_variant.color2 or '',
++            'grain': resolved_variant.grain or '',
++            'gloss': resolved_variant.gloss or '',
++            'base': resolved_variant.base or '',
++        }
+     product_data = build_product_data(
+         request=request,
+         product=product,
+--- a/shop/product_schema.py
++++ b/shop/product_schema.py
+@@ -205,44 +205,6 @@
+             if variant_sku:
+                 offer["sku"] = variant_sku
+             data["offers"] = offer
+-
+-    if "offers" not in data:
+-        priced_variants = [
+-            (price, candidate)
+-            for candidate in product.variants.filter(active=True).order_by("id")
+-            if (price := _public_price(candidate)) is not None
+-        ]
+-        if priced_variants:
+-            numeric_prices = [Decimal(price) for price, _ in priced_variants]
+-            all_order_items = all(
+-                bool(getattr(candidate, "order_item", False))
+-                for _, candidate in priced_variants
+-            )
+-            availability = (
+-                f"{SCHEMA_CONTEXT}/InStock"
+-                if not all_order_items
+-                else f"{SCHEMA_CONTEXT}/PreOrder"
+-            )
+-            aggregate_offer = {
+-                "@type": "AggregateOffer",
+-                "priceCurrency": "EUR",
+-                "lowPrice": format(min(numeric_prices), "f"),
+-                "highPrice": format(max(numeric_prices), "f"),
+-                "offerCount": len(priced_variants),
+-                "availability": availability,
+-                "itemCondition": f"{SCHEMA_CONTEXT}/NewCondition",
+-                "url": canonical_url,
+-                "seller": {"@type": "Organization", "name": "Deco Paint Finland Oy"},
+-                "hasMerchantReturnPolicy": merchant_return_policy(),
+-                "shippingDetails": offer_shipping_details(
+-                    order_item=all_order_items
+-                ),
+-            }
+-            if all_order_items:
+-                aggregate_offer["availabilityStarts"] = (
+-                    preorder_availability_date()
+-                )
+-            data["offers"] = aggregate_offer
+ 
+     # Publish only moderated, real customer reviews. Unapproved submissions
+     # must never be exposed as Product review markup.

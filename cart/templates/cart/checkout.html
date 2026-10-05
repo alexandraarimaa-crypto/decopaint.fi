@@ -1,0 +1,1446 @@
+{% extends "shop/base/base.html" %}
+{% block title %}
+Kassa
+{% endblock %}
+{% load math_filters %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12 dp-checkout-breadcrumb">
+    <div class="bg-body-secondary mb-3">
+        <div class="container">
+            <nav class="py-4 lh-30px" aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center py-1 mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'shop:all_products' %}">Tuotekatalogi</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Kassa</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-14 pb-lg-19">
+    {% if messages %}
+        <div class="mt-3">
+            {% for message in messages %}
+                {% if message.tags == "error" %}
+                    <div class="alert alert-danger text-center mb-8 alert-dismissible" role="alert">
+                {% else %}
+                    <div class="alert alert-{{ message.tags }} text-center mb-8 alert-dismissible" role="alert">
+                {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Sulje"></button>
+                    </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if cart|length > 0 %}
+    <header class="dp-checkout-intro d-lg-none">
+        <span class="dp-kicker">TURVALLINEN KASSA</span>
+        <h1>Viimeistele tilaus</h1>
+        <div class="dp-checkout-steps" aria-label="Tilauksen vaiheet">
+            <span class="is-active"><i>1</i> Tiedot</span>
+            <span><i>2</i> Toimitus</span>
+            <span><i>3</i> Maksu</span>
+        </div>
+    </header>
+
+    <div class="row dp-checkout-layout">
+        <!-- Left Column - Checkout Form -->
+        <div class="col-lg-8 pe-xl-20 pe-lg-6 order-2 order-lg-1 dp-checkout-form-column">
+            <form id="paymentForm">
+                <div class="checkout" id="bankSelectionContainer">
+                    {% if not user.is_authenticated %}
+                    <p class="mb-5">Palaava asiakas?
+                        <a class="mb-5 fs-13px letter-spacing-01 fw-semibold text-uppercase" href="#" data-bs-toggle="modal"
+                        data-bs-target="#signInModal">
+                            Kirjaudu tästä
+                        </a>.
+                    </p>
+                    {% endif %}
+
+                    <!-- Contact Information Section -->
+                    <div class="checkout-section">
+                        <h4 class="fs-4 mb-7">
+                            <svg class="icon text-primary me-2">
+                                <use xlink:href="#icon-user-light"></use>
+                            </svg>
+                            Yhteystiedot</h4>
+                        <div class="mb-7">
+                            <label class="mb-5 fs-13px letter-spacing-01 fw-semibold text-uppercase">Yritystiedot</label>
+                            <div class="row">
+                                <div class="col-md-6 mb-md-0 mb-7">
+                                    <input type="text" class="form-control" value="{% if user.company %}{{ user.company }}{% endif %}" id="company" name="company"
+                                        placeholder="Yritys">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" value="{% if user.vat %}{{ user.vat }}{% endif %}" id="vat" name="vat"
+                                        placeholder="Y-tunnus">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-7">
+                            <label class="mb-5 fs-13px letter-spacing-01 fw-semibold text-uppercase">Henkilötiedot</label>
+                            <div class="row mb-5">
+                                <div class="col-md-6 mb-md-0 mb-7">
+                                    <input type="text" class="form-control" value="{% if user.first_name %}{{ user.first_name }}{% endif %}" id="first_name" name="first_name"
+                                        placeholder="Etunimi *" required="">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" value="{% if user.last_name %}{{ user.last_name }}{% endif %}" id="last_name" name="last_name"
+                                        placeholder="Sukunimi *" required="">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-md-0 mb-7">
+                                    <input type="email" class="form-control" value="{% if user.email %}{{ user.email }}{% endif %}" id="email" name="email" placeholder="Sähköposti *" required="">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control" value="{% if user.phone %}{{ user.phone }}{% endif %}" id="phone" name="phone" placeholder="Puhelinnumero">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-6">
+
+                    <!-- Shipping Address Section -->
+                    <div class="checkout-section">
+                        <h4 class="fs-4 mb-7">Toimitusosoite</h4>
+                        <div class="mb-7">
+                            <div class="row">
+                                <div class="col-md-6 mb-md-0 mb-7">
+                                    <label for="street-address" class="mb-3 fs-13px letter-spacing-01 fw-semibold text-uppercase">Osoite *</label>
+                                    <input type="text" class="form-control" value="{% if user.address %}{{ user.address }}{% endif %}" id="address" name="address" required="">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="zip" class="mb-3 fs-13px letter-spacing-01 fw-semibold text-uppercase">Postinumero *</label>
+                                    <input type="text" class="form-control" value="{% if user.postal %}{{ user.postal }}{% endif %}" id="postal" name="postal" required="">
+                                </div>
+                                <div class="col-md-3 mb-md-0 mb-7">
+                                    <label for="city"
+                                        class="mb-3 fs-13px letter-spacing-01 fw-semibold text-uppercase">Postitoimipaikka *</label>
+                                    <input type="text" class="form-control" value="{% if user.city %}{{ user.city }}{% endif %}" id="city" name="city" required="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 mb-5 form-check">
+                            <input type="checkbox" class="form-check-input rounded-0 me-4" name="customCheck6"
+                                id="billing-check" checked="">
+                            <label class="text-body-emphasis" for="billing-check">
+                                <span class="text-body-emphasis">Laskutusosoite on sama kun toimitusosoite</span>
+                            </label>
+                        </div>
+
+                        <div id="billing-form" class="mt-6" style="display: none;">
+                            <h5 class="fs-5 pt-4 mb-4">Laskutusosoite</h5>
+                            <div class="mb-7">
+                                <div class="row">
+                                    <div class="col-md-6 mb-md-0 mb-7">
+                                        <label for="billing-street-address" class="mb-3 fs-13px letter-spacing-01 fw-semibold text-uppercase">Osoite</label>
+                                        <input type="text" class="form-control" value="{% if user.bill_address %}{{ user.bill_address }}{% endif %}" id="bill_address" name="bill_address">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="billing-zip" class="mb-3 fs-13px letter-spacing-01 fw-semibold text-uppercase">Postinumero</label>
+                                        <input type="text" class="form-control" value="{% if user.bill_postal %}{{ user.bill_postal }}{% endif %}" id="bill_postal" name="bill_postal">
+                                    </div>
+                                    <div class="col-md-3 mb-md-0 mb-7">
+                                        <label for="billing-city"
+                                            class="mb-3 fs-13px letter-spacing-01 fw-semibold text-uppercase">Postitoimipaikka</label>
+                                        <input type="text" class="form-control" value="{% if user.bill_city %}{{ user.bill_city }}{% endif %}" id="bill_city" name="bill_city">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-6">
+
+                    <!-- Delivery Method Section -->
+                    <div class="checkout-section">
+                        <h4 class="fs-4 mb-7">
+                            <svg class="icon text-primary me-2">
+                                <use xlink:href="#icon-delivery-1"></use>
+                            </svg>
+                            Toimitustapa 
+                        </h4>
+                        <div class="mb-7">
+                            {% with methods=cart.get_shipping_methods %}
+                                <!-- Weight Based Shipping - Only if enabled -->
+                                {% if methods.weight_based.enabled %}
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input shipping-method" type="radio" name="delivery_method" 
+                                        id="delivery_weight_based" value="weight_based" 
+                                        {% if cart.selected_shipping_method == 'weight_based' %}checked{% endif %}>
+                                    <label class="form-check-label" for="delivery_weight_based">
+                                        <strong>Painoperusteinen toimitus</strong><br>
+                                        <small class="text-muted">Toimitus painon mukaan - {{ cart.get_weight_based_delivery_price }}€</small>
+                                    </label>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Postnord palvelupiste - Only if enabled -->
+                                {% if methods.postnord_lokero.enabled %}
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input shipping-method" type="radio" name="delivery_method" 
+                                        id="delivery_postnord_lokero" value="postnord_lokero"
+                                        {% if cart.selected_shipping_method == 'postnord_lokero' %}checked{% endif %}>
+                                    <label class="form-check-label" for="delivery_postnord_lokero">
+                                        <strong>Postnord Palvelupiste</strong><br>
+                                        <small class="text-muted">
+                                            Postnord Palvelupiste - nouto noutopisteeltä
+                                            {% if methods.postnord_lokero.is_free %}
+                                                <span class="text-success">- ILMAINEN</span>
+                                            {% else %}
+                                                - {{ methods.postnord_lokero.price }}€
+                                            {% endif %}
+                                        </small>
+                                    </label>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Postnord Kotiinkuljetus - Only if enabled -->
+                                {% if methods.postnord_kotiinkuljetus.enabled %}
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input shipping-method" type="radio" name="delivery_method" 
+                                        id="delivery_postnord_kotiinkuljetus" value="postnord_kotiinkuljetus"
+                                        {% if cart.selected_shipping_method == 'postnord_kotiinkuljetus' %}checked{% endif %}>
+                                    <label class="form-check-label" for="delivery_postnord_kotiinkuljetus">
+                                        <strong>Postnord Kotiinkuljetus</strong><br>
+                                        <small class="text-muted">
+                                            Postnord Kotiinkuljetus - kotiin tai työpaikalle
+                                            {% if methods.postnord_kotiinkuljetus.is_free %}
+                                                <span class="text-success">- ILMAINEN!</span>
+                                            {% else %}
+                                                - {{ methods.postnord_kotiinkuljetus.price }}€
+                                            {% endif %}
+                                        </small>
+                                    </label>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Pickup - Only if enabled (moved to last) -->
+                                {% if methods.pickup.enabled %}
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input shipping-method" type="radio" name="delivery_method" 
+                                        id="delivery_pickup" value="pickup" 
+                                        {% if cart.selected_shipping_method == 'pickup' %}checked{% endif %}>
+                                    <label class="form-check-label" for="delivery_pickup">
+                                        <strong>Nouto myymälästä</strong><br>
+                                        <small class="text-muted">Nouto myymälästä - ILMAINEN</small>
+                                    </label>
+                                </div>
+                                {% endif %}
+                            {% endwith %}
+                            
+                            <!-- Free Shipping Notice -->
+                            {% with store_settings=store_settings %}
+                                {% if cart.get_subtotal_price >= store_settings.free_shipping_threshold %}
+                                    <div class="alert alert-success mt-3">
+                                        <small>
+                                            <i class="fas fa-shipping-fast me-2"></i>
+                                            Tilauksesi ylittää {{ store_settings.free_shipping_threshold }}€, 
+                                            joten 
+                                            {% if store_settings.free_shipping_method == 'postnord_lokero' %}
+                                                Postnord Palvelupiste
+                                            {% elif store_settings.free_shipping_method == 'postnord_kotiinkuljetus' %}
+                                                Postnord Kotiinkuljetus
+                                            {% else %}
+                                                Postnord-toimitukset
+                                            {% endif %}
+                                            -toimitus on ilmainen!
+                                        </small>
+                                    </div>
+                                {% elif not cart.free_shipping %}
+                                    <div class="alert alert-secondary mt-3">
+                                        <small>
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Ilmainen 
+                                            {% if store_settings.free_shipping_method == 'postnord_lokero' %}
+                                                Postnord Palvelupiste
+                                            {% elif store_settings.free_shipping_method == 'postnord_kotiinkuljetus' %}
+                                                Postnord Kotiinkuljetus
+                                            {% else %}
+                                                Postnord-toimitus
+                                            {% endif %}
+                                            -toimitus yli {{ store_settings.free_shipping_threshold }}€ tilauksista. 
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if cart.free_shipping %}
+                            <div class="alert alert-success">
+                                <small><i class="fas fa-shipping-fast me-2"></i>Ilmainen toimitus kupongilla aktiivinen!</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr class="my-6">
+
+                    <!-- Payment Method Section -->
+                    <div class="checkout-section">
+                        <h4 class="fs-4 mb-7">
+                            <svg class="icon text-primary me-2">
+                                <use xlink:href="#icon-card"></use>
+                            </svg>
+                            Maksutapa</h4>
+                        <div class="mb-7">
+                            <!-- Online Payment Option -->
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_online" value="online" checked>
+                                <label class="form-check-label" for="payment_online">
+                                    <strong>Verkkomaksu</strong><br>
+                                    <small class="text-muted">Maksa turvallisesti verkkopankissa. Maksupalveluntarjoajana toimii Paytrail Oyj.</small>
+                                </label>
+                            </div>
+
+                            <!-- Bank Selection (shown when online payment is selected) -->
+                            <div id="bankSelection" class="mt-4 ps-4">
+                                <div class="row" id="bankList">
+                                    <!-- Banks will be loaded here via JavaScript -->
+                                    <div class="col-12">
+                                        <div class="text-center py-3">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Ladataan maksutapoja...</span>
+                                            </div>
+                                            <p class="mt-2">Ladataan maksutapoja...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cash on Delivery Option -->
+                            <div class="form-check mb-4" id="payment_cod_wrapper">
+                                <input class="form-check-input" type="radio" name="payment_method" id="payment_cod" value="cod">
+                                <label class="form-check-label" for="payment_cod">
+                                    <strong>Maksaa noudettaessa</strong><br>
+                                    <small class="text-muted">Maksat tilauksesi noudettaessa (Kortilla, käteisellä, laskulla).</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <button type="submit" id="create-order" class="btn w-100 btn-dark btn-hover-bg-primary btn-hover-border-primary mb-4" style="font-size: 1.1rem; padding: 12px;">
+                            Vahvista tilaus
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column - Cart Summary & Actions -->
+        <div class="col-lg-4 order-1 order-lg-2 mb-8 mb-lg-0 dp-checkout-summary-column">
+            <div class="position-sticky top-0">
+                <div class="card border-0 rounded-0 shadow">
+                    <div class="card-header px-0 mx-10 bg-transparent py-8">
+                        <h4 class="fs-4 mb-8">Ostoskorisi</h4>
+                        <div class="cart-items mb-6">
+                            {% for item in cart %}
+                            <div class="d-flex w-100 mb-7 position-relative">
+                                <div class="me-6" style="width: 60px; position: relative;">
+                                    <a href="{{ item.product_data.get_absolute_url }}">
+                                        <img src="{% if item.product_data.thumbnail_url %}{{ item.product_data.thumbnail_url }}{% else %}#{% endif %}" 
+                                            data-src="{% if item.product_data.thumbnail_url %}{{ item.product_data.thumbnail_url }}{% else %}#{% endif %}"
+                                            class="lazy-image bg-light rounded" width="60" height="60"
+                                            alt="{{ item.product_data.name }}">
+                                    </a>
+                                    {% if item.is_asiakas_group and item.discount_percentage and item.discount_percentage > 0 %}
+                                    <div class="position-absolute top-0 start-0 translate-middle">
+                                        <span class="badge on-sale bg-primary" style="font-size: 0.6rem; min-width: 30px;">
+                                            -{{ item.discount_percentage }}%
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                            
+                                    {% if item.variant_info.order_item %}
+                                    <span class="badge bg-primary rounded-0 shadow fs-11px py-2 p-0 mt-1 d-block text-center" style="width: 100%;" data-bs-toggle="tooltip" data-bs-title="Tuotteen toimitusaika on n. 2-4 viikkoa.">Tilaustuote</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex flex-grow-1">
+                                    <div class="pe-6" style="flex: 1;">
+                                        <small class="fw-500 mb-1 text-body-emphasis">
+                                            <span class="text-body">{{ item.quantity }} x</span> 
+                                            <a href="{{ item.product_data.get_absolute_url }}">{{ item.product_data.name }}</a>
+                                        </small><br>
+                                        {% if item.variant_info.id and item.variant_info.id != 0 %}
+                                        <small class="text-muted">
+                                            {% if item.variant_info.size %}Koko: {{ item.variant_info.size }}{% endif %}
+                                            {% if item.variant_info.grain %}<br>Raekoko: {{ item.variant_info.grain }} mm{% endif %}
+                                            {% if item.variant_info.gloss %}<br>Kiilto: {{ item.variant_info.gloss }}{% endif %}
+                                            {% if item.variant_info.base %}<br>Pohja: {{ item.variant_info.base }}{% endif %}
+                                            {% if item.variant_info.color %}
+                                                <br>
+                                                <div class="d-flex align-items-center">
+                                                    Väri: {{ item.variant_info.color }}
+                                                    {% if item.variant_info.color_type == 'color1' and item.variant_info.thumbnail_url %}
+                                                        <div style="display: inline-block; width: 20px; height: 20px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background: url('{{ item.variant_info.thumbnail_url }}') center/cover no-repeat;"></div>
+                                                    {% elif item.variant_info.color_type == 'color2' and item.variant_info.r and item.variant_info.g and item.variant_info.b %}
+                                                        <div style="display: inline-block; width: 20px; height: 20px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: rgb({{ item.variant_info.r }}, {{ item.variant_info.g }}, {{ item.variant_info.b }});"></div>
+                                                    {% elif item.variant_info.color_type == 'color1' %}
+                                                        <div style="display: inline-block; width: 20px; height: 20px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                                    {% elif item.variant_info.color_type == 'color2' %}
+                                                        <div style="display: inline-block; width: 20px; height: 20px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                                    {% else %}
+                                                        <div style="display: inline-block; width: 20px; height: 20px; margin-left: 8px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ms-auto text-end">
+                                        <!-- Price display based on user group -->
+                                        {% if item.is_asiakas_group %}
+                                            <!-- Asiakas group: show discounted price and original price if discount exists -->
+                                            {% if item.discount_percentage and item.discount_percentage > 0 %}
+                                                <div class="d-flex flex-column align-items-end">
+                                                    <p class="fs-14px text-body-emphasis mb-0 fw-bold">{{ item.total_price }}€</p>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="text-decoration-line-through text-muted me-2" style="font-size: 0.7rem;">{{ item.original_price }}€</span>
+                                                        <span class="badge text-bg-danger fw-semibold py-1" style="font-size: 0.6rem;">-{{ item.discount_percentage }}%</span>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <!-- No discount for Asiakas -->
+                                                <p class="fs-14px text-body-emphasis mb-0 fw-bold">{{ item.total_price }}€</p>
+                                            {% endif %}
+                                        {% else %}
+                                            <!-- Other groups: show group price and regular price in brackets -->
+                                            <div class="d-flex flex-column align-items-end">
+                                                <p class="fs-14px text-body-emphasis mb-0 fw-bold">{{ item.total_price }}€</p>
+                                                <small class="text-muted" style="font-size: 0.7rem;">(norm. {{ item.original_price }}€)</small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if not forloop.last %}
+                            <hr class="my-4">
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="cart-actions mb-2">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#cartModal">
+                                    <i class="fas fa-edit me-2"></i>Muokkaa ostoskoría
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body px-9 pt-6">
+                        <h4 class="fs-24 mb-4">Alennuskoodi</h4>
+                        <p class="mb-4">Jos sinulla on alennuskoodi, syötä se tähän.</p>
+                        <form method="post" class="d-flex">
+                            {% csrf_token %}
+                            <input type="text" class="form-control me-3" placeholder="Syötä koodi" name="code" value="">
+                            <button type="submit" class="btn btn-outline-dark">
+                                Käytä
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card-footer bg-transparent px-0 pt-5 mx-9">
+                    {% with discount_info=cart.get_detailed_discount_info active_discounts=cart.get_active_discounts_summary %}
+
+                    <!-- Show active discounts -->
+                    {% if active_discounts %}
+                        <div class="mb-4">Huomioidut alennukset:
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for discount in active_discounts %}
+                                    <span class="badge text-bg-success" style="font-size: 0.9rem;">
+                                        <i class="fas fa-tag me-2"></i>{{ discount }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Subtotal without coupon -->
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span>Välisumma:</span>
+                        <span class="d-block ml-auto text-body-emphasis fw-bold">
+                            {{ cart.get_subtotal_price|floatformat:2 }}€
+                        </span>
+                    </div>
+                    
+                    <!-- Coupon section -->
+                    {% if cart.coupon %}
+                    {% with coupon_status=cart.get_coupon_status %}
+                        <!-- Always show coupon discount if applied (even partially) -->
+                        {% if coupon_status.applied or coupon_status.reason == 'Product discounts present' %}
+                            <!-- Show coupon discount amount -->
+                            <div class="d-flex align-items-center justify-content-between mb-2 text-danger">
+                                <span class="">
+                                    <a href="{% url 'cart:remove_discount' %}" class="text-danger fw-bold text-decoration-none">
+                                        <i class="fa fa-times me-2" data-bs-toggle="tooltip" data-bs-title="Poista kuponki"></i>
+                                    </a>
+                                    Kuponki ({{ cart.coupon }}{% if cart.discount_amount > 0 %}<span class="text-danger fw-bold"> -{{ cart.discount_amount|floatformat:0 }}%</span>{% endif %}{% if cart.amount_discount > 0 %}<span class="text-danger fw-bold"> -{{ cart.amount_discount|floatformat:2 }}€</span>{% endif %}):
+                                </span>
+                                <span class="d-block ml-auto fw-bold">-{{ cart.get_coupon_discount_amount|floatformat:2 }}€</span>
+                            </div>
+
+                            <!-- Info message for partial application -->
+                            {% if coupon_status.reason == 'Product discounts present' %}
+                                <div class="alert alert-warning py-2 mb-3">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Kuponki on käytössä vain tuotteisiin, joilla ei ole omaa alennusta
+                                    </small>
+                                </div>
+                            {% endif %}
+                            
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span>
+                                    <a href="{% url 'cart:remove_discount' %}" class="text-danger text-decoration-none">
+                                        <i class="fa fa-times me-2" data-bs-toggle="tooltip" data-bs-title="Poista kuponki"></i>
+                                    </a> 
+                                    Kuponki: ({{ cart.coupon }})
+                                </span>
+                                <span class="d-block ml-auto text-warning fw-bold">
+                                    <small>Ei käytössä</small>
+                                </span>
+                            </div>
+                            <div class="alert alert-warning py-2 mb-3">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    {% if coupon_status.reason == 'Not Asiakas group' %}
+                                        Kupongit eivät ole käytettävissä yritysasiakkaille
+                                    {% elif coupon_status.reason == 'Group discount better' %}
+                                        {{ coupon_status.details }}
+                                    {% elif coupon_status.reason == 'Coupon not valid' %}
+                                        Kuponki ei ole voimassa
+                                    {% else %}
+                                        {{ coupon_status.details }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    {% endif %}
+                    
+                    <!-- Shipping -->
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span>Toimitus ({{ cart.get_total_weight|floatformat:2 }} kg):</span>
+                        {% if cart.free_shipping and cart.selected_shipping_method != 'pickup' %}
+                            <span class="d-block ml-auto text-danger fw-bold" id="shipping-price" data-shipping-price>Ilmainen toimitus</span>
+                        {% elif cart.selected_shipping_method == 'pickup' %}
+                            <span class="d-block ml-auto text-body-emphasis fw-bold" id="shipping-price" data-shipping-price>Nouto</span>
+                        {% else %}
+                            <span class="d-block ml-auto text-body-emphasis fw-bold" id="shipping-price" data-shipping-price>{{ cart.get_delivery_price|floatformat:2 }}€</span>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex align-items-center justify-content-between fw-bold mb-2">
+                        <span class="text-secondary text-body-emphasis fs-4 fw-bold">Yhteensä:</span>
+                        <span class="d-block ml-auto text-body-emphasis fs-4 fw-bold" id="total-price" data-total-price>{{ cart.get_total_price|floatformat:2 }}€</span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <span class="small text-muted">Josta arvonlisävero ({{ cart.get_tax_rate|floatformat:"1" }}%):</span>
+                        <span class="d-block ml-auto text-body-emphasis fw-bold small" id="tax-amount">{{ cart.get_total_tax|floatformat:2 }}€</span>
+                    </div>
+                    
+                    {% endwith %}
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">Muokkaa ostoskoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sulje"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'cart:cart_remove_selected' %}" id="cart-edit-form">
+                        {% csrf_token %}
+                        <div class="table-responsive">
+                            <table class="table border" style="box-shadow: 0 0 10px 0 rgba(0,0,0,0.1)">
+                                <thead class="bg-body-secondary">
+                                    <tr class="fs-15px letter-spacing-01 fw-semibold text-uppercase text-body-emphasis">
+                                        <th scope="col" class="fw-semibold border-1 ps-4" style="width: 45%;">Tuote</th>
+                                        <th scope="col" class="fw-semibold border-1 text-center" style="width: 10%;">Määrä</th>
+                                        <th scope="col" class="fw-semibold border-1 text-center" style="width: 10%;">Paino</th>
+                                        <th scope="col" class="fw-semibold border-1 text-center" style="width: 12%;">Hinta/kpl</th>
+                                        <th scope="col" class="fw-semibold border-1 text-center" style="width: 12%;">Hinta yht.</th>
+                                        <th scope="col" class="fw-semibold border-1 text-center" style="width: 11%;">Poista</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in cart %}
+                                    <tr class="position-relative">
+                                        <td class="py-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input rounded-0" type="checkbox" name="selected_items" value="{{ item.product_data.id }}-{{ item.variant_info.id }}">
+                                                </div>
+                                                <div class="me-4" style="width: 80px; flex-shrink: 0;">
+                                                    <a href="{{ item.product_data.get_absolute_url }}">
+                                                        <img src="{% if item.product_data.thumbnail_url %}{{ item.product_data.thumbnail_url }}{% else %}#{% endif %}" 
+                                                            data-src="{% if item.product_data.thumbnail_url %}{{ item.product_data.thumbnail_url }}{% else %}#{% endif %}"
+                                                            class="lazy-image bg-light rounded" width="80" height="80">
+                                                    </a>
+                                                    {% if item.is_asiakas_group and item.discount_percentage and item.discount_percentage > 0 %}
+                                                    <div class="position-absolute product-flash z-index-2">
+                                                        <span class="badge on-sale bg-primary">-{{ item.discount_percentage }}%</span>
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if item.variant_info.order_item %}
+                                                    <span class="badge bg-primary rounded-0 shadow fs-12px px-2 py-1 p-0 mt-1 d-block" data-bs-toggle="tooltip" data-bs-title="Tuotteen toimitusaika on n. 2-4 viikkoa.">Tilaustuote</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-500 mb-1 text-body-emphasis">
+                                                        <span class="text-body">{{ item.quantity }} x</span> 
+                                                        <a href="{{ item.product_data.get_absolute_url }}" class="text-decoration-none">{{ item.product_data.name }}</a>
+                                                    </div>
+                                                    {% if item.variant_info.id and item.variant_info.id != 0 %}
+                                                    <div class="text-muted small">
+                                                        {% if item.variant_info.size %}<div>Koko: {{ item.variant_info.size }}</div>{% endif %}
+                                                        {% if item.variant_info.grain %}<div>Raekoko: {{ item.variant_info.grain }} mm</div>{% endif %}
+                                                        {% if item.variant_info.gloss %}<div>Kiilto: {{ item.variant_info.gloss }}</div>{% endif %}
+                                                        {% if item.variant_info.base %}<div>Pohja: {{ item.variant_info.base }}</div>{% endif %}
+                                                        {% if item.variant_info.color %}
+                                                            <div class="d-flex align-items-center mt-1">
+                                                                <span class="me-2">Väri: {{ item.variant_info.color }}</span>
+                                                                {% if item.variant_info.color_type == 'color1' and item.variant_info.thumbnail_url %}
+                                                                    <div style="width: 20px; height: 20px; border: 1px solid #ddd; border-radius: 3px; background: url('{{ item.variant_info.thumbnail_url }}') center/cover no-repeat;"></div>
+                                                                {% elif item.variant_info.color_type == 'color2' and item.variant_info.r and item.variant_info.g and item.variant_info.b %}
+                                                                    <div style="width: 20px; height: 20px; border: 1px solid #ddd; border-radius: 3px; background-color: rgb({{ item.variant_info.r }}, {{ item.variant_info.g }}, {{ item.variant_info.b }});"></div>
+                                                                {% elif item.variant_info.color_type == 'color1' %}
+                                                                    <div style="width: 20px; height: 20px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                                                {% elif item.variant_info.color_type == 'color2' %}
+                                                                    <div style="width: 20px; height: 20px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                                                {% else %}
+                                                                    <div style="width: 20px; height: 20px; border: 1px solid #ddd; border-radius: 3px; background-color: #f0f0f0;"></div>
+                                                                {% endif %}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <div class="input-group position-relative shop-quantity mx-auto" style="width: 100px;">
+                                                <input type="number" class="form-control form-control-sm px-3 py-2 fs-6 text-center border" 
+                                                    value="{{ item.quantity }}" 
+                                                    data-product-id="{{ item.product_data.id }}" 
+                                                    data-variant-id="{{ item.variant_info.id }}"
+                                                    min="0">
+                                            </div>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <p class="mb-0 text-body-emphasis">{{ item.total_weight }} kg</p>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <!-- Price per unit display -->
+                                            {% if item.is_asiakas_group %}
+                                                {% if item.discount_percentage and item.discount_percentage > 0 %}
+                                                    <div class="d-flex flex-column align-items-center">
+                                                        <p class="mb-0 text-body-emphasis fw-bold">{{ item.variant_info.price }}€</p>
+                                                        <small class="text-decoration-line-through text-muted" style="font-size: 0.7rem;">
+                                                            {{ item.original_price|divide:item.quantity }}€
+                                                        </small>
+                                                    </div>
+                                                {% else %}
+                                                    <p class="mb-0 text-body-emphasis fw-bold">{{ item.variant_info.price }}€</p>
+                                                {% endif %}
+                                            {% else %}
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <p class="mb-0 text-body-emphasis fw-bold">{{ item.variant_info.price }}€</p>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">
+                                                        (norm. {{ item.original_price|divide:item.quantity }}€)
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <!-- Total price display -->
+                                            {% if item.is_asiakas_group %}
+                                                {% if item.discount_percentage and item.discount_percentage > 0 %}
+                                                    <div class="d-flex flex-column align-items-center">
+                                                        <p class="mb-0 text-body-emphasis fw-bold">{{ item.total_price }}€</p>
+                                                        <small class="text-decoration-line-through text-muted" style="font-size: 0.7rem;">
+                                                            {{ item.original_price }}€
+                                                        </small>
+                                                    </div>
+                                                {% else %}
+                                                    <p class="mb-0 text-body-emphasis fw-bold">{{ item.total_price }}€</p>
+                                                {% endif %}
+                                            {% else %}
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <p class="mb-0 text-body-emphasis fw-bold">{{ item.total_price }}€</p>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">
+                                                        (norm. {{ item.original_price }}€)
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <a href="{% url 'cart:cart_remove' item.product_data.id item.variant_info.id %}" class="text-danger btn btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" id="remove-selected-modal">
+                        <i class="fas fa-times me-2"></i> Poista valitut
+                    </button>
+                    <button type="button" class="btn btn-outline-dark" id="update-cart-modal">
+                        <i class="fas fa-sync me-2"></i> Päivitä määrät
+                    </button>
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Sulje</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-8">
+        <h3 class="text-center mb-4">Ostoskorisi on tyhjä</h3>
+        <a href="{% url 'shop:all_products' %}" class="btn btn-primary">Jatka ostoksia</a>
+    </div>
+    {% endif %}
+</section>
+
+<style>
+.sticky-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+/* Bank logo container styles */
+.bank-logo {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    padding: 10px 5px;
+    text-align: center;
+    background: white;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+}
+
+.bank-logo:hover {
+    border-color: #009641;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.bank-logo.selected {
+    border-color: #009641;
+    background-color: #eefff6;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+.bank-logo img {
+    max-height: 30px;
+    max-width: 80%;
+    margin-bottom: 5px;
+    object-fit: contain;
+}
+
+.bank-name {
+    font-size: 0.75rem;
+    color: #495057;
+    font-weight: 500;
+    line-height: 1.1;
+    text-align: center;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+.checkout-section {
+    margin-bottom: 2rem;
+}
+
+#bankSelection {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+}
+
+.bank-grid-container {
+    width: 100%;
+}
+
+.bank-group {
+    margin-bottom: 1.5rem;
+}
+
+.bank-group:last-child {
+    margin-bottom: 0;
+}
+
+.bank-group-title {
+    margin-bottom: 12px !important;
+    font-size: 0.9rem;
+    color: #6c757d !important;
+}
+
+/* Uniform grid system for banks */
+.bank-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px; /* Compensate for column padding */
+}
+
+.bank-col {
+    padding: 5px; /* Uniform padding on all sides */
+    flex: 0 0 25%; /* 4 banks per row by default */
+    max-width: 25%;
+    box-sizing: border-box;
+}
+
+/* Responsive columns */
+@media (max-width: 575.98px) {
+    .bank-col {
+        flex: 0 0 33.333%; /* 3 banks per row on mobile */
+        max-width: 33.333%;
+    }
+    .bank-logo {
+        min-height: 70px;
+        padding: 8px 4px;
+    }
+    .bank-logo img {
+        max-height: 25px;
+    }
+    .bank-name {
+        font-size: 0.7rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .bank-col {
+        flex: 0 0 20%; /* 5 banks per row on tablet */
+        max-width: 20%;
+    }
+}
+
+@media (min-width: 992px) {
+    .bank-col {
+        flex: 0 0 16.666%; /* 6 banks per row on desktop */
+        max-width: 16.666%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .bank-col {
+        flex: 0 0 14.285%; /* 7 banks per row on large desktop */
+        max-width: 14.285%;
+    }
+}
+
+/* Ensure all bank containers have same height */
+.bank-item {
+    height: 100%;
+}
+</style>
+
+<script>
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Only initialize if cart is not empty
+    if (!document.getElementById('paymentForm')) {
+        return;
+    }
+
+    // Toggle Payment Methods based on Shipping Method
+    function togglePaymentMethods() {
+        const selectedShipping = document.querySelector('input[name="delivery_method"]:checked');
+        const codWrapper = document.getElementById('payment_cod_wrapper');
+        const paymentOnline = document.getElementById('payment_online');
+        const paymentCod = document.getElementById('payment_cod');
+        const bankSelection = document.getElementById('bankSelection');
+        
+        if (!codWrapper) return;
+        
+        if (selectedShipping && selectedShipping.value === 'pickup') {
+            codWrapper.style.display = 'block';
+        } else {
+            codWrapper.style.display = 'none';
+            // If COD was checked, switch to online payment
+            if (paymentCod && paymentCod.checked) {
+                if (paymentOnline) {
+                    paymentOnline.checked = true;
+                    if (bankSelection) bankSelection.style.display = 'block';
+                }
+            }
+        }
+    }
+
+    // Run initially
+    togglePaymentMethods();
+
+    // Billing address toggle
+    var billingCheckbox = document.getElementById('billing-check');
+    var billingForm = document.getElementById('billing-form');
+    if (billingCheckbox && billingForm) {
+        billingCheckbox.addEventListener('change', function() {
+            billingForm.style.display = billingCheckbox.checked ? 'none' : 'block';
+        });
+    }
+
+    // Payment method selection
+    const onlinePaymentRadio = document.getElementById('payment_online');
+    const codPaymentRadio = document.getElementById('payment_cod');
+    let selectedBank = null;
+
+    // Handle payment method change
+    if (onlinePaymentRadio && codPaymentRadio) {
+        document.getElementById('bankSelection').style.display = 'block';
+
+        onlinePaymentRadio.addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('bankSelection').style.display = 'block';
+            }
+        });
+
+        codPaymentRadio.addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('bankSelection').style.display = 'none';
+                // Clear selected bank when switching to COD
+                clearSelectedBank();
+            }
+        });
+    }
+
+    // Load available payment methods when page loads
+    loadPaymentMethods();
+
+    function loadPaymentMethods() {
+        fetch('{% url "order:get_payment_methods" %}')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.banks && data.banks.length > 0) {
+                    displayBanks(data.banks);
+                } else {
+                    showBankError('Maksutapoja ei ole tällä hetkellä saatavilla.');
+                }
+            })
+            .catch(error => {
+                showBankError('Maksutapojen lataaminen epäonnistui. Yritä myöhemmin uudelleen.');
+            });
+    }
+
+    function displayBanks(banks) {
+        const bankList = document.getElementById('bankList');
+        if (!bankList) return;
+        
+        bankList.innerHTML = '';
+
+        // Group banks by type
+        const bankGroups = {
+            banks: banks.filter(bank => bank.group === 'bank'),
+            mobile: banks.filter(bank => bank.group === 'mobile'),
+            creditcard: banks.filter(bank => bank.group === 'creditcard'),
+            other: banks.filter(bank => !['bank', 'mobile', 'creditcard'].includes(bank.group))
+        };
+
+        // Display banks
+        if (bankGroups.banks.length > 0) {
+            const bankGroup = createBankGroup('Pankit', bankGroups.banks);
+            bankList.appendChild(bankGroup);
+        }
+
+        // Display mobile payments
+        if (bankGroups.mobile.length > 0) {
+            const mobileGroup = createBankGroup('Mobiilimaksut', bankGroups.mobile);
+            bankList.appendChild(mobileGroup);
+        }
+
+        // Display credit cards
+        if (bankGroups.creditcard.length > 0) {
+            const creditGroup = createBankGroup('Luottokortit', bankGroups.creditcard);
+            bankList.appendChild(creditGroup);
+        }
+
+        // Display other payment methods
+        if (bankGroups.other.length > 0) {
+            const otherGroup = createBankGroup('Muut maksutavat', bankGroups.other);
+            bankList.appendChild(otherGroup);
+        }
+    }
+
+    function createBankGroup(title, banks) {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'bank-group';
+        
+        const groupTitle = document.createElement('h6');
+        groupTitle.className = 'bank-group-title mb-3 text-muted';
+        groupTitle.textContent = title;
+        groupDiv.appendChild(groupTitle);
+
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'bank-row';
+
+        banks.forEach(bank => {
+            const col = document.createElement('div');
+            col.className = 'bank-col';
+            
+            const bankItem = document.createElement('div');
+            bankItem.className = 'bank-item';
+            
+            const bankDiv = document.createElement('div');
+            bankDiv.className = 'bank-logo';
+            bankDiv.setAttribute('data-bank-name', bank.name);
+            bankDiv.setAttribute('data-bank-id', bank.id);
+            
+            bankDiv.innerHTML = '<img src="' + bank.svg + '" alt="' + bank.name + '" onerror="this.style.display=\'none\'"><div class="bank-name">' + bank.name + '</div>';
+            
+            bankDiv.addEventListener('click', function() {
+                // Only allow selection if online payment is selected
+                if (onlinePaymentRadio.checked) {
+                    // Remove selected class from all banks
+                    document.querySelectorAll('.bank-logo').forEach(b => {
+                        b.classList.remove('selected');
+                    });
+                    // Add selected class to clicked bank
+                    this.classList.add('selected');
+                    selectedBank = {
+                        name: this.getAttribute('data-bank-name'),
+                        id: this.getAttribute('data-bank-id')
+                    };
+                }
+            });
+            
+            bankItem.appendChild(bankDiv);
+            col.appendChild(bankItem);
+            rowDiv.appendChild(col);
+        });
+
+        groupDiv.appendChild(rowDiv);
+        return groupDiv;
+    }
+
+    function clearSelectedBank() {
+        // Remove selected class from all banks
+        document.querySelectorAll('.bank-logo').forEach(b => {
+            b.classList.remove('selected');
+        });
+        selectedBank = null;
+    }
+
+    function showBankError(message) {
+        const bankList = document.getElementById('bankList');
+        if (bankList) {
+            bankList.innerHTML = '<div class="col-12"><div class="alert alert-warning text-center"><i class="fas fa-exclamation-triangle me-2"></i>' + message + '</div></div>';
+        }
+    }
+
+    // Form submission
+    const paymentForm = document.getElementById('paymentForm');
+    if (paymentForm) {
+        paymentForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            processOrder();
+        });
+    }
+
+    function processOrder() {
+        const submitButton = document.getElementById('create-order');
+        const originalText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Käsitellään...';
+
+        const formData = new FormData(paymentForm);
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+
+        // Validate form
+        if (!validateForm()) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+            return;
+        }
+
+        // For online payment, check if bank is selected
+        if (paymentMethod === 'online') {
+            if (!selectedBank) {
+                alert('Valitse maksutapa ennen tilauksen vahvistamista.');
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+                return;
+            }
+            formData.append('selected_bank', selectedBank.name);
+            formData.append('bank_id', selectedBank.id);
+        }
+
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        
+        fetch('{% url "order:create_payment" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                if (window.DecoPaintAnalytics) {
+                    const checkoutPayload = window.DecoPaintAnalytics.readPayload('ga4-checkout-payload');
+                    if (checkoutPayload) {
+                        const paymentPayload = JSON.parse(JSON.stringify(checkoutPayload));
+                        paymentPayload.payment_type = paymentMethod;
+                        window.DecoPaintAnalytics.track('add_payment_info', paymentPayload);
+                    }
+                }
+                if (paymentMethod === 'online' && data.redirect_url && data.parameters) {
+                    // Create and submit POST form with parameters
+                    submitPostForm(data.redirect_url, data.parameters);
+                } else if (paymentMethod === 'online' && data.redirect_url) {
+                    // Fallback: redirect directly (may not work for all banks)
+                    window.location.href = data.redirect_url;
+                } else if (paymentMethod === 'cod') {
+                    // Redirect to success page with order_id for cash on delivery
+                    window.location.href = '{% url "order:payment_success" %}?order_id=' + data.order_id + '&payment_method=cod';
+                } else {
+                    window.location.href = '{% url "order:payment_success" %}';
+                }
+            } else {
+                alert('Tilauksen luonnissa tapahtui virhe: ' + (data.error || 'Tuntematon virhe'));
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            alert('Verkkovirhe. Tarkista internetyhteys ja yritä uudelleen.');
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+        });
+    }
+
+    function submitPostForm(url, parameters) {
+        // Create a form element
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        form.style.display = 'none';
+
+        // Add CSRF token if available
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+
+        // Add all parameters to the form
+        parameters.forEach(param => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = param.name;
+            input.value = param.value;
+            form.appendChild(input);
+        });
+
+        // Add form to document and submit
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function validateForm() {
+        const requiredFields = ['first_name', 'last_name', 'email', 'address', 'postal', 'city'];
+        for (let i = 0; i < requiredFields.length; i++) {
+            const field = requiredFields[i];
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                alert('Täytä pakollinen kenttä: ' + input.placeholder);
+                input.focus();
+                return false;
+            }
+        }
+        
+        const email = document.getElementById('email').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Syötä kelvollinen sähköpostiosoite');
+            document.getElementById('email').focus();
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Shipping method selection
+    const shippingRadios = document.querySelectorAll('.shipping-method');
+
+    shippingRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                updateShippingMethod(this.value);
+                togglePaymentMethods();
+            }
+        });
+    });
+
+    function updateShippingMethod(method) {
+        // Show loading state
+        const shippingPriceElement = document.getElementById('shipping-price');
+        const totalPriceElement = document.getElementById('total-price');
+        const taxAmountElement = document.getElementById('tax-amount');
+        
+        if (shippingPriceElement) shippingPriceElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        if (totalPriceElement) totalPriceElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        if (taxAmountElement) taxAmountElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        fetch('{% url "cart:update_shipping_method" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            },
+            body: JSON.stringify({
+                shipping_method: method
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                if (window.DecoPaintAnalytics) {
+                    const checkoutPayload = window.DecoPaintAnalytics.readPayload('ga4-checkout-payload');
+                    if (checkoutPayload) {
+                        const shippingPayload = JSON.parse(JSON.stringify(checkoutPayload));
+                        shippingPayload.shipping_tier = data.selected_method.name;
+                        shippingPayload.value = data.total_price;
+                        window.DecoPaintAnalytics.track('add_shipping_info', shippingPayload);
+                    }
+                }
+                // Update all prices in the UI
+                updateCartPrices(data);
+            } else {
+                alert('Toimitusmenetelmän päivitys epäonnistui: ' + data.error);
+                // Reload page to reset to previous state
+                location.reload();
+            }
+        })
+        .catch(error => {
+            alert('Verkkovirhe. Yritä uudelleen.');
+            // Reload page to reset to previous state
+            location.reload();
+        });
+    }
+
+    function updateCartPrices(data) {
+        // Update subtotal price
+        const subtotalPriceElement = document.getElementById('subtotal-price');
+        if (subtotalPriceElement && data.subtotal_price) {
+            const subtotal = parseFloat(data.subtotal_price);
+            subtotalPriceElement.textContent = formatPrice(subtotal);
+        }
+        
+        // Update shipping price
+        const shippingPriceElement = document.getElementById('shipping-price');
+        if (shippingPriceElement) {
+            const shippingPrice = parseFloat(data.shipping_price);
+            const selectedMethod = data.selected_method.name;
+            
+            if (selectedMethod === 'pickup') {
+                shippingPriceElement.textContent = 'Nouto';
+                shippingPriceElement.className = 'd-block ml-auto text-body-emphasis fw-bold';
+            } else if (shippingPrice === 0) {
+                shippingPriceElement.textContent = 'Ilmainen toimitus';
+                shippingPriceElement.className = 'd-block ml-auto text-danger fw-bold';
+            } else {
+                shippingPriceElement.textContent = formatPrice(shippingPrice);
+                shippingPriceElement.className = 'd-block ml-auto text-body-emphasis fw-bold';
+            }
+        }
+        
+        // Update total price
+        const totalPriceElement = document.getElementById('total-price');
+        if (totalPriceElement && data.total_price) {
+            const total = parseFloat(data.total_price);
+            totalPriceElement.textContent = formatPrice(total);
+        }
+        
+        // Update tax amount
+        const taxAmountElement = document.getElementById('tax-amount');
+        if (taxAmountElement && data.total_tax) {
+            const tax = parseFloat(data.total_tax);
+            taxAmountElement.textContent = formatPrice(tax);
+        }
+
+        updateShippingDescriptions(data);
+    }
+
+    function formatPrice(price) {
+        return price.toFixed(2).replace('.', ',') + '€';
+    }
+
+    function updateShippingDescriptions(data) {
+        const selectedMethod = data.selected_method.name;
+        
+        if (selectedMethod === 'weight_based') {
+            const element = document.querySelector('label[for="delivery_weight_based"] small');
+            if (element) {
+                const shippingPrice = parseFloat(data.shipping_price);
+                element.innerHTML = 'Toimitus painon mukaan - ' + formatPrice(shippingPrice);
+            }
+        } else if (selectedMethod === 'postnord_lokero') {
+            const element = document.querySelector('label[for="delivery_postnord_lokero"] small');
+            if (element) {
+                const shippingPrice = parseFloat(data.shipping_price);
+                if (shippingPrice === 0) {
+                    element.innerHTML = 'Postnord Palvelupiste - nouto noutopisteeltä - <span class="text-success">ILMAINEN</span>';
+                } else {
+                    element.innerHTML = 'Postnord Palvelupiste - nouto noutopisteeltä - ' + formatPrice(shippingPrice);
+                }
+            }
+        } else if (selectedMethod === 'postnord_kotiinkuljetus') {
+            const element = document.querySelector('label[for="delivery_postnord_kotiinkuljetus"] small');
+            if (element) {
+                const shippingPrice = parseFloat(data.shipping_price);
+                if (shippingPrice === 0) {
+                    element.innerHTML = 'Postnord Kotiinkuljetus - kotiin tai työpaikalle - <span class="text-success">ILMAINEN</span>';
+                } else {
+                    element.innerHTML = 'Postnord Kotiinkuljetus - kotiin tai työpaikalle - ' + formatPrice(shippingPrice);
+                }
+            }
+        } else if (selectedMethod === 'pickup') {
+            const element = document.querySelector('label[for="delivery_pickup"] small');
+            if (element) {
+                element.innerHTML = 'Nouto myymälästä - ILMAINEN';
+            }
+        }
+    }
+
+    // Modal cart functionality
+    const updateCartButton = document.getElementById('update-cart-modal');
+    if (updateCartButton) {
+        updateCartButton.addEventListener('click', function() {
+            updateCartQuantities();
+        });
+    }
+
+    // Remove selected items
+    const removeSelectedButton = document.getElementById('remove-selected-modal');
+    if (removeSelectedButton) {
+        removeSelectedButton.addEventListener('click', function() {
+            removeSelectedItems();
+        });
+    }
+
+    function updateCartQuantities() {
+        const quantityInputs = document.querySelectorAll('#cartModal .shop-quantity input');
+        const formData = new FormData();
+        let hasChanges = false;
+
+        quantityInputs.forEach(input => {
+            const productId = input.getAttribute('data-product-id');
+            const variantId = input.getAttribute('data-variant-id');
+            const quantity = parseInt(input.value);
+
+            if (quantity >= 0 && !isNaN(quantity)) {
+                formData.append('product_id', productId);
+                formData.append('variant_id', variantId);
+                formData.append('quantity', quantity);
+                hasChanges = true;
+            }
+        });
+
+        if (!hasChanges) {
+            alert('Ei muutoksia päivitettäväksi');
+            return;
+        }
+
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        // Use correct URL for cart update
+        fetch('{% url "cart:cart_update" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // Close modal and reload page to reflect changes
+                const modal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                location.reload();
+            } else {
+                alert('Määrien päivitys epäonnistui: ' + (data.error || 'Tuntematon virhe'));
+            }
+        })
+        .catch(error => {
+            alert('Verkkovirhe. Yritä uudelleen: ' + error.message);
+        });
+    }
+
+    function removeSelectedItems() {
+        const selectedCheckboxes = document.querySelectorAll('#cartModal input[name="selected_items"]:checked');
+        
+        if (selectedCheckboxes.length === 0) {
+            alert('Valitse poistettavat tuotteet');
+            return;
+        }
+
+        if (!confirm(`Haluatko varmasti poistaa ${selectedCheckboxes.length} tuotetta?`)) {
+            return;
+        }
+
+        // Use correct URL for form
+        const form = document.getElementById('cart-edit-form');
+        if (form) {
+            form.submit();
+        } else {
+            alert('Lomakkeen käsittelyssä tapahtui virhe.');
+        }
+    }
+
+});
+</script>
+
+{% endblock %}

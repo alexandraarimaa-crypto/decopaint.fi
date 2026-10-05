@@ -1,0 +1,236 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+Yritysmyynti
+{% endblock %}
+{% block content %}
+
+
+<section class="overflow-hidden mb-10">
+	<div class="hero position-relative d-flex align-items-end" style="height: 600px;">
+		<div class="video-cover">
+			<iframe class="border-0" id="existing-iframe-example"
+				src="https://www.youtube.com/embed/guqyz2UMPxs?si=q9d8iQbQrezlG1j3&autoplay=1&amp;rel=0&amp;playsinline=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=L7tx73YtjYE" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+			<div class="card-img-overlay"></div>
+		</div>
+		<div data-animate="fadeInDown" class="container container-wide pb-15 p-xl-15 position-relative">
+
+			<div class="hero-content">
+				<div data-animate="fadeInDown">
+					<h1 class="text-white fw-semibold mb-8 hero-title-2">Oikos,<br>
+						ekologinen tuotekehitys<br> vuodesta 1984.</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<div class="mb-13">
+	<span class="d-block text-center fw-bold text-primary lh-1 landing-count-layout animate__fadeInUp animate__animated" data-animate="fadeInUp">B2B</span>
+	<p class="shop-layout-subtitle fw-normal text-center text-primary mb-4 font-primary animate__fadeInUp animate__animated" data-animate="fadeInUp">Yritysmyyntiportaali</p>
+
+	<h4 class="text-center px-6 landing-page-title fw-light animate__fadeInUp animate__animated" data-animate="fadeInUp">
+		Kiitos kiinnostuksestasi liittyä yritysasiakkaaksi verkkokaupassamme.<br>
+		Täyttämällä lomakkeen pyydät pääsyä yritysasiakasryhmäämme.<br>
+		Kun pyyntösi on hyväksytty, saat pääsyn henkilökohtaisiin yritystarjouksiin ja alennuksiin.
+	</h4>
+</div>
+
+<section class="bg-body-tertiary pt-lg-15 py-15 pb-lg-15">
+	<div class="container">
+		<div class="row no-gutters">
+			<div class="col-lg-10 mx-auto">
+
+				{% if error_message %}
+				<div class="alert alert-danger text-center mb-8 alert-dismissible" role="alert" id="error-message">
+					{{ error_message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+				{% endif %}
+
+				{% if not request.user.is_authenticated %}
+					<p class="pt-4 mb-2 text-center">
+						<a class="btn btn-dark m-6" href="#" data-bs-toggle="modal" data-bs-target="#signInModal" style="width: 150px;">Kirjaudu</a> tai <a class="btn btn-primary m-6" href="#" data-bs-toggle="modal" data-bs-target="#signUpModal" style="width: 150px;">Rekisteröidy</a>
+					</p>
+				{% else %}
+				{% if app %}
+					<h4 class="text-center mb-12 text-center px-6 landing-page-title fw-light">
+						Hakemus jätetty {{ app.sended }}<br>
+						Hakemuksen tila: <div class="badge bg-dark">{% if app.status == 'new' %}Odottaa käsittelyä{% elif app.status == 'accepted' %}Hyväksytty{% elif app.status == 'canceled' %}Hylätty{% endif %}</div>
+					</h4>
+				{% endif %}
+				<div class="row no-gutters pt-6">
+					<div class="col-lg-6 mb-15 mb-lg-0 pe-xl-2">
+						<form method='post' action="">
+							{% csrf_token %}
+						<h3 class="fs-4 mb-6">Yhteyshenkilön tiedot:</h3>
+							<div class="row">
+								<div class="col-md-6 form-group mb-6">
+									<label>Etunimi: *</label>
+									<input type="text" value="{% if app %}{{ app.first_name }}{% else %}{{ request.user.first_name }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="first_name" name="first_name"
+										placeholder="" required="" {% if app %}disabled{% endif %}>
+								</div>
+								<div class="col-md-6 form-group mb-6">
+									<label>Sukunimi: *</label>
+									<input type="text" value="{{ request.user.last_name }}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="last_name" name="last_name"
+										placeholder="" required="" {% if app %}disabled{% endif %}>
+								</div>
+							</div>
+							
+							<div class="row">
+								<div class="col-md-6 form-group mb-6">
+									<label>Sähköpostiosoite: *</label>
+									<input type="email" value="{% if app %}{{ app.email }}{% else %}{{ request.user.email }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="email" name="email"
+										placeholder="" required="" {% if app %}disabled{% endif %}>
+								</div>
+								<div class="col-md-6 form-group mb-6">
+									<label>Puhelinnumero: *</label>
+									<input type="phone" value="{% if app %}{{ app.phone }}{% else %}{{ request.user.phone }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="phone" name="phone"
+										placeholder="" required="" {% if app %}disabled{% endif %}>
+								</div>
+							</div>
+
+							<div class="form-group mb-6">
+								<label>Asema yrityksessä: *</label>
+								<input type="text" value="{% if app %}{{ app.position }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="position" name="position"
+									placeholder="" required="" {% if app %}disabled{% endif %}>
+							</div>
+
+						<h3 class="fs-4 mb-6">Yrityksen tiedot:</h3>
+							<div class="form-group mb-6">
+								<label>Yrityksen nimi: *</label>
+								<input type="text" value="{% if app %}{{ app.company }}{% else %}{{ request.user.company }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="company" name="company"
+									placeholder="" required="" {% if app %}disabled{% endif %}>
+							</div>
+							<div class="form-group mb-6">
+								<label>Y-tunnus: *</label>
+								<input type="text" value="{% if app %}{{ app.vat }}{% else %}{{ request.user.vat }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="vat" name="vat"
+									   placeholder="" required="" {% if app %}disabled{% endif %}>
+							</div>
+						
+					</div>
+					<div class="col-lg-6 ps-lg-6 ps-xl-12">
+						<h3 class="fs-4 mb-6">Laskutusosoite:</h3>
+							<div class="form-group mb-6">
+								<label>Osoite:</label>
+								<input type="text" value="{% if app %}{{ app.bill_address }}{% else %}{{ request.user.bill_address }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="bill_address" name="bill_address"
+									placeholder="" {% if app %}disabled{% endif %}>
+							</div>
+							<div class="row">
+								<div class="col-md-6 form-group mb-6">
+									<label>Postinumero:</label>
+									<input type="text" value="{% if app %}{{ app.bill_postal }}{% else %}{{ request.user.bill_postal }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="bill_postal" name="bill_postal"
+										placeholder="" {% if app %}disabled{% endif %}>
+								</div>
+								<div class="col-md-6 form-group mb-6">
+									<label>Postitoimipaikka:</label>
+									<input type="text" value="{% if app %}{{ app.bill_city }}{% else %}{{ request.user.bill_city }}{% endif %}" class="form-control bg-white {% if app %}opacity-50{% endif %}" id="bill_city" name="bill_city"
+										placeholder="" {% if app %}disabled{% endif %}>
+								</div>
+							</div>
+						<h3 class="fs-4 mb-6">Muut tiedot:</h3>
+
+							<div class="form-check mb-6">
+								<input class="form-check-input p-3 bg-primary me-4 rounded" type="checkbox" value="true" id="reseller" name="reseller" {% if app %}disabled checked {% endif %}>
+									<label class="form-check-label text-body fs-14px" for="reseller">
+										Kiinnostunut jälleenmyynnistä.
+									</label>
+							</div>
+							<div class="form-check mb-6">
+								<input class="form-check-input bg-primary me-4 rounded" type="checkbox" value="true" id="invoicing" name="invoicing" {% if app %}disabled checked {% endif %}>
+									<label class="form-check-label text-body fs-14px" for="invoicing">
+										Haluan saada laskutusmahdollisuuden.
+									</label>
+							</div>
+
+							<textarea class="form-control bg-white mb-6 input-focus {% if app %}opacity-50{% endif %}" name="text" placeholder="Lisätiedot" rows="7" {% if app %}disabled{% endif %}>{% if app %}{{ app.text }}{% endif %}</textarea>
+
+							<div class="form-check mb-6">
+								<input class="form-check-input bg-primary me-4 rounded" type="checkbox" value="true" name="terms_accepted" id="terms" required="" {% if app %}disabled checked {% endif %}>
+									<label class="form-check-label text-body fs-14px" for="terms">
+										Olen lukenut ja hyväksynyt <a href="#" class="text-decoration-none text border-bottom" data-bs-toggle="modal" data-bs-target="#staticBackdrop">myyntiehdot yrityksille</a>. *
+									</label>
+							</div>
+
+							{% if not app %}
+								<button type="submit" class="btn btn-primary w-100 mb-7">Lähetä hakemus</button>
+							{% endif %}
+							
+						</form>
+					</div>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+  </section>
+
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl modal-dialog-scrollable">
+	  <div class="modal-content">
+		<div class="modal-header">
+		<h3 class="modal-title">MYYNTIEHDOT YRITYKSILLE</h3>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+		  {{ company_terms|safe }}
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Sulje</button>
+		  <button type="button" class="btn btn-primary" onclick="acceptTerms()" data-bs-dismiss="modal">Hyväksyn</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+  	<script>
+    	function acceptTerms() {
+        	var checkbox = document.getElementById("terms");
+        	checkbox.checked = true;
+    	}
+	</script>
+
+
+<section class="pt-15 pb-15">
+
+	<div class="container container-xxl">
+		<div class="pb-10">
+			<div class="text-center animate__fadeInUp animate__animated" data-animate="fadeInUp">
+				<h2 class="">Miksi valita meidät?</h2>
+			</div>
+		</div>
+		<div class="row gx-50px">
+			<div class="col-lg-4">
+				<div class="">
+					<span class="d-block text-center fw-bold text-body-tertiary lh-1 landing-count-layout">1.</span>
+					<div class="card-body text-center pt-7 mt-3">
+						<p class="mx-auto">Uuden sähköisen kaupankäyntimme alusta on räätälöity yritysasiakkaille, jotka etsivät tehokkaita ratkaisuja ja laadukkaita tuotteita.</p>
+					</div>
+				</div>
+
+			</div>
+			<div class="col-lg-4">
+				<div class="">
+					<span class="d-block text-center fw-bold text-body-tertiary lh-1 landing-count-layout">2.</span>
+					<div class="card-body text-center pt-7 mt-3">
+						<p class="mx-auto">Ymmärrämme laadun ja luotettavuuden merkityksen yritystoiminnassasi.</p>
+					</div>
+				</div>
+
+			</div>
+			<div class="col-lg-4">
+				<div class="">
+					<span class="d-block text-center fw-bold text-body-tertiary lh-1 landing-count-layout">3.</span>
+					<div class="card-body text-center pt-7 mt-3">
+						<p class="mx-auto">Laajan Oikos-tuotevalikoimamme avulla olemme varmoja, että löydät juuri sen, mitä tarvitset yrityksesi vahvistamiseksi ja asiakkaidesi iloksi.</p>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</section>
+
+
+{% endblock %}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <h2>Uusi tarjouspyyntö verkkosivuilta</h2>
+    <p>Olet saanut uuden tarjouspyynnön palvelusta: <strong>{{ service.title }}</strong></p>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; width: 150px; font-weight: bold;">Nimi:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Sähköposti:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;"><a href="mailto:{{ email }}">{{ email }}</a></td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Puhelin:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ phone }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Palvelu:</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ service.title }}</td>
+        </tr>
+    </table>
+
+    <h3>Viesti:</h3>
+    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
+        {{ message|linebreaks }}
+    </div>
+
+    <p style="margin-top: 20px; font-size: 0.9em; color: #777;">Tämä viesti on lähetetty Deco Paint -verkkosivuston
+        palvelusivun kautta.</p>
+</body>
+
+</html>

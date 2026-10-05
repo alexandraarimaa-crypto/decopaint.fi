@@ -1,0 +1,670 @@
+{% extends "shop/base/base.html" %}
+{% block title %}
+Tilaus #{{ order.id }}
+{% endblock %}
+{% load tz %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12 d-print-none">
+    <div class="bg-body-secondary mb-3">
+        <div class="container">
+            <nav class="py-4 lh-30px" aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center py-1 mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'user:profile' %}">Käyttäjä</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'user:order_history' %}">Tilaukset</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Tilaus #{{ order.id }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<section class="pb-lg-20 pb-16">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                {% if messages %}
+                {% for message in messages %}
+                  {% if message.tags == 'success' %}
+                    <div class="alert alert-success text-center mb-8 alert-dismissible" role="alert">
+                  {% elif message.tags == 'error' %}
+                    <div class="alert alert-danger text-center mb-8 alert-dismissible" role="alert">
+                  {% endif %}
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+              {% endif %}
+                    
+                <!-- Header Section -->
+                <div class="row mb-6 align-items-center justify-content-between d-print-none">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <h1 class="fs-3 mb-2 fw-bold">Tilauslista</h1>
+                        <p class="text-muted mb-0">Tilaus #{{ order.id }} - {{ order.created|date:"d.m.Y" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column flex-md-row justify-content-md-end gap-3">
+                            {% if order.status == 'new' and not order.payed %}
+                            <a href="https://pay.paytrail.com/pay/{{ order.transaction_id }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>Maksa tilaus
+                            </a>
+                            {% endif %}
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" name="renew_order" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-shopping-cart me-2"></i>Lisää koriin
+                                </button>
+                            </form>
+                            <button class="btn btn-outline-dark btn-lg" onclick="window.print();">
+                                <i class="far fa-print me-2"></i> Tulosta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Status Card -->
+                <div class="card rounded-4 mb-6 border-0 shadow">
+                    <div class="card-header bg-primary text-white p-5 rounded-top-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-4">
+                                        <i class="fas fa-receipt fa-3x text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="mb-2 fw-bold text-white">Tilaus #{{ order.id }}</h2>
+                                        <p class="mb-0 text-white-50">
+                                            <i class="far fa-calendar me-2"></i>{{ order.created|date:"d.m.Y H:i" }}
+                                            <i class="fas fa-user ms-4 me-2"></i>{{ order.first_name }} {{ order.last_name }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="d-flex flex-column flex-md-row justify-content-md-end align-items-md-center gap-3">
+                                    <div>
+                                        {% if order.status == 'processing' %}
+                                            <span class="badge bg-warning text-dark fs-4 py-3 px-4">
+                                                <i class="fas fa-cog me-2"></i>Käsittelyssä
+                                            </span>
+                                        {% elif order.status == 'new' %}
+                                            <span class="badge bg-light text-dark fs-4 py-3 px-4">
+                                                <i class="fas fa-clock me-2"></i>Uusi
+                                            </span>
+                                        {% elif order.status == 'shipped' %}
+                                            <span class="badge bg-success fs-4 py-3 px-4">
+                                                <i class="fas fa-shipping-fast me-2"></i>Lähetetty
+                                            </span>
+                                        {% elif order.status == 'delivered' %}
+                                            <span class="badge bg-info fs-4 py-3 px-4">
+                                                <i class="fas fa-check-circle me-2"></i>Toimitettu
+                                            </span>
+                                        {% elif order.status == 'canceled' %}
+                                            <span class="badge bg-dark fs-4 py-3 px-4">
+                                                <i class="fas fa-times-circle me-2"></i>Peruttu
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        {% if order.payed %}
+                                            <span class="badge bg-success fs-4 py-3 px-4">
+                                                <i class="fas fa-check me-2"></i>Maksettu
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark fs-4 py-3 px-4">
+                                                <i class="fas fa-clock me-2"></i>Odottaa maksua
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Row -->
+                <div class="row">
+                    <!-- Left Column - Order Items (8 columns) -->
+                    <div class="col-lg-8 mb-5 mb-lg-0">
+                        <div class="card rounded-4 border-0 shadow h-100">
+                            <div class="card-header bg-transparent p-5 border-bottom">
+                                <h3 class="mb-0 fw-bold text-primary">
+                                    <i class="fas fa-boxes me-3"></i>
+                                    Tilauksen tuotteet
+                                </h3>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless mb-0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th class="fw-semibold text-uppercase ps-5 py-4">Tuote</th>
+                                                <th class="text-center fw-semibold text-uppercase py-4">Määrä</th>
+                                                <th class="text-end fw-semibold text-uppercase py-4">Hinta/kpl</th>
+                                                <th class="text-end fw-semibold text-uppercase pe-5 py-4">Hinta yht.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in items %}
+                                            <tr class="border-bottom">
+                                                <td class="ps-5 py-4">
+                                                    <div class="d-flex align-items-start">
+                                                        <div class="me-4 flex-shrink-0">
+                                                            {% if item.variant.product.image %}
+                                                                <img src="{{ item.variant.product.image.url }}" 
+                                                                     class="rounded shadow-sm" 
+                                                                     width="80" 
+                                                                     height="80"
+                                                                     style="object-fit: cover;">
+                                                            {% else %}
+                                                                <div class="bg-light rounded shadow d-flex align-items-center justify-content-center" 
+                                                                     style="width: 80px; height: 80px;">
+                                                                    <i class="fas fa-box fa-2x text-muted"></i>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="fw-bold mb-2 text-body-emphasis">
+                                                                {{ item.variant.product.name }}
+                                                            </h6>
+                                                            <div class="text-muted small">
+                                                                {% if item.variant.size %}
+                                                                    <div class="mb-1">
+                                                                        <strong>Koko:</strong> {{ item.variant.size }}
+                                                                    </div>
+                                                                {% endif %}
+                                                                {% if item.variant.color %}
+                                                                    <div class="d-flex align-items-center mb-1">
+                                                                        <strong class="me-2">Väri:</strong>
+                                                                        {% with color_data=item.get_color_display_data %}
+                                                                            {% if color_data.color_type == 'color1' and color_data.thumbnail_url %}
+                                                                                <div style="width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 4px; background: url('{{ color_data.thumbnail_url }}') center/cover no-repeat;" class="me-2"></div>
+                                                                                <span>{{ color_data.color }}</span>
+                                                                            {% elif color_data.color_type == 'color2' and color_data.r and color_data.g and color_data.b %}
+                                                                                <div style="width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 4px; background-color: rgb({{ color_data.r }}, {{ color_data.g }}, {{ color_data.b }});" class="me-2"></div>
+                                                                                <span>{{ color_data.color }}</span>
+                                                                            {% else %}
+                                                                                <span>{{ color_data.color }}</span>
+                                                                            {% endif %}
+                                                                        {% endwith %}
+                                                                    </div>
+                                                                {% endif %}
+                                                                {% if item.variant.grain %}
+                                                                    <div class="mb-1">
+                                                                        <strong>Raekoko:</strong> {{ item.variant.grain }} mm
+                                                                    </div>
+                                                                {% endif %}
+                                                                {% if item.variant.gloss %}
+                                                                    <div class="mb-1">
+                                                                        <strong>Kiilto:</strong> {{ item.variant.gloss }}
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center align-middle py-4">
+                                                    <span class="badge bg-primary fs-6 px-3 py-2">{{ item.quantity }} kpl</span>
+                                                </td>
+                                                <td class="text-end align-middle fw-semibold py-4 fs-6">
+                                                    {{ item.get_unit_price }}€
+                                                </td>
+                                                <td class="text-end align-middle fw-bold pe-5 py-4 fs-6">
+                                                    {{ item.price }}€
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Order Summary & Actions (4 columns) -->
+                    <div class="col-lg-4">
+                        <div class="sticky-top" style="top: 20px;">
+                            
+                            <!-- Order Summary Card -->
+                            <div class="card rounded-4 border-0 shadow mb-4">
+                                <div class="card-header bg-transparent p-4 border-bottom">
+                                    <h4 class="mb-0 fw-bold text-primary">
+                                        <i class="fas fa-receipt me-3"></i>
+                                        Tilauksen yhteenveto
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <!-- Customer Information -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-bold text-uppercase small text-muted mb-3">Asiakastiedot</h6>
+                                        <div class="d-flex align-items-start mb-2">
+                                            <i class="fas fa-user text-primary me-3 mt-1"></i>
+                                            <div>
+                                                <strong class="fs-6">{{ order.first_name }} {{ order.last_name }}</strong><br>
+                                                <small class="text-muted">{{ order.email }}</small><br>
+                                                {% if order.phone %}
+                                                    <small class="text-muted">{{ order.phone }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Shipping Information -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-bold text-uppercase small text-muted mb-3">Toimitustiedot</h6>
+                                        <div class="d-flex align-items-start mb-2">
+                                            <i class="fas fa-truck text-primary me-3 mt-1"></i>
+                                            <div>
+                                                <strong class="fs-6">{{ order.get_shipping_method_display }}</strong><br>
+                                                <small class="text-muted">{{ order.address }}</small><br>
+                                                <small class="text-muted">{{ order.postal }} {{ order.city }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Payment Information -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-bold text-uppercase small text-muted mb-3">Maksutiedot</h6>
+                                        <div class="d-flex align-items-start">
+                                            <i class="fas fa-credit-card text-primary me-3 mt-1"></i>
+                                            <div>
+                                                <strong class="fs-6">{{ order.get_payment_method_display }}</strong><br>
+                                                <small class="text-muted">
+                                                    {% if order.payed %}
+                                                        Maksettu: {{ order.updated|date:"d.m.Y H:i" }}
+                                                    {% else %}
+                                                        Maksutapa: {{ order.get_payment_method_display }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <!-- Price Breakdown -->
+                                    <div class="price-breakdown bg-light rounded-3 p-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted fs-6">Välisumma:</span>
+                                            <span class="fw-semibold fs-6">{{ order.get_subtotal_price }}€</span>
+                                        </div>
+
+                                        {% if order.coupon %}
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted fs-6">
+                                                Alennus ({{ order.coupon.code }}):
+                                            </span>
+                                            <span class="fw-semibold text-danger fs-6">
+                                                {% if order.coupon.discount %}
+                                                    -{{ order.coupon.discount }}%
+                                                {% elif order.coupon.amount %}
+                                                    -{{ order.coupon.amount }}€
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted fs-6">Toimitus ({{ order.get_total_weight|floatformat:2 }} kg):</span>
+                                            <span class="fw-semibold fs-6">
+                                                {% if order.coupon and order.coupon.free_shipping %}
+                                                    <span class="text-success">ILMAINEN</span>
+                                                {% else %}
+                                                    {{ order.get_delivery_price }}€
+                                                {% endif %}
+                                            </span>
+                                        </div>
+
+                                        <hr class="my-3">
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="fw-bold fs-5">Yhteensä:</span>
+                                            <span class="fw-bold fs-5 text-primary">{{ order.get_total_price }}€</span>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted small">ALV ({{ order.get_tax_rate|floatformat:1 }}%):</span>
+                                            <span class="text-muted small">{{ order.get_total_tax }}€</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Details Card -->
+                            <div class="card rounded-4 border-0 shadow mb-4 d-print-none">
+                                <div class="card-header bg-transparent p-4 border-bottom">
+                                    <h4 class="mb-0 fw-bold text-primary">
+                                        <i class="fas fa-credit-card me-3"></i>
+                                        Maksutapahtumat
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div id="payment-details">
+                                        <div class="text-center py-3">
+                                            <div class="spinner-border text-primary mb-2" role="status">
+                                                <span class="visually-hidden">Ladataan maksutietoja...</span>
+                                            </div>
+                                            <p class="text-muted mb-0">Ladataan maksutietoja...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notes Card -->
+                            <div class="card rounded-4 border-0 shadow d-print-none">
+                                <div class="card-header bg-transparent p-4 border-bottom">
+                                    <h4 class="mb-0 fw-bold text-primary">
+                                        <i class="fas fa-sticky-note me-3"></i>
+                                        Muistiinpanot
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <textarea class="form-control" name="notes" id="notes" 
+                                                      placeholder="Kirjoita muistiinpanot tähän..." 
+                                                      style="height: 120px; resize: none;">{% if order.notes %}{{ order.notes }}{% endif %}</textarea>
+                                        </div>
+                                        <button type="submit" name="save_notes" class="btn btn-primary w-100">
+                                            <i class="fas fa-save me-2"></i> Tallenna muistiinpanot
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* POS-style improvements with proper spacing */
+.card {
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    padding: 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.price-breakdown {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+}
+
+.badge {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.table th {
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 1.25rem 1.5rem;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 1.5rem 1rem;
+}
+
+/* Sticky sidebar for right column */
+.sticky-top {
+    position: sticky;
+    z-index: 10;
+}
+
+/* Improved spacing */
+.mb-6 {
+    margin-bottom: 3rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+/* Button improvements */
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+}
+
+/* Print styles */
+@media print {
+    .d-print-none {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 2px solid #dee2e6 !important;
+        margin-bottom: 1.5rem;
+    }
+    
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+    
+    .card-header {
+        background: #e9ecef !important;
+        color: #000 !important;
+        padding: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .sticky-top {
+        position: relative !important;
+    }
+}
+
+/* Hover effects */
+.card:hover {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+/* Responsive improvements */
+@media (max-width: 991.98px) {
+    .sticky-top {
+        position: relative !important;
+        top: 0 !important;
+    }
+    
+    .col-lg-8,
+    .col-lg-4 {
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-header {
+        padding: 1.25rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .table td, .table th {
+        padding: 1rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .d-flex.flex-md-row {
+        flex-direction: column !important;
+    }
+}
+
+/* Custom spacing utilities */
+.p-5 {
+    padding: 2.5rem !important;
+}
+
+.p-4 {
+    padding: 1.5rem !important;
+}
+
+/* Ensure proper column behavior */
+.row {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+}
+
+.col-lg-8,
+.col-lg-4 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load payment details via AJAX
+    function loadPaymentDetails() {
+        $.ajax({
+            url: '{% url "user:load_payment_details" order_id=order.id %}',
+            type: 'GET',
+            success: function(data) {
+                $('#payment-details').html(data.html);
+            },
+            error: function(xhr, status, error) {
+                $('#payment-details').html(
+                    '<div class="alert alert-warning text-center p-3">' +
+                    '<i class="fas fa-exclamation-triangle me-2"></i>' +
+                    '<div class="mt-1">Maksutietojen lataaminen epäonnistui</div>' +
+                    '</div>'
+                );
+            }
+        });
+    }
+
+    // Load payment details when page is ready
+    loadPaymentDetails();
+
+    // Auto-save notes with improved debounce
+    let notesTimeout = null;
+    let isSaving = false;
+
+    $('#notes').on('input', function() {
+        // Clear previous timeout
+        if (notesTimeout) {
+            clearTimeout(notesTimeout);
+        }
+
+        // Show saving indicator only if not already saving
+        if (!isSaving) {
+            const saveButton = $('button[name="save_notes"]');
+            const originalText = saveButton.html();
+            saveButton.html('<i class="fas fa-spinner fa-spin me-2"></i>Tallennetaan...');
+            saveButton.prop('disabled', true);
+        }
+
+        // Set new timeout
+        notesTimeout = setTimeout(function() {
+            saveNotes();
+        }, 1500); // 1.5 seconds delay
+    });
+
+    // Separate function for saving notes
+    function saveNotes() {
+        if (isSaving) return; // Prevent multiple simultaneous saves
+        
+        isSaving = true;
+        const notes = $('#notes').val();
+        const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: window.location.href,
+            type: 'POST',
+            data: {
+                'notes': notes,
+                'save_notes': true,
+                'csrfmiddlewaretoken': csrfToken
+            },
+            success: function(response) {
+                // Success - show checkmark briefly
+                const saveButton = $('button[name="save_notes"]');
+                saveButton.html('<i class="fas fa-check me-2"></i>Tallennettu!');
+                saveButton.removeClass('btn-primary').addClass('btn-success');
+                
+                // Reset button after 2 seconds
+                setTimeout(function() {
+                    saveButton.html('<i class="fas fa-save me-2"></i> Tallenna muistiinpanot');
+                    saveButton.removeClass('btn-success').addClass('btn-primary');
+                    saveButton.prop('disabled', false);
+                    isSaving = false;
+                }, 2000);
+            },
+            error: function(xhr, status, error) {
+                // Error - show error message
+                const saveButton = $('button[name="save_notes"]');
+                saveButton.html('<i class="fas fa-exclamation-triangle me-2"></i>Tallentaminen epäonnistui');
+                saveButton.removeClass('btn-primary').addClass('btn-danger');
+                saveButton.prop('disabled', false);
+                
+                // Reset button after 3 seconds
+                setTimeout(function() {
+                    saveButton.html('<i class="fas fa-save me-2"></i> Tallenna muistiinpanot');
+                    saveButton.removeClass('btn-danger').addClass('btn-primary');
+                    isSaving = false;
+                }, 3000);
+                
+                console.error('Error saving notes:', error);
+            }
+        });
+    }
+
+    // Manual save button click
+    $('button[name="save_notes"]').on('click', function(e) {
+        e.preventDefault();
+        if (notesTimeout) {
+            clearTimeout(notesTimeout);
+        }
+        saveNotes();
+    });
+
+    // Add confirmation for renew order
+    $('button[name="renew_order"]').on('click', function(e) {
+        if (!confirm('Haluatko varmasti lisätä kaikki tilauksen tuotteet ostoskoriin?')) {
+            e.preventDefault();
+        }
+    });
+
+    // Handle form submission to prevent double submission
+    $('form').on('submit', function() {
+        $('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Käsitellään...');
+    });
+});
+</script>
+
+{% endblock %}

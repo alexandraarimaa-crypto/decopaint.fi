@@ -1,0 +1,776 @@
+{% load custom_filters %}
+
+{# Display color selection only if there are variants with colors #}
+{% if variants_with_colors %}  
+<input type="hidden" name="color" id="color_input" value="{% if current_color_variant %}{{ current_color_variant|get_color_name }}{% endif %}">
+
+{% if total_colors_count %}
+<span class="fw-semibold text-body-emphasis me-3" id="color-title">Sävy:</span>
+{% endif %}
+
+<div class="color-selection-wrapper d-flex align-items-center">
+    
+    <div class="d-flex align-items-center">
+        <div class="selected-color-container d-flex align-items-center me-3">
+            {% if current_color_variant %}
+                {% with color_name=current_color_variant|get_color_name color_type=current_color_variant|get_color_type %}
+                <div class="selected-color-swatch me-2" 
+                     style="background-color: {% if color_name != "" %}{% if color_type == 'color1' %}{% if current_color_variant.thumbnail %}url('{{ current_color_variant.thumbnail.url }}'){% else %}#f0f0f0{% endif %}{% else %}rgb({{ current_color_variant.r|default:240 }}, {{ current_color_variant.g|default:240 }}, {{ current_color_variant.b|default:240 }}){% endif %}{% else %}#f0f0f0{% endif %}; 
+                            width: 45px; height: 45px; border: 1px solid #ddd; border-radius: 4px;
+                            {% if color_type == 'color1' and current_color_variant.thumbnail %}background-size: cover; background-position: center; background-repeat: no-repeat;{% endif %}"
+                     data-color="{{ color_name }}"
+                     data-color-type="{{ color_type }}"
+                     data-r="{{ current_color_variant.r|default:240 }}"
+                     data-g="{{ current_color_variant.g|default:240 }}"
+                     data-b="{{ current_color_variant.b|default:240 }}"
+                     data-image="{% if current_color_variant.image %}{{ current_color_variant.image.url }}{% endif %}"
+                     data-thumbnail="{% if current_color_variant.thumbnail %}{{ current_color_variant.thumbnail.url }}{% endif %}"></div>
+                <span class="selected-color-name mx-3" style="font-size: 14px;">{{ color_name|default:"Ei värivaihtoehtoa" }}</span>
+                {% endwith %}
+            {% endif %}
+        </div>
+        
+         {% if total_colors_count > 1 %}
+            <a class="canvas-toggle d-flex align-items-center text-decoration-none" 
+            data-bs-toggle="offcanvas" 
+            data-bs-target="#colorSelectCanvas" 
+            aria-controls="colorSelectCanvas" 
+            aria-expanded="false">
+                <button class="btn btn-outline btn-hove-border-body-emphasis-color btn-border-1 mx-5">
+                    Valitse sävy ({{ total_colors_count }} vaihtoehtoa)
+                    <i class="fas fa-chevron-right px-5" style="font-size: 12px;"></i>
+                </button>
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+{% if total_colors_count > 1 %}
+<div id="colorSelectCanvas" data-bs-scroll="false" class="offcanvas offcanvas-end">
+    <div class="offcanvas-header fs-4">
+        <div class="d-flex align-items-center">
+            <h4 class="offcanvas-title fw-semibold me-3">Valitse sävy</h4>
+            
+            <!-- Show badge when there's only one palette -->
+            {% if available_palettes|length == 1 and active_palette %}
+                <span class="badge bg-primary fs-6">{{ active_palette.name }}</span>
+            {% endif %}
+        </div>
+        
+        <!-- Palette selector dropdown - ONLY SHOW WHEN MULTIPLE PALETTES AVAILABLE -->
+        {% if available_palettes|length > 1 %}
+        <div class="palette-selector ms-3">
+            <select id="paletteSelect" class="form-select form-select-sm">
+                {% for palette in available_palettes %}
+                <option value="{{ palette.value }}" {% if palette.value == active_palette.value %}selected{% endif %}>
+                    {{ palette.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        
+        <button type="button" class="btn-close btn-close-bg-none ms-2" data-bs-dismiss="offcanvas" aria-label="Sulje">
+            <i class="far fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="offcanvas-body p-0 d-flex" style="height: calc(100% - 56px);">
+        <div class="flex-grow-1 px-3" style="overflow-y: auto;">
+
+            <div class="color-search-container mb-3 px-2">
+                <input type="text" id="colorSearchInput" class="form-control" placeholder="Etsi sävyä nimellä...">
+                <div id="noResultsMessage" class="no-results-message mt-2 text-center text-muted" style="display: none;">
+                    Ei hakutuloksia.
+                </div>
+            </div>
+            
+            <div class="row gx-0">
+                <style>
+                    .color-selection-wrapper {
+                        padding: 8px 0;
+                    }
+                    .selected-color-swatch {
+                        flex-shrink: 0;
+                    }
+                    .color-swatch, .selected-color-swatch {
+                        width: 50px;
+                        height: 40px;
+                        border: 1px solid #ddd;
+                        display: inline-block;
+                        vertical-align: middle;
+                        transition: transform 0.2s;
+                    }
+                    .selected-color-container {
+                        display: inline-flex;
+                        align-items: center;
+                        margin-right: 10px;
+                    }
+                    .selected-color-name {
+                        font-size: 19px;
+                    }
+                    #largeColorContainer {
+                        position: fixed;
+                        right: 450px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        width: 500px;
+                        height: 500px;
+                        z-index: 1051;
+                        display: none;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+                        border-radius: 8px;
+                        overflow: hidden;
+                    }
+                    #largeColorSwatch {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    .color-name {
+                        font-size: 13px;
+                        margin-top: 5px;
+                    }
+                    .select-color-btn {
+                        width: calc(100% - 2rem);
+                        margin: 1rem;
+                        padding: 12px;
+                        background-color: #000;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        font-weight: 500;
+                        position: absolute;
+                        bottom: 0;
+                    }
+                    .color-item {
+                        padding: 0.2rem;
+                        text-align: center;
+                        width: 20%;
+                        float: left;
+                    }
+                    .color-search-container {
+                        position: sticky;
+                        top: 0;
+                        background: white;
+                        z-index: 1;
+                        padding: 0.5rem 0;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .color-item.hidden {
+                        display: none;
+                    }
+                    .palette-selector {
+                        min-width: 180px;
+                    }
+                    .palette-badge {
+                        font-size: 0.7em;
+                        margin-left: 4px;
+                        opacity: 0.7;
+                    }
+                    .badge.bg-secondary {
+                        background-color: #6c757d !important;
+                        font-size: 0.8rem;
+                        padding: 0.35em 0.65em;
+                    }
+                    .loading-more {
+                        text-align: center;
+                        padding: 10px;
+                        color: #666;
+                    }
+                    .color-item.visible {
+                        display: block;
+                    }
+                    @media (max-width: 768px) {
+                        .color-item {
+                            width: 33.33%;
+                        }
+                        #largeColorContainer {
+                            display: none !important;
+                        }
+                        .palette-selector {
+                            min-width: 140px;
+                        }
+                        .offcanvas-header {
+                            flex-wrap: wrap;
+                        }
+                        .offcanvas-header .badge {
+                            margin-top: 5px;
+                        }
+                    }
+                    .no-results-message {
+                        padding: 20px;
+                        font-style: italic;
+                        color: #6c757d;
+                        background-color: #f8f9fa;
+                        border-radius: 4px;
+                    }
+                </style>
+                
+                <div id="largeColorContainer">
+                    <div id="largeColorSwatch"></div>
+                    <div class="color-name text-center p-2 bg-white" id="largeColorName">{{ selectedColor.name }}</div>
+                </div>
+                
+                <div class="col-12">
+                    <!-- Loading container - shown initially -->
+                    <div id="colorsLoadingContainer" class="colors-loading-container">
+                        <div class="spinner-border colors-loading-spinner text-primary" role="status">
+                            <span class="visually-hidden">Ladataan...</span>
+                        </div>
+                        <div class="colors-loading-text">Ladataan sävyjä...</div>
+                    </div>
+                    
+                    <!-- Color items container - hidden initially -->
+                    <div class="d-flex flex-wrap mx-0" id="colorItemsContainer" style="display: none;">
+                        <!-- Color items will be loaded dynamically when offcanvas opens -->
+                    </div>
+                    
+                    <div id="colorLoading" class="loading-more" style="display: none;">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Ladataan...</span>
+                        </div>
+                        <span class="ms-2">Ladataan lisää värejä...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas-footer flex-wrap">
+        <button id="selectColorBtn" class="btn w-100 btn-dark btn-hover-bg-primary btn-hover-border-primary mb-4">Valitse</button>
+    </div>
+</div>
+{% endif %}
+
+<script>
+// Global variables for color management
+var selectedColor = {
+    name: "{% if current_color_variant %}{{ current_color_variant|get_color_name }}{% else %}{% endif %}",
+    type: "{% if current_color_variant %}{{ current_color_variant|get_color_type }}{% else %}{% endif %}",
+    r: "{% if current_color_variant %}{{ current_color_variant.r|default:240 }}{% else %}240{% endif %}",
+    g: "{% if current_color_variant %}{{ current_color_variant.g|default:240 }}{% else %}240{% endif %}",
+    b: "{% if current_color_variant %}{{ current_color_variant.b|default:240 }}{% else %}240{% endif %}",
+    image: "{% if current_color_variant and current_color_variant.image %}{{ current_color_variant.image.url }}{% else %}{% endif %}",
+    thumbnail: "{% if current_color_variant and current_color_variant.thumbnail %}{{ current_color_variant.thumbnail.url }}{% else %}{% endif %}"
+};
+
+// Color data is fetched in pages when the offcanvas opens.
+var colorVariantsData = {{ color_variants_json|safe }};
+
+// Temporary color selection (not applied until user clicks "Valitse")
+var temporarySelectedColor = { ...selectedColor };
+
+// Track if colors have been loaded
+var colorsLoaded = false;
+
+// Current active palette
+var currentActivePalette = "{{ active_palette.value|default:'color1' }}";
+var colorPageOffset = 0;
+var colorPageHasMore = true;
+var colorPageLoading = false;
+var colorSearchTimer = null;
+var colorPageSize = 72;
+var colorTotalCount = {{ total_colors_count|default:0 }};
+
+// Initialize when document is ready
+$(document).ready(function () {
+    initializeColorSelection();
+});
+
+// Main initialization function
+function initializeColorSelection() {
+    $('#color_input').val(selectedColor.name);
+    
+    // Update color display in selection UI
+    updateSelectedColorDisplay();
+    
+    // Initialize palette filter if available
+    initializePaletteFilter();
+    
+    // Set up event handlers
+    setupEventHandlers();
+    
+    // If we already have all colors loaded, render them
+    if (colorsLoaded && $('#colorItemsContainer').is(':empty')) {
+        loadColors();
+    }
+}
+
+// Update color display in selection UI
+function updateSelectedColorDisplay() {
+    let backgroundColor;
+    let backgroundImage = 'none';
+    let backgroundSize = 'auto';
+    let backgroundPosition = 'initial';
+    
+    if (selectedColor.name !== "") {
+        if (selectedColor.type === 'color1') {
+            if (selectedColor.thumbnail) {
+                backgroundColor = 'transparent';
+                backgroundImage = 'url(\'' + selectedColor.thumbnail + '\')';
+                backgroundSize = 'cover';
+                backgroundPosition = 'center';
+            } else {
+                backgroundColor = '#f0f0f0';
+            }
+        } else {
+            backgroundColor = 'rgb(' + selectedColor.r + ', ' + selectedColor.g + ', ' + selectedColor.b + ')';
+        }
+    } else {
+        backgroundColor = '#f0f0f0';
+    }
+    
+    $('.selected-color-swatch').css({
+        'background-color': backgroundColor,
+        'background-image': backgroundImage,
+        'background-size': backgroundSize,
+        'background-position': backgroundPosition
+    });
+    
+    $('.selected-color-name').text(selectedColor.name || "Ei värivaihtoehtoa");
+    $('#color_input').val(selectedColor.name);
+}
+
+// Initialize palette filter
+function initializePaletteFilter() {
+    const paletteSelect = $('#paletteSelect');
+    if (paletteSelect.length > 0) {
+        // Set the current active palette as selected
+        paletteSelect.val(currentActivePalette);
+        
+        paletteSelect.off('change').on('change', function() {
+            const selectedPalette = $(this).val();
+            // Show loading state when changing palette
+            showColorsLoadingState();
+            // Small delay to show loading state
+            setTimeout(function() {
+                filterColorsByPalette(selectedPalette);
+            }, 300);
+        });
+    }
+}
+
+// Show loading state for colors
+function showColorsLoadingState() {
+    $('#colorItemsContainer').hide();
+    $('#colorsLoadingContainer').show();
+}
+
+// Hide loading state and show colors
+function hideColorsLoadingState() {
+    $('#colorsLoadingContainer').hide();
+    $('#colorItemsContainer').show();
+}
+
+// Filter colors by palette - only show colors from selected palette
+function filterColorsByPalette(palette) {
+    const searchTerm = $('#colorSearchInput').val().toLowerCase().replace(/\s+/g, '');
+    
+    $('.color-item').each(function() {
+        const itemPalette = $(this).data('palette');
+        const colorName = $(this).find('.color-name').text().toLowerCase().replace(/\s+/g, '');
+        
+        // Only show colors that match the selected palette AND search term
+        const matchesPalette = itemPalette === palette;
+        const matchesSearch = searchTerm === '' || colorName.includes(searchTerm);
+        
+        if (matchesPalette && matchesSearch) {
+            $(this).removeClass('hidden').addClass('visible');
+        } else {
+            $(this).removeClass('visible').addClass('hidden');
+        }
+    });
+    
+    updateVisibleColorCount();
+    
+    const visibleCount = $('.color-item.visible:not(.hidden)').length;
+    if (visibleCount > 0 || searchTerm === '') {
+        $('#noResultsMessage').hide();
+    } else {
+        $('#noResultsMessage').show();
+    }
+}
+
+// Update visible color count
+function updateVisibleColorCount() {
+    const visibleCount = colorTotalCount || $('.color-item.visible:not(.hidden)').length;
+    
+    const buttonText = visibleCount === 1 ? 
+        'Valitse sävy (' + visibleCount + ' vaihtoehto)' : 
+        'Valitse sävy (' + visibleCount + ' vaihtoehtoa)';
+    $('.canvas-toggle button').text(buttonText);
+}
+
+function colorApiParams(reset) {
+    return {
+        colors_payload: 1,
+        base: $('input[name="base"]:checked').val(),
+        size: $('input[name="size"]:checked').val(),
+        grain: $('input[name="grain"]:checked').val(),
+        gloss: $('input[name="gloss"]:checked').val(),
+        current_color: $('#color_input').val() || '',
+        palette: $('#paletteSelect').length > 0 ? $('#paletteSelect').val() : currentActivePalette,
+        q: $('#colorSearchInput').val() || '',
+        offset: reset ? 0 : colorPageOffset,
+        limit: colorPageSize
+    };
+}
+
+function resetColorPaging() {
+    colorPageOffset = 0;
+    colorPageHasMore = true;
+    colorPageLoading = false;
+    $('#colorItemsContainer').empty();
+    $('#noResultsMessage').hide();
+}
+
+function renderColorItem(color, index) {
+    const isSelected = color.name === selectedColor.name ||
+                     color.is_current ||
+                     (index === 0 && selectedColor.name === "" && colorPageOffset === 0);
+
+    let backgroundStyle = 'background-color: #f0f0f0;';
+    if (color.type === 'color1' && color.thumbnail) {
+        backgroundStyle = 'background: url(\'' + color.thumbnail + '\') center/cover no-repeat;';
+    } else if (color.type === 'color2') {
+        backgroundStyle = 'background-color: rgb(' + color.r + ', ' + color.g + ', ' + color.b + ');';
+    }
+
+    const colorId = 'color_' + color.type + '_' + color.id;
+    return '' +
+        '<div class="color-item visible" data-palette="' + color.type + '" data-loaded="true">' +
+        '<input type="radio" id="' + colorId + '" name="color_selector" value="' + color.name + '"' +
+        ' class="product-info-size d-none" ' +
+        (isSelected ? 'checked' : '') +
+        ' data-color-type="' + color.type + '">' +
+        '<label for="' + colorId + '" class="d-block rounded py-4 border shadow mb-4 mx-0"' +
+        ' data-var="' + color.name + '">' +
+        '<div class="color-swatch mx-auto" ' +
+        ' style="width: 50px; height: 40px; border: 1px solid #ddd;' + backgroundStyle + '"' +
+        ' data-r="' + color.r + '"' +
+        ' data-g="' + color.g + '"' +
+        ' data-b="' + color.b + '"' +
+        ' data-color="' + color.name + '"' +
+        ' data-color-type="' + color.type + '"' +
+        ' data-image="' + (color.image || '') + '"' +
+        ' data-thumbnail="' + (color.thumbnail || '') + '"></div>' +
+        '<small class="color-name d-block">' + color.name + '</small>' +
+        '</label>' +
+        '</div>';
+}
+
+function appendColors(colors) {
+    const container = $('#colorItemsContainer');
+    colors.forEach(function(color, index) {
+        container.append(renderColorItem(color, index));
+        if (color.name === selectedColor.name || color.is_current) {
+            temporarySelectedColor = {
+                name: color.name,
+                type: color.type,
+                r: color.r,
+                g: color.g,
+                b: color.b,
+                image: color.image,
+                thumbnail: color.thumbnail
+            };
+        }
+    });
+    setupColorSelectionHandlers();
+}
+
+// Load colors into the offcanvas one page at a time.
+function loadColors(reset) {
+    if (colorPageLoading || (!reset && !colorPageHasMore)) {
+        return;
+    }
+    if (reset) {
+        resetColorPaging();
+        showColorsLoadingState();
+    } else {
+        $('#colorLoading').show();
+    }
+
+    colorPageLoading = true;
+    $.ajax({
+        url: '{% url "shop:get_variants" slug=product.slug %}',
+        data: colorApiParams(reset),
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            colorTotalCount = data.total || 0;
+            appendColors(data.colors || []);
+            colorPageOffset = data.next_offset || 0;
+            colorPageHasMore = !!data.has_more;
+
+            if (colorTotalCount === 0) {
+                $('#noResultsMessage').show();
+            } else {
+                $('#noResultsMessage').hide();
+            }
+            updateVisibleColorCount();
+            colorsLoaded = true;
+        },
+        error: function() {
+            $('#colorItemsContainer').html(
+                '<div class="col-12 text-center py-5 text-muted">Sävyjen lataus epäonnistui.</div>'
+            );
+            colorPageHasMore = false;
+        },
+        complete: function() {
+            colorPageLoading = false;
+            $('#colorLoading').hide();
+            hideColorsLoadingState();
+        }
+    });
+}
+
+function setupColorSelectionHandlers() {
+    // Handle color radio button changes - DO NOT UPDATE PRICE IMMEDIATELY
+    $(document).off('change', 'input[name="color_selector"]').on('change', 'input[name="color_selector"]', function() {
+        const selectedLabel = $('label[for="' + this.id + '"]');
+        const colorSwatch = selectedLabel.find('.color-swatch');
+        const colorType = $(this).data('color-type');
+        
+        // Update temporary selection ONLY
+        temporarySelectedColor = {
+            name: this.value === "Ei värivaihtoehtoa" ? "" : this.value,
+            type: colorType,
+            r: colorSwatch.data('r') || 240,
+            g: colorSwatch.data('g') || 240,
+            b: colorSwatch.data('b') || 240,
+            image: colorSwatch.data('image') || "",
+            thumbnail: colorSwatch.data('thumbnail') || ""
+        };
+        
+        updateLargeColorPreview();
+        
+        // DO NOT update price here - wait for confirmation
+    });
+    
+    // Handle color swatch hover effects
+    $(document).off('mouseenter', '.color-swatch').on('mouseenter', '.color-swatch', function(event) {
+        var r = $(this).data('r') || 240;
+        var g = $(this).data('g') || 240;
+        var b = $(this).data('b') || 240;
+        var colorName = $(this).data('color') || "Ei värivaihtoehtoa";
+        var colorType = $(this).data('color-type');
+        var image = $(this).data('image');
+        var container = $('#largeColorContainer');
+        var swatch = $('#largeColorSwatch');
+
+        if (colorType === 'color1' && image) {
+            swatch.css({
+                'background-image': 'url(\'' + image + '\')',
+                'background-size': 'cover',
+                'background-position': 'center',
+                'background-color': 'transparent'
+            });
+        } else {
+            swatch.css({
+                'background-color': 'rgb(' + r + ',' + g + ',' + b + ')',
+                'background-image': 'none'
+            });
+        }
+        
+        container.find('.color-name').text(colorName);
+        container.show();
+    }).off('mouseleave', '.color-swatch').on('mouseleave', '.color-swatch', function() {
+        $('#largeColorContainer').hide();
+    });
+}
+
+
+// Update price with temporary color selection (for offcanvas preview)
+function updatePriceWithTemporaryColor() {
+    if (typeof updatePrice === 'function') {
+        const size = getValueOrDefault($('input[name="size"]:checked').val());
+        const grain = getValueOrDefault($('input[name="grain"]:checked').val());
+        const gloss = getValueOrDefault($('input[name="gloss"]:checked').val());
+        const base = getValueOrDefault($('input[name="base"]:checked').val());
+        const quantity = $('#quantity').val();
+        const colorValue = temporarySelectedColor.name || "";
+        
+        updatePrice(size, colorValue, grain, gloss, base, quantity);
+    }
+}
+
+
+// Set up all event handlers
+function setupEventHandlers() {
+    // Handle offcanvas opening - load colors when opened
+    $('#colorSelectCanvas').off('show.bs.offcanvas').on('show.bs.offcanvas', function() {
+        console.log('Offcanvas opening...');
+        
+        // Show loading state immediately when offcanvas opens
+        showColorsLoadingState();
+        
+        // Load colors when offcanvas opens
+        setTimeout(function() {
+            loadColors(true);
+        }, 300);
+        
+        // Initialize temporary selection when opening
+        temporarySelectedColor = {
+            name: selectedColor.name,
+            type: selectedColor.type,
+            r: selectedColor.r,
+            g: selectedColor.g,
+            b: selectedColor.b,
+            image: selectedColor.image,
+            thumbnail: selectedColor.thumbnail
+        };
+        
+        // Set up search functionality
+        setupSearchFunctionality();
+    });
+    
+    // Handle offcanvas shown - focus on search input
+    $('#colorSelectCanvas').off('shown.bs.offcanvas').on('shown.bs.offcanvas', function() {
+        console.log('Offcanvas shown');
+        // Focus on search input after loading
+        setTimeout(function() {
+            $('#colorSearchInput').focus();
+        }, 600);
+
+        const scrollPane = $('#colorSelectCanvas .offcanvas-body .flex-grow-1');
+        scrollPane.off('scroll.colorPaging').on('scroll.colorPaging', function() {
+            const remaining = this.scrollHeight - this.scrollTop - this.clientHeight;
+            if (remaining < 240) {
+                loadColors(false);
+            }
+        });
+    });
+    
+    // Handle offcanvas closing
+    $('#colorSelectCanvas').off('hidden.bs.offcanvas').on('hidden.bs.offcanvas', function() {
+        console.log('Offcanvas closed');
+        $('#colorSearchInput').val('');
+        $('#colorSelectCanvas .offcanvas-body .flex-grow-1').off('scroll.colorPaging');
+        
+        // Reset temporary selection to current selected color when closing without applying
+        temporarySelectedColor = {
+            name: selectedColor.name,
+            type: selectedColor.type,
+            r: selectedColor.r,
+            g: selectedColor.g,
+            b: selectedColor.b,
+            image: selectedColor.image,
+            thumbnail: selectedColor.thumbnail
+        };
+    });
+    
+    // Handle palette change - reload colors with new palette
+    $('#paletteSelect').off('change').on('change', function() {
+        const selectedPalette = $(this).val();
+        
+        // Clear existing colors and show loading
+        $('#colorItemsContainer').empty();
+        showColorsLoadingState();
+        
+        // Reload colors with new palette after a short delay
+        setTimeout(function() {
+            loadColors(true);
+        }, 300);
+    });
+    
+    // Handle select color button click - UPDATE PRICE ONLY WHEN COLOR IS CONFIRMED
+    $('#selectColorBtn').off('click').on('click', function(e) {
+        e.preventDefault();
+        console.log('Select color button clicked');
+        
+        // Apply the temporary selection as the actual selection
+        selectedColor = {
+            name: temporarySelectedColor.name,
+            type: temporarySelectedColor.type,
+            r: temporarySelectedColor.r,
+            g: temporarySelectedColor.g,
+            b: temporarySelectedColor.b,
+            image: temporarySelectedColor.image,
+            thumbnail: temporarySelectedColor.thumbnail
+        };
+        
+        // Update the color input with the selected color
+        $('#color_input').val(selectedColor.name);
+        
+        // Update the display with the selected color
+        updateSelectedColorDisplay();
+        
+        // UPDATE PRICE ONLY WHEN COLOR SELECTION IS CONFIRMED
+        if (typeof window.updatePriceFromColorChange === 'function') {
+            window.updatePriceFromColorChange(selectedColor.name);
+        }
+        
+        // Close the offcanvas
+        try {
+            const offcanvasElement = document.getElementById('colorSelectCanvas');
+            if (offcanvasElement) {
+                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                if (offcanvas) {
+                    offcanvas.hide();
+                }
+            }
+        } catch (error) {
+            console.error('Error closing offcanvas:', error);
+        }
+    });
+}
+
+// Update price with current color selection
+function updatePriceWithCurrentColor() {
+    if (typeof updatePrice === 'function') {
+        const size = getValueOrDefault($('input[name="size"]:checked').val());
+        const grain = getValueOrDefault($('input[name="grain"]:checked').val());
+        const gloss = getValueOrDefault($('input[name="gloss"]:checked').val());
+        const base = getValueOrDefault($('input[name="base"]:checked').val());
+        const quantity = $('#quantity').val();
+        const colorValue = selectedColor.name || "";
+        
+        updatePrice(size, colorValue, grain, gloss, base, quantity);
+    }
+}
+
+// Set up search functionality
+function setupSearchFunctionality() {
+    $('#colorSearchInput').off('input').on('input', function() {
+        clearTimeout(colorSearchTimer);
+        colorSearchTimer = setTimeout(function() {
+            loadColors(true);
+        }, 250);
+    });
+}
+
+// Update large color preview
+function updateLargeColorPreview() {
+    if (temporarySelectedColor.name === "") {
+        $('#largeColorSwatch').css({
+            'background-color': '#f0f0f0',
+            'background-image': 'none'
+        });
+        $('#largeColorContainer').find('.color-name').text("Ei värivaihtoehtoa");
+    } else {
+        if (temporarySelectedColor.type === 'color1' && temporarySelectedColor.image) {
+            $('#largeColorSwatch').css({
+                'background-image': 'url(\'' + temporarySelectedColor.image + '\')',
+                'background-size': 'cover',
+                'background-position': 'center',
+                'background-color': 'transparent'
+            });
+        } else {
+            $('#largeColorSwatch').css({
+                'background-color': 'rgb(' + temporarySelectedColor.r + ', ' + temporarySelectedColor.g + ', ' + temporarySelectedColor.b + ')',
+                'background-image': 'none'
+            });
+        }
+        $('#largeColorContainer').find('.color-name').text(temporarySelectedColor.name);
+    }
+}
+
+// Helper function to handle undefined values
+function getValueOrDefault(value, defaultValue) {
+    if (defaultValue === undefined) {
+        defaultValue = '';
+    }
+    return value === undefined || value === null || value === 'undefined' ? defaultValue : value;
+}
+</script>
+{% endif %}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+    <channel>
+        <title>Deco Paint Finland</title>
+        <link>https://www.decopaint.fi</link>
+        <description>Product feed for Google Shopping</description>
+        {% for variant in variants %}
+        <item>
+            <g:id>{{ variant.product.id }}-{{ variant.item_code }}</g:id>
+            <g:title>{{ variant.product.attributes.first.family }} {{ variant.product.name }}{% if variant.color %} - {{ variant.color }}{% endif %}{% if variant.gloss %} - {{ variant.gloss }}{% endif %}{% if variant.size %} - {{ variant.size }}{% endif %}</g:title>
+            <g:description>{{ variant.product.description|striptags }}</g:description>
+            <g:link>https://decopaint.fi{{ variant.product.get_absolute_url }}</g:link>
+            <g:image_link>{{ variant.product.image_url }}</g:image_link>
+            {% for image in variant.product.additional_images %}
+                <g:additional_image_link>{{ image.image_url }}</g:additional_image_link>
+            {% endfor %}
+            <g:price>{{ variant.total_price }} EUR</g:price>
+            <g:availability>{% if variant.order_item %}out of stock{% else %}in stock{% endif %}</g:availability>
+            <g:condition>new</g:condition>
+            <g:brand>{{ variant.product.category.name }}, OIKOS</g:brand>
+            <g:product_type>{{ variant.product.category.name }}</g:product_type>
+            <g:item_group_id>{{ variant.product.id }}</g:item_group_id>
+            <g:color>{{ variant.color }}</g:color>
+            <g:size>{{ variant.size }}</g:size>
+            <g:weight>{{ variant.weight }} kg</g:weight>
+            <g:gtin>{{ variant.barcode }}</g:gtin>
+        </item>
+        {% endfor %}
+    </channel>
+</rss>

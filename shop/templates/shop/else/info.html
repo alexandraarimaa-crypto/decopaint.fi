@@ -1,0 +1,28 @@
+{% extends "shop/base/base.html" %}
+{% block title %}
+Tietoa
+{% endblock %}
+{% block content %}
+    <div class="bg-light py-3">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 mb-0"><a href="{% url "shop:all_products" %}">Kauppa</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Tietoa</strong></div>
+        </div>
+      </div>
+    </div>  
+
+    <div class="site-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="text-black mr-2">Tietoa</h2><br>
+            <p>Tämä verkkokauppa on tehty Sovellusohjelmointi -kurssia varten vuonna 2022. Turun Ammattikorkeakoulu.</p>
+            <p>Jäsenten nimet: Lauri, Nestori, Pavel, Roger</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+{% endblock %}

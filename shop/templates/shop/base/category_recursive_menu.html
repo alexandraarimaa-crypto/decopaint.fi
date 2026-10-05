@@ -1,0 +1,16 @@
+<!-- category_recursive_menu.html -->
+{% for subcategory in categories %}
+    {% if subcategory.parent == parent_category %}
+        <!-- If this is a direct subcategory, use no margin/indentation -->
+        <ul class="list-unstyled {% if subcategory.parent.parent %}ms-6{% else %}ms-0{% endif %}">
+            <li>
+                <a href="{% url 'shop:product_list_by_category' category_slug=subcategory.slug %}" class="border-hover text-decoration-none py-1 d-block">
+                    <span class="border-hover-target">{{ subcategory.name }}</span>
+                </a>
+
+                <!-- Recursive call to display subsubcategories and further nested categories -->
+                {% include 'shop/base/category_recursive_menu.html' with parent_category=subcategory %}
+            </li>
+        </ul>
+    {% endif %}
+{% endfor %}

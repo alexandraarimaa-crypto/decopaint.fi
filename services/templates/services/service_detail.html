@@ -1,0 +1,133 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+
+{% block title %}{{ service.title }} - Palvelut - Deco Paint{% endblock %}
+
+{% block content %}
+<section class="page-title z-index-2 position-relative pt-10 pb-5 bg-body-tertiary">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+                <li class="breadcrumb-item"><a href="{% url 'shop:main' %}">Etusivu</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'services:service_list' %}">Palvelut</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ service.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="section pt-8 pb-10">
+    <div class="container">
+        <div class="row">
+            <!-- Service Content -->
+            <div class="col-lg-7 mb-5 mb-lg-0 pe-lg-5">
+                <h1 class="mb-4">{{ service.title }}</h1>
+
+                {% if service.image %}
+                <div class="ratio ratio-16x9 mb-6 overflow-hidden rounded-3 shadow-sm">
+                    <img src="{{ service.image.url }}" class="object-fit-cover" alt="{{ service.title }}">
+                </div>
+                {% endif %}
+
+                <div class="service-content lead text-dark">
+                    {{ service.content|safe }}
+                </div>
+
+                <!-- Additional Images -->
+                {% if service.additional_images.all %}
+                <div class="row g-3 mt-4">
+                    {% for additional in service.additional_images.all %}
+                    <div class="col-md-6">
+                        <div class="ratio ratio-4x3 overflow-hidden rounded-3 shadow-sm">
+                            <img src="{{ additional.image.url }}" class="object-fit-cover w-100 h-100"
+                                alt="{{ service.title }}">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Quote Request Sidebar -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg bg-white rounded-3 position-sticky"
+                    style="top: 100px; z-index: 10;">
+                    <div class="card-body p-5">
+                        <h3 class="card-title mb-4 fw-bold">Pyydä tarjous</h3>
+                        <p class="text-muted mb-4">Kiinnostuitko palvelusta tai onko sinulla projekti mielessä? Täytä
+                            lomake ja liitä kuvia kohteesta, niin olemme yhteydessä!</p>
+
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-4" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Nimi *</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Sähköposti
+                                    *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label fw-bold">Puhelinnumero
+                                    *</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.message.id_for_label }}" class="form-label fw-bold">Viesti *</label>
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                <div class="text-danger small mt-1">{{ form.message.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="{{ form.images.id_for_label }}" class="form-label fw-bold">Liitä
+                                    kuvia</label>
+                                {{ form.images }}
+                                <div class="form-text">Voit valita useita kuvia (jpg, png, webp). Kuvat auttavat meitä
+                                    arvioimaan työn laajuutta.</div>
+                                {% if form.images.errors %}
+                                <div class="text-danger small mt-1">{{ form.images.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg fw-bold text-uppercase">Lähetä
+                                    tarjouspyyntö</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

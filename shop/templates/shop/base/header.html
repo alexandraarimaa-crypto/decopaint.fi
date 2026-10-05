@@ -1,0 +1,331 @@
+{% load static %}
+{% load i18n %}
+<header id="header" class="header header-sticky header-sticky-smart disable-transition-all z-index-5">
+	<div id="top-bar">
+	{% include 'shop/base/top_bar.html' %}
+	</div>
+	<script>
+		$.ajax({
+			url: '{% url "shop:load_top_bar" %}',
+			type: 'GET',
+			success: function(data) {
+				$('#top-bar').html(data.html);
+			},
+			error: function(xhr, status, error) {
+				$('#top-bar').html('Tapahtui virhe: ' + error);
+			}
+		});
+	</script>
+	<div class="sticky-area">
+		<div class="main-header nav navbar bg-body navbar-light navbar-expand-xl py-6 py-xl-0">
+			<div class="container-xxl container">
+				<div class="d-flex d-xl-none w-100 dp-mobile-header">
+
+					<div class="w-72px d-flex d-xl-none">
+						<button class="navbar-toggler align-self-center border-0 shadow-none px-0 canvas-toggle p-4"
+							type="button" data-bs-toggle="offcanvas" data-bs-target="#offCanvasNavBar"
+							aria-controls="offCanvasNavBar" aria-expanded="false" aria-label="Avaa valikko">
+							<span class="fs-24 toggle-icon"></span>
+						</button>
+					</div>
+
+					<div class="d-flex mx-auto">
+
+						<a href="{% url 'shop:main' %}" class="navbar-brand px-8 py-4 mx-auto">
+							<img alt="logo decopaint" src="{% static "assets/images/header/d_eco_logo.png" %}">
+						</a>
+
+					</div>
+					<div class="icons-actions d-flex justify-content-end w-xl-50 fs-28px text-body-emphasis w-72px d-print-none">
+						
+						<div class="w-92px d-flex d-xl-none">
+							<span class="navbar-toggler align-self-center border-0 shadow-none px-0 canvas-toggle p-4">
+								{% if request.user.is_authenticated %}
+									<a href="{% url 'user:profile' %}" aria-label="Avaa oma profiili">
+										<svg class="icon icon-user-light">
+											<use xlink:href="#icon-user-light"></use>
+										</svg>
+									</a>
+								{% else %}
+									<a class="lh-1 color-inherit text-decoration-none" href="#" data-bs-toggle="modal"
+									data-bs-target="#signInModal" aria-label="Kirjaudu sisään">
+										<svg class="icon icon-user-light">
+											<use xlink:href="#icon-user-light"></use>
+										</svg>
+									</a>
+								{% endif %}
+								</span>
+						</div>
+
+						<div class="w-72px d-flex d-xl-none">
+							<button class="navbar-toggler align-self-center border-0 shadow-none px-0 canvas-toggle p-4" data-bs-toggle="offcanvas" data-bs-target="#shoppingCart" aria-controls="shoppingCart" aria-expanded="false" aria-label="Avaa ostoskori">
+								<svg class="icon icon-star-light">
+									<use xlink:href="#icon-shopping-bag-open-light"></use>
+								</svg>{% csrf_token %}
+								{% with total_items=cart|length %}
+								{% if cart|length > 0 %}
+								<span class="badge bg-dark text-white position-absolute top-0 start-100 translate-middle mt-4 rounded-circle fs-13px p-0 square" style="--square-size: 18px">
+									{{ total_items }}
+								</span>
+								{% endif %}
+								{% endwith %}
+							</button>
+						</div>
+						
+					</div>
+				</div>
+
+				<div class="d-none d-xl-flex flex-column flex-xl-row w-100">
+					<div class="w-auto w-xl-100 d-flex align-items-center">
+
+						<div class="d-none d-xl-flex align-items-center pe-10">
+							<a href="{% url 'shop:main' %}" class="navbar-brand mx-auto">
+								<img alt="logo decopaint" src="{% static "assets/images/header/d_eco_logo.png" %}">
+							</a>
+						</div>
+
+						<ul class="navbar-nav w-100 w-xl-auto">
+
+							<li class="nav-item transition-all-xl-1 py-xl-11 py-0 px-xxl-6 px-xl-5 dropdown dropdown-hover dropdown-fullwidth position-static">
+								<a class="nav-link d-flex justify-content-between position-relative py-xl-0 px-xl-0 text-uppercase fw-semibold ls-1 fs-15px fs-xl-14px dropdown-toggle" href="{% url 'shop:main' %}" data-bs-toggle="dropdown" id="menu-item-shop" aria-haspopup="true" aria-expanded="false">{% trans "Tuotekatalogi" %}</a>
+								<div class="dropdown-menu mega-menu start-0 py-6 w-100" aria-labelledby="menu-item-shop">
+							
+									<div id="catalog-menu-desktop">
+										{% include 'shop/base/catalog_menu.html' %}
+									</div>
+							
+								</div>
+							</li>
+							
+							<script>
+								$(document).ready(function() {
+									$.ajax({
+										url: '{% url "shop:load_catalog_menu" %}',
+										type: 'GET',
+										success: function(data) {
+											// Update the content of both containers with the respective HTML
+											$('#catalog-menu-desktop').html(data.html_desktop);
+											$('#catalog-menu-mobile').html(data.html_mobile);
+										},
+										error: function(xhr, status, error) {
+											$('#catalog-menu-desktop').html('Tapahtui virhe: ' + error);
+											$('#catalog-menu-mobile').html('Tapahtui virhe: ' + error);
+										}
+									});
+								});
+							</script>
+  
+							<li class="nav-item transition-all-xl-1 py-xl-11 py-0 px-xxl-6 px-xl-5 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="nav-link d-flex justify-content-between position-relative py-xl-0 px-xl-0 text-uppercase fw-semibold ls-1 fs-15px fs-xl-14px"
+									href="{% url 'b2b:start' %}">{% trans "Yritysmyynti" %}</a>
+							</li>
+							
+							<li class="nav-item transition-all-xl-1 py-xl-11 py-0 px-xxl-6 px-xl-5 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="nav-link d-flex justify-content-between position-relative py-xl-0 px-xl-0 text-uppercase fw-semibold ls-1 fs-15px fs-xl-14px"
+									href="{% url 'shop:terms' %}">{% trans "Käyttöehdot" %}</a>
+							</li>
+
+							<li class="nav-item transition-all-xl-1 py-xl-11 py-0 px-xxl-6 px-xl-5 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="nav-link d-flex justify-content-between position-relative py-xl-0 px-xl-0 text-uppercase fw-semibold ls-1 fs-15px fs-xl-14px"
+									href="{% url 'blog:blog_list' %}">{% trans "Blogi" %}</a>
+							</li>
+
+							<li class="nav-item transition-all-xl-1 py-xl-11 py-0 px-xxl-6 px-xl-5 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="nav-link d-flex justify-content-between position-relative py-xl-0 px-xl-0 text-uppercase fw-semibold ls-1 fs-15px fs-xl-14px"
+									href="{% url 'courses:course_list' %}">{% trans "Kurssit" %}</a>
+							</li>
+
+							<li class="nav-item transition-all-xl-1 py-xl-11 py-0 px-xxl-6 px-xl-5 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="nav-link d-flex justify-content-between position-relative py-xl-0 px-xl-0 text-uppercase fw-semibold ls-1 fs-15px fs-xl-14px"
+									href="{% url 'services:service_list' %}">{% trans "Palvelut" %}</a>
+							</li>
+
+							<li class="nav-item transition-all-xl-1 py-xl-11 py-0 px-xxl-6 px-xl-5 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="nav-link d-flex justify-content-between position-relative py-xl-0 px-xl-0 text-uppercase fw-semibold ls-1 fs-15px fs-xl-14px"
+									href="{% url 'shop:contact' %}">{% trans "Deco Paint" %}</a>
+							</li>
+						</ul>
+					</div>
+					
+					<div class="w-auto w-xl-25 d-flex align-items-center">
+						
+						<div class="icons-actions pt-0 d-xl-flex justify-content-end ms-auto fs-28px text-body-emphasis">
+
+							<div class="transition-all-xl-1 py-4 me-xxl-8 me-xl-10" style="display: none;">
+								{% get_current_language as LANGUAGE_CODE %}
+								{% get_available_languages as languages %}
+								<form action="{% url 'shop:set_language' %}" method="post">
+									{% csrf_token %}
+									<select name="language" id="language-selector" class="w-100 form-select" data-selected-language="{{ LANGUAGE_CODE }}">
+										{% for lang_code, lang_name in languages %}
+											<option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>{{ lang_name }}</option>
+										{% endfor %}
+									</select>
+								</form>
+								<script>
+									document.getElementById('language-selector').addEventListener('change', function() {
+										var selectedLanguage = this.value;
+										var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+								
+										var xhr = new XMLHttpRequest();
+										xhr.open('POST', '/set-language/', true);
+										xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+										xhr.setRequestHeader('X-CSRFToken', csrftoken);
+										xhr.onreadystatechange = function() {
+											if (xhr.readyState === 4) {
+												if (xhr.status === 200) {
+													console.log("Activated language:", selectedLanguage);
+													location.reload();
+												} else {
+													console.error('Error setting language');
+												}
+											}
+										};
+										xhr.send('language=' + selectedLanguage);
+									});
+								</script>
+							</div>
+
+							{% if request.user.is_authenticated %}
+							<div class="transition-all-xl-1 py-4 me-xxl-8 me-xl-10 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="text-decoration-none" href="{% url 'user:profile' %}" data-bs-toggle="dropdown" id="menu-item-docs" aria-haspopup="true" aria-expanded="false">
+									<svg class="icon icon-user-light">
+										<use xlink:href="#icon-user-light"></use>
+									</svg>
+									<span class="fs-18px dropdown-toggle">{% if request.user.first_name %}{{ request.user.first_name|truncatechars:10 }}{% else %}Käyttäjä{% endif %}</span>
+								</a>
+								<div class="dropdown-menu mega-menu start-0 py-6 " aria-labelledby="menu-item-docs">
+									
+									<div class="menumega-docs px-8" style="min-width: 250px">
+
+											<a href="{% url 'user:profile' %}" class="d-flex text-decoration-none mb-4 mb-lg-0">
+												<div class="flex-shrink-0 fs-5 lh-1 text-muted pt-2">
+													
+												</div>
+												<div class="flex-grow-1 ps-6">
+													<h6 class="mb-2">Profiili</h6>
+													<small>Omat yhteystiedot, asetukset</small>
+												</div>
+											</a>
+											
+											<hr class="dropdown-divider mx-n8 pb-4">
+
+											<a href="{% url 'user:order_history' %}" class="d-flex text-decoration-none mb-4 mb-lg-0">
+												<div class="flex-shrink-0 fs-5 lh-1 text-muted pt-2">
+													
+												</div>
+												<div class="flex-grow-1 ps-6">
+													<h6 class="mb-2">Tilaushistoria</h6>
+													<small>Tilaukset, kuitit</small>
+												</div>
+											</a>
+
+											<hr class="dropdown-divider mx-n8 pb-4">
+
+											<a href="{% url 'user:logout' %}" class="d-flex text-decoration-none mb-4 mb-lg-0">
+												<div class="flex-shrink-0 fs-5 lh-1 text-muted pt-2">
+													
+												</div>
+												<div class="flex-grow-1 ps-6">
+													<h6 class="mb-2">Kirjaudu ulos</h6>
+												</div>
+											</a>
+									</div>
+								</div>
+							</div>
+							{% else %}
+							<div class="transition-all-xl-1 py-4 me-xxl-8 me-xl-10 dropdown dropdown-hover dropdown-fullwidth">
+								<a href="{% url 'user:login' %}"" class="position-relative lh-1 color-inherit text-decoration-none" data-bs-toggle="modal" data-bs-target="#signInModal">
+									<svg class="icon icon-magnifying-glass-light">
+										<use xlink:href="#icon-user-light"></use>
+									</svg>
+								</a>
+							</div>
+							{% endif %}
+
+							<div class="transition-all-xl-1 py-4 me-xxl-8 me-xl-10 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="position-relative lh-1 color-inherit text-decoration-none" href="#" data-bs-toggle="offcanvas" data-bs-target="#shoppingCart" aria-controls="shoppingCart" aria-expanded="false">
+									<svg class="icon icon-star-light">
+										<use xlink:href="#icon-shopping-bag-open-light"></use>
+									</svg>{% csrf_token %}
+									{% with total_items=cart|length %}
+									{% if cart|length > 0 %}
+									<span class="badge bg-dark text-white position-absolute top-0 start-100 translate-middle mt-4 rounded-circle fs-13px p-0 square" style="--square-size: 18px">
+										{{ total_items }}
+									</span>
+									{% endif %}
+									{% endwith %}
+								</a>
+							</div>							
+
+							<div class="transition-all-xl-1 py-4 me-xxl-8 me-xl-10 dropdown dropdown-hover dropdown-fullwidth">
+								<a class="lh-1 color-inherit text-decoration-none" href="#" data-bs-toggle="offcanvas"
+									data-bs-target="#searchModal" aria-controls="searchModal" aria-expanded="false">
+									<svg class="icon icon-magnifying-glass-light">
+										<use xlink:href="#icon-magnifying-glass-light"></use>
+									</svg>
+								</a>
+							</div>
+
+							<script>
+								$(document).ready(function () {
+									// Function to update cart content via AJAX
+									function updateCartContent() {
+										// AJAX request to get cart data
+										var csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+										// Make an asynchronous request to get cart data
+										var xhr = new XMLHttpRequest();
+										xhr.open('POST', '{% url "shop:get_cart_data" %}', true);
+
+										// Set the CSRF token in the request headers
+										xhr.setRequestHeader('Content-Type', 'application/json');
+										xhr.setRequestHeader('X-CSRFToken', csrfToken);
+										xhr.responseType = 'text';
+
+										// Set up the event handler to handle the response
+										xhr.onload = function () {
+											if (xhr.status === 200) {
+												// Check if the response is JSON
+												if (xhr.getResponseHeader('content-type').toLowerCase().includes('application/json')) {
+													try {
+														var response = JSON.parse(xhr.responseText);
+														document.getElementById('shoppingCart').innerHTML = responseToHtml(response);
+													} catch (e) {
+														console.error('Error parsing JSON:', e);
+														// Display an error message or handle it in another way
+														document.getElementById('shoppingCart').innerHTML = '<p>Error loading data</p>';
+													}
+												} else {
+													// If the response is not JSON, it's likely HTML
+													document.getElementById('shoppingCart').innerHTML = xhr.responseText;
+												}
+											} else {
+												console.error('Error:', xhr.statusText);
+												// Display an error message or handle it in another way
+												document.getElementById('shoppingCart').innerHTML = '<p>Error loading data</p>';
+											}
+										};
+
+										// Send the request
+										xhr.send();
+									}
+							
+									// Bind the updateCartContent function to the modal shown event
+									$('#shoppingCart').on('show.bs.offcanvas', function (e) {
+										// Update cart content when the modal is fully shown
+										updateCartContent();
+									});
+							
+								});
+							</script>
+							
+							
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</header>

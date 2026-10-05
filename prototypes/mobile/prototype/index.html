@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="fi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Deco Paint mobile concept: a non-production prototype for review."
+    />
+    <title>Deco Paint — mobile concept</title>
+    <link rel="icon" href="https://decopaint.fi/static/assets/images/header/d_eco_logo.png" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="studio-shell">
+      <section class="concept-panel" aria-labelledby="concept-title">
+        <div class="eyebrow">MOBILE CONCEPT · 01</div>
+        <h1 id="concept-title">Nordic Material Studio</h1>
+        <p class="lead">
+          Nopeampi polku inspiraatiosta oikeaan materiaaliin. Deco Paintin tuttu
+          vihreä, selkeämpi tuotevertailu ja ostamista tukevat työkalut.
+        </p>
+
+        <div class="screen-switcher" aria-label="Vaihda prototyypin näkymää">
+          <button class="screen-tab is-active" data-show-screen="home">Etusivu</button>
+          <button class="screen-tab" data-show-screen="menu">Valikko</button>
+          <button class="screen-tab" data-show-screen="category">Kategoria</button>
+          <button class="screen-tab" data-show-screen="product">Tuote</button>
+          <button class="screen-tab" data-show-screen="checkout">Kassa</button>
+        </div>
+
+        <div class="concept-notes">
+          <div>
+            <span class="note-number">01</span>
+            <p><strong>Löydä nopeammin</strong><br />Haku ja käyttökohteet heti alkuun.</p>
+          </div>
+          <div>
+            <span class="note-number">02</span>
+            <p><strong>Valitse varmemmin</strong><br />Menekki, ominaisuudet ja toimitus näkyvillä.</p>
+          </div>
+          <div>
+            <span class="note-number">03</span>
+            <p><strong>Osta helpommin</strong><br />Laskuri ja ostoskoripainike aina lähellä.</p>
+          </div>
+        </div>
+
+        <p class="prototype-status">
+          Interaktiivinen luonnos · Ei yhteyttä tuotantokauppaan
+        </p>
+      </section>
+
+      <section class="phone-stage" aria-label="Deco Paint mobiiliprototyyppi">
+        <div class="phone" id="phone">
+          <div class="device-top" aria-hidden="true">
+            <span>9:41</span>
+            <span class="device-notch"></span>
+            <span>● ◔ ▰</span>
+          </div>
+
+          <div class="phone-screen">
+            <header class="mobile-header">
+              <button class="icon-button menu-trigger" aria-label="Avaa valikko">☰</button>
+              <img
+                class="brand-logo"
+                src="https://decopaint.fi/static/assets/images/header/d_eco_logo.png"
+                alt="Deco Paint"
+              />
+              <button class="icon-button cart-trigger" aria-label="Avaa ostoskori">
+                <span>▱</span><small>2</small>
+              </button>
+            </header>
+
+            <section class="screen is-active" data-screen="home" aria-label="Etusivu">
+              <div class="home-hero">
+                <img
+                  src="https://decopaint.fi/static/assets/images/main/sisustus.jpg"
+                  alt="Vaalea, luonnollisella pintamateriaalilla viimeistelty sisustus"
+                />
+                <div class="hero-shade"></div>
+                <div class="hero-copy">
+                  <span class="hero-kicker">LUONNOLLINEN PINTA · AJATON TUNNELMA</span>
+                  <h2>Seinästä tulee osa sisustusta.</h2>
+                  <p>Löydä oikea maali tai pinnoite tilan, tyylin ja käyttökohteen mukaan.</p>
+                  <a class="button button-primary" href="#needs">Valitse käyttökohde <span>→</span></a>
+                </div>
+              </div>
+
+              <div class="content-stack">
+                <label class="search-box">
+                  <span aria-hidden="true">⌕</span>
+                  <input type="search" placeholder="Mitä olet maalaamassa?" />
+                  <kbd>Hae</kbd>
+                </label>
+
+                <div class="quick-links" aria-label="Suositut käyttökohteet">
+                  <button>Sisäseinät</button>
+                  <button>Märkätilat</button>
+                  <button>Julkisivut</button>
+                </div>
+
+                <section id="needs" class="section-block">
+                  <div class="section-heading">
+                    <div>
+                      <span class="section-kicker">ALOITA TÄSTÄ</span>
+                      <h3>Mihin tarvitset ratkaisun?</h3>
+                    </div>
+                    <a href="#">Kaikki</a>
+                  </div>
+                  <div class="need-grid">
+                    <article class="need-card need-card-large">
+                      <img
+                        src="https://decopaint.fi/static/assets/images/main/sisustuslaastit.jpg"
+                        alt="Sisustuslaastilla toteutettu seinäpinta"
+                      />
+                      <div>
+                        <strong>Sisustuslaastit</strong>
+                        <span>Elävä, mineraalinen pinta</span>
+                      </div>
+                    </article>
+                    <article class="need-card">
+                      <img
+                        src="https://decopaint.fi/static/assets/images/main/ulkomaalit.jpg"
+                        alt="Vaalea maalattu julkisivu"
+                      />
+                      <div><strong>Ulkopinnat</strong><span>Kestävä suoja</span></div>
+                    </article>
+                    <article class="need-card">
+                      <img
+                        src="https://decopaint.fi/static/assets/images/main/koristemaalit.jpg"
+                        alt="Koristemaalattu vihreä seinäpinta"
+                      />
+                      <div><strong>Efektipinnat</strong><span>Persoonallinen ilme</span></div>
+                    </article>
+                  </div>
+                </section>
+
+                <section class="calculator-promo">
+                  <span class="promo-icon">▦</span>
+                  <div>
+                    <span class="section-kicker">MATERIAALILASKURI</span>
+                    <h3>Osta oikea määrä kerralla.</h3>
+                    <p>Anna pinta-ala, niin laskemme tarvitsemasi määrän.</p>
+                    <button class="text-action open-calculator">Laske materiaalimenekki →</button>
+                  </div>
+                </section>
+
+                <section class="section-block popular-block">
+                  <div class="section-heading">
+                    <div>
+                      <span class="section-kicker">SUOSITUT NYT</span>
+                      <h3>Ammattilaisten valinnat</h3>
+                    </div>
+                    <a href="#">Näytä kaikki</a>
+                  </div>
+                  <div class="horizontal-products">
+                    <article class="mini-product">
+                      <span class="product-badge">Suosittu</span>
+                      <img src="https://decopaint.fi/media/thumbnails/veldecor_1371_thumbnail_e4huWwE.webp" alt="Veldecor tuoteastia" />
+                      <small>Siloksaaninen kuultomaali</small>
+                      <strong>Veldecor</strong>
+                      <span>alkaen 39,90 €</span>
+                    </article>
+                    <article class="mini-product">
+                      <span class="product-badge product-badge-light">Sisäseinät</span>
+                      <img src="https://decopaint.fi/media/thumbnails/210-biofondo-coprente_1428_thumbnail.webp" alt="BioFondo Coprente tuoteastia" />
+                      <small>Pohjamaali sisäpinnoille</small>
+                      <strong>BioFondo Coprente</strong>
+                      <span>alkaen 28,40 €</span>
+                    </article>
+                  </div>
+                </section>
+
+                <section class="consultation-block">
+                  <span class="consultation-mark">?</span>
+                  <div>
+                    <span class="section-kicker">ASIANTUNTIJA APUNA</span>
+                    <h3>Epävarma oikeasta tuotteesta?</h3>
+                    <p>Lähetä kuva kohteesta. Autamme valitsemaan sopivan pintaratkaisun.</p>
+                    <button class="button button-ghost">Pyydä maksuton arvio</button>
+                  </div>
+                </section>
+
+                <div class="trust-row">
+                  <span>✓ Toimitus Suomesta</span>
+                  <span>✓ Asiantuntijan tuki</span>
+                  <span>✓ Turvallinen maksu</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="screen menu-screen" data-screen="menu" aria-label="Mobiilivalikko">
+              <div class="menu-top">
+                <div>
+                  <span class="section-kicker">VALIKKO</span>
+                  <h2>Mitä etsit?</h2>
+                </div>
+                <button class="icon-button close-menu" aria-label="Sulje valikko">×</button>
+              </div>
+              <label class="search-box menu-search">
+                <span aria-hidden="true">⌕</span>
+                <input type="search" placeholder="Hae tuotteita ja ohjeita" />
+              </label>
+              <nav class="main-menu" aria-label="Päävalikko">
+                <a href="#"><span><b>01</b> Tuotteet</span><i>→</i></a>
+                <a href="#"><span><b>02</b> Käyttökohteet</span><i>→</i></a>
+                <a href="#"><span><b>03</b> Värit & inspiraatio</span><i>→</i></a>
+                <a href="#"><span><b>04</b> Ohjeet & tekniikat</span><i>→</i></a>
+                <a href="#"><span><b>05</b> Ammattilaisille</span><i>→</i></a>
+              </nav>
+              <div class="menu-projects">
+                <span class="section-kicker">NOPEAT POLUT</span>
+                <div>
+                  <button>Remontoin kylpyhuonetta</button>
+                  <button>Haluan kalkkimaalin</button>
+                  <button>Tarvitsen julkisivumaalin</button>
+                </div>
+              </div>
+              <div class="menu-footer">
+                <p><strong>Tarvitsetko apua?</strong><br />Asiantuntija vastaa arkisin.</p>
+                <button class="button button-primary">Aloita keskustelu</button>
+                <div><a href="#">FI</a><a href="#">SV</a><a href="#">Kirjaudu</a></div>
+              </div>
+            </section>
+
+            <section class="screen" data-screen="category" aria-label="Tuotekategoria">
+              <div class="category-intro">
+                <span class="breadcrumbs">Etusivu / Tuotteet</span>
+                <h2>Sisämaalit</h2>
+                <p>Hengittäviä ja laadukkaita maaleja kodin kuiviin sisätiloihin.</p>
+                <div class="category-guide">
+                  <span>i</span>
+                  <p><strong>Valintaopas</strong><br />Löydä sopiva maali 4 kysymyksellä.</p>
+                  <button>Aloita →</button>
+                </div>
+              </div>
+              <div class="catalog-toolbar">
+                <button class="filter-button">☷ Suodata <span>2</span></button>
+                <button class="sort-button">Suositut ensin⌄</button>
+              </div>
+              <div class="active-filters">
+                <button>Sisäseinät ×</button>
+                <button>Hengittävä ×</button>
+              </div>
+              <div class="result-count">18 tuotetta</div>
+              <div class="product-grid">
+                <article class="product-card">
+                  <div class="product-visual">
+                    <span class="product-badge">Suositus</span>
+                    <button class="heart" aria-label="Lisää suosikkeihin">♡</button>
+                    <img src="https://decopaint.fi/media/thumbnails/veldecor_1371_thumbnail_e4huWwE.webp" alt="Veldecor siloksaaninen kuultomaali" />
+                  </div>
+                  <small>Sisä- ja ulkopinnoille</small>
+                  <h3>Veldecor</h3>
+                  <p>Kuultava, hengittävä viimeistely</p>
+                  <div class="product-specs"><span>8–10 m²/l</span><span>1 l · 4 l</span></div>
+                  <strong class="price">39,90 €</strong>
+                  <span class="stock">● Varastossa</span>
+                  <button class="card-cta product-trigger">Tutustu tuotteeseen</button>
+                </article>
+                <article class="product-card">
+                  <div class="product-visual">
+                    <span class="product-badge product-badge-light">Ekologinen</span>
+                    <button class="heart" aria-label="Lisää suosikkeihin">♡</button>
+                    <img src="https://decopaint.fi/media/thumbnails/210-biofondo-coprente_1428_thumbnail.webp" alt="BioFondo Coprente pohjamaali" />
+                  </div>
+                  <small>Pohjamaali sisäpinnoille</small>
+                  <h3>BioFondo Coprente</h3>
+                  <p>Peittävä ja mineraalinen pohja</p>
+                  <div class="product-specs"><span>7–9 m²/l</span><span>1 l · 4 l</span></div>
+                  <strong class="price">28,40 €</strong>
+                  <span class="stock">● Varastossa</span>
+                  <button class="card-cta">Tutustu tuotteeseen</button>
+                </article>
+                <article class="product-card">
+                  <div class="product-visual">
+                    <span class="product-badge product-badge-light">Hengittävä</span>
+                    <button class="heart" aria-label="Lisää suosikkeihin">♡</button>
+                    <img src="https://decopaint.fi/media/thumbnails/301-biosupertraspirante_1431_thumbnail.webp" alt="BioSuperTraspirante sisustusmaali" />
+                  </div>
+                  <small>Himmeä sisämaali</small>
+                  <h3>BioSuperTraspirante 301</h3>
+                  <p>Erittäin hengittävä mattapinta</p>
+                  <div class="product-specs"><span>8–10 m²/l</span><span>4 l · 14 l</span></div>
+                  <strong class="price">64,80 €</strong>
+                  <span class="stock">● Tilaustuote</span>
+                  <button class="card-cta">Tutustu tuotteeseen</button>
+                </article>
+                <article class="product-card">
+                  <div class="product-visual">
+                    <span class="product-badge product-badge-light">Pestävä</span>
+                    <button class="heart" aria-label="Lisää suosikkeihin">♡</button>
+                    <img src="https://decopaint.fi/media/thumbnails/302-biolavabile_1432_thumbnail.webp" alt="BioLavabile 302 sisustusmaali" />
+                  </div>
+                  <small>Pestävä sisämaali</small>
+                  <h3>BioLavabile 302</h3>
+                  <p>Kestävä pinta aktiivisiin tiloihin</p>
+                  <div class="product-specs"><span>9–11 m²/l</span><span>4 l · 14 l</span></div>
+                  <strong class="price">72,50 €</strong>
+                  <span class="stock">● Varastossa</span>
+                  <button class="card-cta">Tutustu tuotteeseen</button>
+                </article>
+              </div>
+            </section>
+
+            <section class="screen product-screen" data-screen="product" aria-label="Tuotekortti">
+              <div class="product-gallery">
+                <img
+                  class="gallery-main"
+                  src="https://decopaint.fi/media/thumbnails/veldecor_thumbnail_0IJ8A83.webp"
+                  alt="Veldecorilla viimeistelty vaalea seinäpinta"
+                />
+                <span class="product-badge">Suosittu valinta</span>
+                <button class="gallery-back category-trigger" aria-label="Takaisin kategoriaan">←</button>
+                <button class="gallery-fav" aria-label="Lisää suosikkeihin">♡</button>
+                <div class="gallery-dots"><i class="active"></i><i></i><i></i></div>
+              </div>
+              <div class="product-detail">
+                <span class="breadcrumbs">Sisämaalit / Kuultomaalit</span>
+                <h2>Siloksaaninen kuultomaali Veldecor</h2>
+                <div class="rating-row"><span>★★★★★</span><a href="#">4,8 · 12 arviota</a></div>
+                <div class="price-row"><strong>39,90 €</strong><small>sis. alv 25,5 %</small></div>
+                <p class="product-lead">
+                  Kuultava, hengittävä viimeistely sisä- ja ulkopinnoille. Korostaa
+                  alustan luonnollista struktuuria.
+                </p>
+                <ul class="benefit-list">
+                  <li><span>✓</span> Hengittävä ja vettä hylkivä pinta</li>
+                  <li><span>✓</span> Luonnollinen, elävä lopputulos</li>
+                  <li><span>✓</span> Sisälle ja suojatuille ulkopinnoille</li>
+                </ul>
+
+                <fieldset class="size-picker">
+                  <legend>Valitse pakkauskoko</legend>
+                  <label class="is-selected"><input type="radio" name="size" checked />1 l <small>39,90 €</small></label>
+                  <label><input type="radio" name="size" />4 l <small>129,90 €</small></label>
+                </fieldset>
+
+                <section class="inline-calculator">
+                  <div>
+                    <span class="section-kicker">MENEKKILASKURI</span>
+                    <h3>Kuinka paljon tarvitset?</h3>
+                  </div>
+                  <div class="area-control">
+                    <button class="area-minus" aria-label="Vähennä pinta-alaa">−</button>
+                    <label><input class="area-input" type="number" min="1" value="20" /><span>m²</span></label>
+                    <button class="area-plus" aria-label="Lisää pinta-alaa">+</button>
+                  </div>
+                  <p class="calculation-result">Suositus: <strong>5 litraa</strong> · 2 käsittelykertaa</p>
+                </section>
+
+                <div class="delivery-card">
+                  <span>●</span>
+                  <div><strong>Varastossa</strong><small>Toimitus 2–4 arkipäivässä</small></div>
+                  <button>Toimitustiedot</button>
+                </div>
+
+                <details open>
+                  <summary>Tuotetiedot <span>+</span></summary>
+                  <p>Soveltuu kalkki-, sementti- ja silikaattipohjaisille pinnoille. Menekki 8–10 m²/l yhdellä käsittelyllä.</p>
+                </details>
+                <details>
+                  <summary>Työohje <span>+</span></summary>
+                </details>
+                <details>
+                  <summary>Tekniset tiedostot <span>+</span></summary>
+                </details>
+
+                <section class="small-consultation">
+                  <span>?</span>
+                  <p><strong>Varmistetaan sopivuus yhdessä.</strong><br />Lähetä kuva pinnasta asiantuntijalle.</p>
+                  <button>Kysy neuvoa</button>
+                </section>
+              </div>
+              <div class="sticky-buy">
+                <div><small>Yhteensä</small><strong>119,70 €</strong></div>
+                <button class="button button-primary add-cart">Lisää koriin · 3 × 1 l</button>
+              </div>
+            </section>
+
+            <section class="screen checkout-screen" data-screen="checkout" aria-label="Ostoskori ja kassa">
+              <div class="checkout-head">
+                <button class="gallery-back home-trigger" aria-label="Takaisin etusivulle">←</button>
+                <span class="section-kicker">TURVALLINEN KASSA</span>
+                <h2>Viimeistele tilaus</h2>
+                <div class="checkout-steps">
+                  <span class="active"><i>1</i>Tiedot</span>
+                  <span><i>2</i>Toimitus</span>
+                  <span><i>3</i>Maksu</span>
+                </div>
+              </div>
+              <div class="checkout-body">
+                <details class="order-summary" open>
+                  <summary><span>Tilauksen yhteenveto · 2 tuotetta</span><strong>158,10 €⌃</strong></summary>
+                  <article>
+                    <img src="https://decopaint.fi/media/thumbnails/veldecor_1371_thumbnail_e4huWwE.webp" alt="" />
+                    <div><strong>Veldecor · 1 l</strong><small>3 kpl · valkoinen</small></div>
+                    <span>119,70 €</span>
+                  </article>
+                  <article>
+                    <img src="https://decopaint.fi/media/thumbnails/210-biofondo-coprente_1428_thumbnail.webp" alt="" />
+                    <div><strong>BioFondo Coprente</strong><small>1 kpl · 1 l</small></div>
+                    <span>28,40 €</span>
+                  </article>
+                </details>
+
+                <form class="checkout-form">
+                  <div class="form-heading"><span>1</span><h3>Yhteystiedot</h3></div>
+                  <label>Sähköposti<input type="email" value="alexandra@example.fi" /></label>
+                  <label class="check-line"><input type="checkbox" checked /> Lähetä tilauksen päivitykset sähköpostiin</label>
+
+                  <div class="form-heading"><span>2</span><h3>Toimitusosoite</h3></div>
+                  <div class="two-column">
+                    <label>Etunimi<input type="text" placeholder="Etunimi" /></label>
+                    <label>Sukunimi<input type="text" placeholder="Sukunimi" /></label>
+                  </div>
+                  <label>Osoite<input type="text" placeholder="Katuosoite" /></label>
+                  <div class="two-column zip-row">
+                    <label>Postinumero<input type="text" inputmode="numeric" placeholder="00100" /></label>
+                    <label>Postitoimipaikka<input type="text" placeholder="Helsinki" /></label>
+                  </div>
+
+                  <div class="form-heading"><span>3</span><h3>Toimitustapa</h3></div>
+                  <label class="shipping-option is-selected">
+                    <input type="radio" name="shipping" checked />
+                    <span><strong>Noutopiste</strong><small>2–4 arkipäivää</small></span>
+                    <b>10,00 €</b>
+                  </label>
+                  <label class="shipping-option">
+                    <input type="radio" name="shipping" />
+                    <span><strong>Kotiinkuljetus</strong><small>3–5 arkipäivää</small></span>
+                    <b>19,90 €</b>
+                  </label>
+
+                  <div class="checkout-total"><span>Maksettavaa</span><strong>158,10 €</strong></div>
+                  <button type="button" class="button button-primary checkout-next">Siirry maksamaan →</button>
+                  <p class="payment-trust">🔒 Salattu yhteys · Klarna · Visa · Mastercard</p>
+                </form>
+              </div>
+            </section>
+
+            <div class="toast" role="status" aria-live="polite">Tuote lisättiin ostoskoriin</div>
+          </div>
+        </div>
+
+        <p class="stage-caption">
+          Valitse näkymä vasemmalta. Painikkeet, valikko ja materiaalilaskuri toimivat.
+        </p>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

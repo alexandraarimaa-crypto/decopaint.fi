@@ -1,0 +1,10 @@
+{% extends "mail/mail.html" %}
+{% block content %}
+
+<p>Arvoisa {{ order.first_name }},
+<br><br>
+tilauksenne <b>#{{ order.id }}</b> on <b>{{ new_status }}</b>.
+<br><br>
+Ystävällisin terveisin,<br>
+Deco Paint Finland Oy -tiimi
+{% endblock %}

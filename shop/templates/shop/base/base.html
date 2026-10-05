@@ -1,0 +1,589 @@
+{% load static analytics_tags i18n %}
+{% analytics_config as analytics %}
+{% get_current_language as current_language %}
+<!doctype html>
+<html lang="{{ current_language|default:'fi' }}" data-bs-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="{{ seo.description|default:'OIKOS-maalit ja sisustuspinnoitteet kotiin ja ammattilaisille. Tutustu tuotteisiin, teknisiin tietoihin ja asiantuntija-apuun.' }}" />
+<meta name="robots" content="{{ seo_robots|default:'index,follow' }}" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<title>{% block title %}{{ seo.title|default:'Deco Paint Finland' }}{% endblock %}</title>
+
+<meta name="google-site-verification" content="zy2sR9P5cru_pF6_QrvjxReF0cASavZSAXHzClGR0P8" />
+
+{% if analytics.enabled %}
+<!-- Initialize Consent Mode before loading the Google tag. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+
+  const userRegion = 'FI'; 
+  const isEU = ['FI','SE','DE','FR','IT','ES','PT','AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'].includes(userRegion);
+
+  // Synchronously restore consent from cookies to prevent race conditions with conversion tags
+  (function() {
+    function getCookieSync(name) {
+      const nameEQ = name + "=";
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        let c = cookies[i].trim();
+        if (c.indexOf(nameEQ) === 0) {
+          return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+      }
+      return null;
+    }
+    
+    const storedSettings = getCookieSync('cookie_settings');
+    let consentSettings = {
+      'ad_storage': isEU ? 'denied' : 'granted',
+      'ad_user_data': isEU ? 'denied' : 'granted',
+      'ad_personalization': isEU ? 'denied' : 'granted',
+      'analytics_storage': isEU ? 'denied' : 'granted',
+      'functionality_storage': isEU ? 'denied' : 'granted',
+      'personalization_storage': isEU ? 'denied' : 'granted',
+      'security_storage': 'granted',
+      'wait_for_update': 500,
+      'region': userRegion
+    };
+    
+    if (storedSettings) {
+      try {
+        const parsed = JSON.parse(storedSettings);
+        for (let key in parsed) {
+          consentSettings[key] = parsed[key];
+        }
+      } catch(e) {}
+    }
+    
+    gtag('consent', 'default', consentSettings);
+  })();
+</script>
+
+<!-- Direct gtag is the single measurement source; the GTM container stays unused. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics.measurement_id|urlencode }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+
+  gtag('js', new Date());
+
+  gtag('config', '{{ analytics.measurement_id|escapejs }}', {
+    'anonymize_ip': true,
+    'allow_google_signals': true,
+    'cookie_update': true,
+    'cookie_flags': 'SameSite=None;Secure',
+    // Never copy checkout/search query parameters into Analytics.
+    'page_location': window.location.origin + window.location.pathname
+    });
+
+  gtag('config', '{{ analytics.google_ads_id|escapejs }}', {
+    'allow_enhanced_conversions': true
+  });
+</script>
+{{ analytics|json_script:"ga4-config" }}
+<script defer src="{% static 'assets/js/analytics.js' %}"></script>
+{% endif %}
+
+<link rel="icon" href="{% static 'assets/images/others/favicon.ico' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link rel="stylesheet" href="{% static 'assets/vendors/lightgallery/css/lightgallery-bundle.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/vendors/fontawesome/css/all.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/vendors/animate/animate.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/vendors/slick/slick.css' %}">
+<link rel="stylesheet" href="{% static 'assets/vendors/mapbox-gl/mapbox-gl.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/vendors/fonts/tuesday-night/stylesheet.min.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'assets/css/theme.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/mobile-modern-20260801-equal-cards.css' %}">
+<link rel="canonical" href="{% if canonical_url %}{{ canonical_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{{ request.path }}{% endif %}">
+{% block open_graph %}{% endblock %}
+{% block schema_markup %}{% endblock %}
+
+<style>
+    /* Ensure all product preview card images are uniform, square, and cropped */
+    .card-product .card-img-top a,
+    .card-product .card-img-top {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+    .card-product .card-img-top img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
+
+    /* Enforce square & cover-cropped styles on all cart, checkout, search list, and menu thumbnails */
+    img[width="60"][height="60"],
+    img[width="100"][height="100"],
+    img[width="44"][height="44"],
+    .shop-product img,
+    .cart-items img,
+    .cart-modal img,
+    #mobile-search-results img,
+    .search-results-list img {
+        aspect-ratio: 1 / 1 !important;
+        object-fit: cover !important;
+        background-color: #f8f9fa;
+    }
+
+    /* Product details thumbnail static list (Desktop vertical / Mobile horizontal) */
+    .product-thumbs-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        height: auto !important;
+    }
+    .product-thumbs-list img {
+        width: 80px !important;
+        height: 80px !important;
+        object-fit: cover !important;
+        border: 2px solid transparent !important;
+        cursor: pointer !important;
+        transition: border-color 0.2s ease-in-out !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .product-thumbs-list img.active-thumb {
+        border-color: var(--bs-primary, #000) !important;
+    }
+
+    @media (max-width: 1259px) {
+        .product-thumbs-list {
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            margin-top: 15px !important;
+            margin-bottom: 15px !important;
+        }
+    }
+
+    #search-loading {
+        display: none;
+    }
+    .text-justify {
+        text-align: justify;
+    }
+    .text-with-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    /* Cookie banner styles */
+    .cookie-consent-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        padding: 20px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        max-width: 100%;
+        font-family: 'Urbanist', sans-serif;
+    }
+    
+    .cookie-consent-header {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+    
+    .cookie-consent-text {
+        margin-bottom: 15px;
+        color: #333;
+        line-height: 1.5;
+    }
+    
+    .cookie-consent-options {
+        margin-bottom: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 10px;
+        display: none; /* Initially hidden */
+    }
+    
+    .cookie-option {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .cookie-option input {
+        margin-right: 12px;
+        min-width: 18px;
+        min-height: 18px;
+    }
+    
+    .cookie-option label {
+        flex: 1;
+        cursor: pointer;
+    }
+    
+    .cookie-consent-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .cookie-btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        flex: 1;
+        text-align: center;
+        min-width: 120px;
+    }
+    
+    .cookie-btn-accept {
+        background: #007bff;
+        color: white;
+        border: none;
+    }
+    
+    .cookie-btn-accept:hover {
+        background: #0069d9;
+    }
+    
+    .cookie-btn-settings {
+        background: #f8f9fa;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+    
+    .cookie-btn-settings:hover {
+        background: #e2e6ea;
+    }
+    
+    .cookie-btn-reject {
+        background: #f8f9fa;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+    
+    .cookie-btn-reject:hover {
+        background: #e2e6ea;
+    }
+    
+    .cookie-consent-required {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 10px;
+        font-style: italic;
+    }
+    
+    .cookie-option-disabled {
+        opacity: 0.7;
+    }
+    
+    @media (min-width: 768px) {
+        .cookie-consent-container {
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 700px;
+            border-radius: 8px 8px 0 0;
+            padding: 25px;
+        }
+        
+        .cookie-consent-header {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+
+{% block head_scripts %}{% endblock %}
+</head>
+
+<body>
+
+{% include 'shop/base/header.html' %}
+
+<main id="content" class="wrapper layout-page">
+{% block content %}{% endblock %}
+</main>
+
+{% include 'shop/base/footer.html' %}
+{% include 'shop/base/svg.html' %}
+{% include 'shop/base/modal.html' %}
+{% include 'shop/base/footer_js.html' %}
+<script defer src="{% static 'assets/js/mobile-modern-20260820-calculator.js' %}"></script>
+{% block javascript %}{% endblock %}
+
+<!-- Enhanced Cookie Consent Banner -->
+<div class="cookie-consent-container" id="cookie-alert" style="display: none;">
+    <div class="cookie-consent-header">Evästeasetukset</div>
+    <div class="cookie-consent-text">
+        <p>Käytämme evästeitä parantaaksemme käyttökokemustasi ja tarjotaksemme sinulle parempaa palvelua. Voit hallita evästeitä alla. Valitse "Hyväksy kaikki" hyväksyäksesi kaikki evästeet tai "Asetukset" muokataksesi yksittäisiä valintoja.</p>
+    </div>
+    
+    <div class="cookie-consent-options" id="cookie-options">
+        <div class="cookie-option">
+            <input type="checkbox" id="analytics_storage" checked>
+            <label for="analytics_storage">
+                <strong>Analytiikkaevästeet</strong><br>
+                <small>Auttavat meitä ymmärtämään, miten käytät sivustoamme</small>
+            </label>
+        </div>
+        <div class="cookie-option">
+            <input type="checkbox" id="ad_storage" checked>
+            <label for="ad_storage">
+                <strong>Mainos- ja kohdennusevästeet</strong><br>
+                <small>Mahdollistavat sinulle kiinnostavampien mainosten näyttämisen</small>
+            </label>
+        </div>
+        <div class="cookie-option">
+            <input type="checkbox" id="functionality_storage" checked>
+            <label for="functionality_storage">
+                <strong>Toiminnallisuusevästeet</strong><br>
+                <small>Mahdollistavat erilaisten ominaisuuksien käytön</small>
+            </label>
+        </div>
+        <div class="cookie-option">
+            <input type="checkbox" id="personalization_storage" checked>
+            <label for="personalization_storage">
+                <strong>Personointi ja sisältöräätälöinti</strong><br>
+                <small>Mahdollistavat sinulle räätälöidyn sisällön</small>
+            </label>
+        </div>
+        <div class="cookie-option">
+            <input type="checkbox" id="ad_user_data" checked>
+            <label for="ad_user_data">
+                <strong>Mainonnan mittaus</strong><br>
+                <small>
+                    Auttaa meitä ymmärtämään, mitkä mainokset johtavat ostoksiin
+                </small>
+            </label>
+        </div>
+        <div class="cookie-option">
+            <input type="checkbox" id="ad_personalization" checked>
+            <label for="ad_personalization">
+                <strong>Mainonnan personointi</strong><br>
+                <small>Mahdollistaa kiinnostuksen kohteisiin perustuvat mainokset</small>
+            </label>
+        </div>
+        <div class="cookie-option cookie-option-disabled">
+            <input type="checkbox" id="security_storage" checked disabled>
+            <label for="security_storage">
+                <strong>Välttämättömät turvallisuusevästeet</strong><br>
+                <small>Vaaditaan sivuston perustoimintojen kannalta</small>
+            </label>
+        </div>
+    </div>
+    
+    <p class="cookie-consent-required">Välttämättömät evästeet ovat aina käytössä sivuston toiminnan kannalta. Voit lukea lisää evästeistämme <a href="{% url 'shop:terms' %}" style="color: #007bff;">tietosuojaselosteestamme</a>.</p>
+    
+    <div class="cookie-consent-buttons" id="initial-buttons">
+        <button class="cookie-btn cookie-btn-accept" onclick="acceptAllCookies()">Hyväksy evästeet</button>
+        <button class="cookie-btn cookie-btn-reject" onclick="declineNonEssentialCookies()">Vain välttämättömät</button>
+        <button class="cookie-btn cookie-btn-settings" onclick="showCookieSettings()">Asetukset</button>
+    </div>
+    
+    <div class="cookie-consent-buttons" id="settings-buttons" style="display: none;">
+        <button class="cookie-btn cookie-btn-accept" onclick="acceptAllCookies()">Hyväksy kaikki</button>
+        <button class="cookie-btn cookie-btn-reject" onclick="acceptSelectedCookies()">Hyväksy valitut</button>
+        <button class="cookie-btn cookie-btn-reject" onclick="declineNonEssentialCookies()">Vain välttämättömät</button>
+    </div>
+</div>
+
+{% if analytics.enabled %}
+{{ ga4_event|json_script:"ga4-page-event" }}
+{{ ga4_product_payload|json_script:"ga4-product-payload" }}
+{{ ga4_checkout_payload|json_script:"ga4-checkout-payload" }}
+{% endif %}
+
+<script>
+// ================================
+// Cookie Consent Management Script
+// ================================
+
+// Utility: set cookie
+function setCookie(name, value, days) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = name + "=" + encodeURIComponent(value) +
+        ";expires=" + expires.toUTCString() +
+        ";path=/;SameSite=Lax;Secure";
+}
+
+// Utility: get cookie
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let c = cookies[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1, c.length);
+        }
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+    }
+    return null;
+}
+
+// Show cookie settings panel
+function showCookieSettings() {
+    const options = document.getElementById('cookie-options');
+    const initialButtons = document.getElementById('initial-buttons');
+    const settingsButtons = document.getElementById('settings-buttons');
+    if (options) options.style.display = 'block';
+    if (initialButtons) initialButtons.style.display = 'none';
+    if (settingsButtons) settingsButtons.style.display = 'flex';
+}
+
+// Allow consent to be reviewed or withdrawn after the first choice.
+function openCookieSettings() {
+    const cookieAlert = document.getElementById('cookie-alert');
+    if (!cookieAlert) return;
+    cookieAlert.style.display = 'flex';
+    restoreConsentFromCookies();
+    showCookieSettings();
+}
+
+// Accept all cookies (explicit user action)
+function acceptAllCookies() {
+    const consentSettings = {
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
+        analytics_storage: 'granted',
+        functionality_storage: 'granted',
+        personalization_storage: 'granted',
+        security_storage: 'granted'
+    };
+
+    // Update all checkboxes explicitly
+    const checkboxIds = [
+        'ad_storage',
+        'ad_user_data',
+        'ad_personalization',
+        'analytics_storage',
+        'functionality_storage',
+        'personalization_storage'
+    ];
+
+    checkboxIds.forEach(function(id) {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.checked = true;
+        }
+    });
+
+    updateConsentAndStore(consentSettings);
+    document.getElementById('cookie-alert').style.display = 'none';
+}
+
+// Accept selected cookies only
+function acceptSelectedCookies() {
+    const consentSettings = {
+        ad_storage: document.getElementById('ad_storage').checked ? 'granted' : 'denied',
+        ad_user_data: document.getElementById('ad_user_data').checked ? 'granted' : 'denied',
+        ad_personalization: document.getElementById('ad_personalization').checked ? 'granted' : 'denied',
+        analytics_storage: document.getElementById('analytics_storage').checked ? 'granted' : 'denied',
+        functionality_storage: document.getElementById('functionality_storage').checked ? 'granted' : 'denied',
+        personalization_storage: document.getElementById('personalization_storage').checked ? 'granted' : 'denied',
+        security_storage: 'granted'
+    };
+
+    updateConsentAndStore(consentSettings);
+    document.getElementById('cookie-alert').style.display = 'none';
+}
+
+// Decline all non-essential cookies
+function declineNonEssentialCookies() {
+    const consentSettings = {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'granted'
+    };
+
+    updateConsentAndStore(consentSettings);
+    document.getElementById('cookie-alert').style.display = 'none';
+}
+
+// Store consent and update Google Consent Mode
+function updateConsentAndStore(settings) {
+    setCookie('cookie_consent', 'granted', 365);
+    setCookie('cookie_settings', JSON.stringify(settings), 365);
+
+    // Update Google Consent Mode
+    if (typeof gtag === 'function') {
+        gtag('consent', 'update', settings);
+    }
+    document.dispatchEvent(new CustomEvent('decopaint:consent-updated', {
+        detail: settings
+    }));
+}
+
+// Restore consent state on page load
+function restoreConsentFromCookies() {
+    const consent = getCookie('cookie_consent');
+    const settings = getCookie('cookie_settings');
+
+    if (!consent || !settings) {
+        return;
+    }
+
+    let parsedSettings;
+    try {
+        parsedSettings = JSON.parse(settings);
+    } catch (error) {
+        console.error('Failed to parse cookie settings:', error);
+        return;
+    }
+
+    // Restore checkbox states
+    const mapping = {
+        ad_storage: 'ad_storage',
+        ad_user_data: 'ad_user_data',
+        ad_personalization: 'ad_personalization',
+        analytics_storage: 'analytics_storage',
+        functionality_storage: 'functionality_storage',
+        personalization_storage: 'personalization_storage'
+    };
+
+    Object.keys(mapping).forEach(function(key) {
+        const checkbox = document.getElementById(mapping[key]);
+        if (checkbox) {
+            checkbox.checked = parsedSettings[key] === 'granted';
+        }
+    });
+
+    // Update Google Consent Mode with stored values
+    if (typeof gtag === 'function') {
+        gtag('consent', 'update', parsedSettings);
+    }
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    const cookieAlert = document.getElementById('cookie-alert');
+
+    // Show banner if no consent exists
+    if (!getCookie('cookie_consent') && cookieAlert) {
+        cookieAlert.style.display = 'block';
+    }
+
+    // Restore stored consent
+    restoreConsentFromCookies();
+});
+</script>
+
+</body>
+</html>

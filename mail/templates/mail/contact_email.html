@@ -1,0 +1,14 @@
+{% extends "mail/mail.html" %}
+{% block content %}
+
+Nimi: {{ name }}<br>
+Email: {{ email }}<br>
+{% if phone %}Puhelinnumero: {{ phone }}<br>{% endif %}
+<br>
+{{ message }}
+
+<br><br>
+-----<br>
+<small>Tämä viesti on lähetetty yhteydenottolomakkeen kautta.</small>
+
+{% endblock %}

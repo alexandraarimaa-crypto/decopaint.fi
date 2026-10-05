@@ -1,0 +1,310 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="module">
+    <h1>Google Shopping - Hallintapaneeli</h1>
+
+    <div class="form-row">
+        <h2>🔄 Tuotesynkronointi</h2>
+        <p><strong>TÄRKEÄ:</strong> Poistaa automaattisesti tuotteet Google Shoppingista, joita ei enää ole verkkokaupassa.</p>
+        <button onclick="syncMissingProducts()" class="button" style="background: #ff6b00; font-size: 16px;">🔄 Synkronoi Tuotteet</button>
+        <p style="font-size: 12px; color: #666;">Vertaa verkkokaupan ja Google Shoppingin tuotteita ja poistaa puuttuvat tuotteet.</p>
+    </div>
+
+    <div class="form-row">
+        <h2>🚀 Optimoitu Yhden Vaihtoehdon Päivitys</h2>
+        <p><strong>SUOSITELTU:</strong> Lataa vain yksi paras vaihtoehto per tuote. Tehokas tapa käsitellä tuotteita, joissa on tuhansia vaihtoehtoja.</p>
+        
+        <div style="margin: 10px 0; padding: 10px; background: #e8f5e8; border-radius: 5px;">
+            <label>Tuote-erän koko:</label>
+            <select id="productBatchSize">
+                <option value="10">10 tuotetta</option>
+                <option value="20" selected>20 tuotetta</option>
+                <option value="50">50 tuotetta</option>
+            </select>
+            
+            <label style="margin-left: 20px;">Samanaikaiset työntekijät:</label>
+            <select id="singleMaxWorkers">
+                <option value="1">1 työntekijä</option>
+                <option value="2" selected>2 työntekijää</option>
+            </select>
+        </div>
+        
+        <button onclick="incrementalUpdateSingleVariant()" class="button" style="background: #198754; font-size: 16px;">🚀 Käynnistä Optimoitu Päivitys</button>
+        <button onclick="fullCleanUploadSingleVariant()" class="button" style="background: #dc3545; font-size: 16px;">🚀 Täysi Optimoitu Lataus</button>
+        <button onclick="getBestVariantStatistics()" class="button" style="background: #0dcaf0;">Näytä Optimointitilastot</button>
+    </div>
+
+    <div class="form-row">
+        <h2>Hallintatoiminnot</h2>
+        <p>Perustoiminnot ja tilan tarkistus.</p>
+        <button onclick="deleteAllProducts()" class="button" style="background: #6c757d;">Poista Kaikki Tuotteet</button>
+        <button onclick="checkMerchantCenter()" class="button" style="background: #6c757d;">Tarkista Google Merchant Center Tila</button>
+    </div>
+
+    <div class="form-row">
+        <h2>🗑️ Poista Tuote Merchant Center ID:llä</h2>
+        <p>Poista tietty tuote Google Merchant Centeristä Merchant Center -ID:n perusteella (esim. LMF000000T).</p>
+        
+        <div style="margin: 10px 0; padding: 10px; background: #fff3cd; border-radius: 5px;">
+            <label for="merchantCenterIdToDelete"><strong>Merchant Center -tuote-ID:</strong></label>
+            <input type="text" id="merchantCenterIdToDelete" placeholder="Syötä tuote-ID (esim. LMF000000T)" 
+                style="margin: 0 10px; padding: 5px; width: 200px;" pattern="[A-Za-z0-9]+">
+            <button onclick="deleteProductByMerchantId()" class="button" style="background: #dc3545;">🗑️ Poista Tuote</button>
+        </div>
+        
+        <p style="font-size: 12px; color: #666;">
+            <strong>Huomio:</strong> Tämä poistaa tuotteen suoraan Google Merchant Centeristä käyttämällä 
+            Google:n omaa tuotetunnusta. ID:n löydät Google Merchant Center -käyttöliittymästä.
+        </p>
+    </div>
+
+    <div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"></div>
+</div>
+
+<script>
+// Base URL for API endpoints
+const BASE_URL = '/google-shopping/';
+
+function getCookie(name) {
+    const cookie = document.cookie
+        .split(';')
+        .map(value => value.trim())
+        .find(value => value.startsWith(`${name}=`));
+
+    return cookie ? decodeURIComponent(cookie.substring(name.length + 1)) : '';
+}
+
+// Enhanced API call function with proper error handling
+async function makeApiCall(url, options = {}) {
+    try {
+        const method = (options.method || 'GET').toUpperCase();
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(method === 'POST' ? {'X-CSRFToken': getCookie('csrftoken')} : {})
+            },
+            ...options
+        });
+        
+        // Check if response is JSON to avoid parsing errors
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`Palvelin palautti virheellisen vastauksen: ${text.substring(0, 100)}`);
+        }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP virhe! Tila: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+    }
+}
+
+function syncMissingProducts() {
+    showLoading('Aloitetaan tuotesynkronointia...');
+    
+    makeApiCall(`${BASE_URL}sync-missing-products/`, {method: 'POST'})
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('result').innerHTML = 
+                    `<div class="success">🔄 ${data.message}</div>` +
+                    `<p><strong>Toiminto:</strong> Vertailee verkkokaupan ja Google Shoppingin tuotteita</p>` +
+                    `<p><strong>Poistaa automaattisesti:</strong> Tuotteet, joita ei enää ole verkkokaupassa</p>` +
+                    `<p><strong>Tila:</strong> Työ ajastettu taustalle. Tarkista lokit tiedon saamiseksi.</p>`;
+            } else {
+                document.getElementById('result').innerHTML = 
+                    `<div class="error">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = 
+                `<div class="error">API-virhe: ${error.message}</div>`;
+        });
+}
+
+function incrementalUpdateSingleVariant() {
+    const productBatchSize = document.getElementById('productBatchSize').value;
+    const maxWorkers = document.getElementById('singleMaxWorkers').value;
+    
+    const url = `${BASE_URL}incremental-update-single-variant/?product_batch_size=${productBatchSize}&max_workers=${maxWorkers}`;
+    
+    showLoading('Käynnistetään optimoitua päivitystä (yksi vaihtoehto per tuote)...');
+    
+    makeApiCall(url, {method: 'POST'})
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('result').innerHTML = 
+                    `<div class="success">🚀 ${data.message}</div>` +
+                    `<p><strong>Tuotteita yhteensä:</strong> ${data.total_products}</p>` +
+                    `<p><strong>Erää:</strong> ${data.total_batches}</p>` +
+                    `<p><strong>Erän koko:</strong> ${data.product_batch_size} tuotetta</p>` +
+                    `<p><strong>Arvioitu kesto:</strong> ${data.estimated_duration_minutes?.toFixed(0) || '?'} minuuttia</p>` +
+                    `<p><strong>🚀 Tehokkuus:</strong> Käsitellään vain yksi paras vaihtoehto per tuote</p>` +
+                    `<p><strong>Työ ajastettu taustalle.</strong></p>`;
+            } else {
+                document.getElementById('result').innerHTML = 
+                    `<div class="error">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = 
+                `<div class="error">API-virhe: ${error.message}</div>`;
+        });
+}
+
+function fullCleanUploadSingleVariant() {
+    const productBatchSize = document.getElementById('productBatchSize').value;
+    
+    showLoading('Käynnistetään täyttä optimoitua latausta (yksi vaihtoehto per tuote)...');
+    
+    makeApiCall(`${BASE_URL}full-clean-upload-single-variant/?product_batch_size=${productBatchSize}`, {method: 'POST'})
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('result').innerHTML = 
+                    `<div class="success">🚀 ${data.message}</div>` +
+                    `<p>Tuotteita yhteensä: ${data.total_products}</p>` +
+                    `<p>Erää: ${data.total_batches}</p>` +
+                    `<p><strong>🚀 Tehokkuus:</strong> Ladataan vain yksi paras vaihtoehto per tuote</p>` +
+                    `<p><strong>Lataus aloitettu taustalla.</strong></p>`;
+            } else {
+                document.getElementById('result').innerHTML = 
+                    `<div class="error">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = 
+                `<div class="error">API-virhe: ${error.message}</div>`;
+        });
+}
+
+function getBestVariantStatistics() {
+    showLoading('Haetaan optimointitilastoja...');
+    
+    makeApiCall(`${BASE_URL}best-variant-statistics/`)
+        .then(data => {
+            if (data.status === 'success') {
+                const stats = data.statistics;
+                document.getElementById('result').innerHTML = 
+                    `<div class="info">🚀 Optimointitilastot:</div>` +
+                    `<p><strong>Tuotteita yhteensä:</strong> ${stats.total_products}</p>` +
+                    `<p><strong>Tuotevaihtoehtoja yhteensä:</strong> ${stats.total_variants}</p>` +
+                    `<p><strong>Keskimäärin vaihtoehtoja per tuote:</strong> ${stats.optimization_ratio}</p>` +
+                    `<p><strong>Tehokkuusparannus:</strong> ${stats.optimization_percentage}% vähemmän työtä</p>` +
+                    `<p><strong>Tuotteita Google Merchant Centerissä:</strong> ${stats.currently_uploaded_products}</p>` +
+                    `<p><strong>Valmis lataukseen:</strong> ${stats.upload_ready ? 'Kyllä' : 'Ei'}</p>` +
+                    `<p><strong>🚀 Vinkki:</strong> Optimoitu versio käsittelee ${stats.optimization_percentage}% vähemmän dataa!</p>`;
+            } else {
+                document.getElementById('result').innerHTML = 
+                    `<div class="error">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = 
+                `<div class="error">API-virhe: ${error.message}</div>`;
+        });
+}
+
+function deleteAllProducts() {
+    if (!confirm('Haluatko varmasti poistaa KAIKKI tuotteet Google Merchant Centeristä? Tätä toimintoa ei voi perua.')) {
+        return;
+    }
+    
+    showLoading('Poistetaan tuotteita...');
+    
+    makeApiCall(`${BASE_URL}delete-all/`, {method: 'POST'})
+        .then(data => {
+            document.getElementById('result').innerHTML = 
+                `<div class="${data.status === 'success' ? 'success' : 'error'}">${data.message}</div>`;
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = 
+                `<div class="error">API-virhe: ${error.message}</div>`;
+        });
+}
+
+function deleteProductByMerchantId() {
+    const merchantCenterId = document.getElementById('merchantCenterIdToDelete').value;
+    
+    if (!merchantCenterId) {
+        alert('Syötä Merchant Center -tuote-ID ensin.');
+        return;
+    }
+    
+    // Validate the ID format (alphanumeric)
+    const idRegex = /^[A-Za-z0-9]+$/;
+    if (!idRegex.test(merchantCenterId)) {
+        alert('Merchant Center -tuote-ID voi sisältää vain kirjaimia ja numeroita.');
+        return;
+    }
+    
+    if (!confirm(`Haluatko varmasti poistaa tuotteen ${merchantCenterId} Google Merchant Centeristä?\n\nKäytetään täyttä ID:tä: online:fi:FI:${merchantCenterId}`)) {
+        return;
+    }
+    
+    showLoading(`Poistetaan tuotetta ${merchantCenterId} Google Merchant Centeristä...`);
+    
+    makeApiCall(`${BASE_URL}delete-product-by-merchant-id/?merchant_center_id=${encodeURIComponent(merchantCenterId)}`, {method: 'POST'})
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('result').innerHTML = 
+                    `<div class="success">🗑️ ${data.message}</div>` +
+                    `<p><strong>Poistettu tuote:</strong> ${data.deleted_product_id}</p>` +
+                    `<p><strong>Täysi Merchant Center -ID:</strong> ${data.full_merchant_center_id || 'online:fi:FI:' + data.deleted_product_id}</p>` +
+                    `<p><strong>Tila:</strong> Tuote poistettu onnistuneesti</p>`;
+            } else {
+                document.getElementById('result').innerHTML = 
+                    `<div class="error">${data.message}</div>` +
+                    `<p><strong>Tuote-ID:</strong> ${data.deleted_product_id}</p>` +
+                    `<p><strong>Täysi Merchant Center -ID:</strong> online:fi:FI:${data.deleted_product_id}</p>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = 
+                `<div class="error">API-virhe: ${error.message}</div>`;
+        });
+}
+
+function checkMerchantCenter() {
+    showLoading('Tarkistetaan Google Merchant Centerin tilaa...');
+    
+    makeApiCall(`${BASE_URL}merchant-info/`)
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('result').innerHTML = 
+                    `<div class="success">${data.message}</div>` +
+                    `<p>Tuotteita Google Merchant Centerissä: ${data.total_products}</p>`;
+            } else {
+                document.getElementById('result').innerHTML = 
+                    `<div class="error">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = 
+                `<div class="error">API-virhe: ${error.message}</div>`;
+        });
+}
+
+function showLoading(message) {
+    document.getElementById('result').innerHTML = 
+        `<div class="info">${message}</div>`;
+}
+</script>
+
+<style>
+.success { background-color: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb; border-radius: 4px; }
+.error { background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 4px; }
+.info { background-color: #d1ecf1; color: #0c5460; padding: 10px; border: 1px solid #bee5eb; border-radius: 4px; }
+.button { margin: 5px; padding: 10px 15px; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+.button:hover { opacity: 0.9; }
+.form-row { margin-bottom: 20px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px; }
+.form-row h2 { margin-top: 0; color: #333; }
+</style>
+{% endblock %}

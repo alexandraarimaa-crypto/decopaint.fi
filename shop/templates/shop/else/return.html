@@ -1,0 +1,25 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+{{ product.name }}
+{% endblock %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+  <div class="bg-body-secondary mb-3">
+    <div class="container">
+      <nav class="py-4 lh-30px" aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center py-1 mb-0">
+          <li class="breadcrumb-item"><a title="Home" href="{% url 'shop:main' %}">Decopaint</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Palautus</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+{% endblock %}

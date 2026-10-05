@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "policy": "Only source-grounded additions that are missing from the conservative automatic extraction.",
+  "products": {
+    "betoncryll-idrorepellente": {
+      "purposes": [
+        "vedenhylkivyys"
+      ],
+      "source": {
+        "type": "official_product_description",
+        "url": "https://decopaint.fi/product/betoncryll-idrorepellente/",
+        "evidence": "väritön ... suoja-aine ... vettä hylkivän esteen ... ulkopintojen, kuten betonin"
+      }
+    },
+    "duaflex": {
+      "scope": [
+        "ulkokäyttö"
+      ],
+      "source": {
+        "type": "official_technical_data_sheet",
+        "url": "https://decopaint.fi/media/product_documents/duaflex-EXTdx-01-en_1.pdf",
+        "evidence": "Ideal Use Exterior and Interior walls."
+      }
+    },
+    "308-biosuperlavabile": {
+      "remove_purposes": [
+        "nikotiini-, noki- ja savutahrat"
+      ],
+      "source": {
+        "type": "source_validation",
+        "url": "https://decopaint.fi/media/product_documents/WTE-308-04.pdf",
+        "evidence": "The linked official product sources do not identify old nicotine, soot or smoke stains as an intended use."
+      }
+    },
+    "310-biosmacchiabile-opaco": {
+      "remove_purposes": [
+        "nikotiini-, noki- ja savutahrat"
+      ],
+      "source": {
+        "type": "source_validation",
+        "url": "https://decopaint.fi/media/product_documents/WTE_310__04.en.pdf",
+        "evidence": "The data sheet describes stain resistance for interior walls, not covering existing nicotine, soot or smoke stains."
+      }
+    },
+    "311-biosmacchiabile-satinato": {
+      "remove_purposes": [
+        "nikotiini-, noki- ja savutahrat"
+      ],
+      "source": {
+        "type": "source_validation",
+        "url": "https://decopaint.fi/product/311-biosmacchiabile-satinato/",
+        "evidence": "The official linked sources do not identify old nicotine, soot or smoke stains as an intended use."
+      }
+    },
+    "312-biosmacchiabile-lucido": {
+      "remove_purposes": [
+        "nikotiini-, noki- ja savutahrat"
+      ],
+      "source": {
+        "type": "source_validation",
+        "url": "https://decopaint.fi/product/312-biosmacchiabile-lucido/",
+        "evidence": "The official linked sources do not identify old nicotine, soot or smoke stains as an intended use."
+      }
+    },
+    "ekostripper": {
+      "remove_purposes": [
+        "nikotiini-, noki- ja savutahrat"
+      ],
+      "source": {
+        "type": "official_technical_data_sheet",
+        "url": "https://decopaint.fi/media/product_documents/ekostripper-ek04-en.pdf",
+        "evidence": "The intended use is removal of synthetic paint; the data sheet does not state removal or isolation of nicotine stains."
+      }
+    },
+    "protettivo-per-stucco-e-marmorino": {
+      "system_role": "companion",
+      "source": {
+        "type": "official_product_name_and_related_product_links",
+        "url": "https://decopaint.fi/product/protettivo-per-stucco-e-marmorino/",
+        "evidence": "Suoja-Aine Protettivo Per Stucco E Marmorino"
+      }
+    }
+  }
+}

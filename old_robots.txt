@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /user/
+Disallow: /media/product_documents/
+Disallow: /static/
+Sitemap: https://decopaint.fi/sitemap.xml

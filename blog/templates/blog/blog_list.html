@@ -1,0 +1,92 @@
+{% extends "shop/base/base.html" %}
+{% load static %}
+{% block title %}
+Blogi
+{% endblock %}
+{% block content %}
+
+<section class="z-index-2 position-relative pb-2 mb-12">
+    <div class="bg-body-secondary mb-3">
+        <div class="container">
+            <nav class="py-4 lh-30px" aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center py-1 mb-0">
+                    <li class="breadcrumb-item"><a title="Home" href="{% url 'shop:main' %}">Deco Paint Finland Oy</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Blogi</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</section>
+
+
+<div class="container mb-lg-18 mb-15 pb-3">
+    <div class="row gy-50px">
+        {% if posts %}
+            {% for post in posts %}
+            <div class="col-md-6 col-lg-4">
+                <article class="card card-post-grid-1 bg-transparent border-0" data-animate="fadeInUp">
+                    <figure class="card-img-top position-relative mb-10">
+                        {% if post.image %}
+                        <a href="{{ post.get_absolute_url }}" class="hover-shine hover-zoom-in d-block" title="{{ post.title }}">
+                            <img data-src="{{ post.image.url }}" class="img-fluid lazy-image w-100" alt="{{ post.title }}" width="370" height="450" src="#" style="object-fit: cover; width: 370px; height: 450px;">
+                        </a>
+                        {% else %}
+                        <a href="{{ post.get_absolute_url }}" class="hover-shine hover-zoom-in d-block" title="{{ post.title }}">
+                            <img data-src="#" class="img-fluid lazy-image w-100" alt="{{ post.title }}" width="370" height="450" src="#" style="object-fit: cover; width: 370px; height: 450px;">
+                        </a>
+                        {% endif %}
+                        <a href="#" class="post-item-cate btn btn-light btn-text-light-body-emphasis btn-hover-bg-dark btn-hover-text-light fw-500 post-cat position-absolute top-100 start-50 translate-middle py-2 px-7 border-0" title="Life style">{{ post.category }}</a>
+                    </figure>
+                    <div class="card-body text-center px-md-9 py-0">
+                        <h4 class="card-title lh-base mb-9"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h4>
+                        <ul class="post-meta list-inline lh-1 d-flex flex-wrap justify-content-center m-0">
+                            <li class="list-inline-item">{{ post.created_at|date:"d.m.Y" }}</li>
+                        </ul>
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        {% else %}
+            <h3 class="text-center my-22">Ei artikkeleita.</h3>
+        {% endif %}
+    </div>
+</div>
+
+<nav class="d-flex my-13 pt-3 justify-content-center" aria-label="pagination" data-animate="fadeInUp">
+    <ul class="pagination m-0">
+        {% if posts.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page={{ posts.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% for i in posts.paginator.page_range %}
+            <li class="page-item {% if posts.number == i %}active{% endif %}">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+            </li>
+        {% endfor %}
+
+        {% if posts.has_next %}
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page={{ posts.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link rounded-circle d-flex align-items-center justify-content-center" href="?page={{ posts.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% endblock %}
