@@ -4,7 +4,8 @@ from django_q.tasks import async_task
 from django.conf import settings
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import time
-from shop.models import Category, Variant, ProductImage
+from urllib.parse import urlsplit
+from shop.models import Category, Product, Variant, ProductImage
 from django.db.models import Min, Q
 from google_shopping.api import (
     add_product,
@@ -235,155 +236,140 @@ def get_best_variants_optimized():
         logger.error(f"Optimized method failed, falling back to simple: {e}")
         return get_best_variants_simple()
 
+
+def _normalized_product_path(link):
+    """Return a canonical storefront path for Merchant landing-page matching."""
+    try:
+        path = urlsplit(str(link or '')).path
+    except ValueError:
+        return ''
+    if not path:
+        return ''
+    return f"/{path.strip('/')}/" if path.strip('/') else '/'
+
+
+def build_existing_merchant_update_plan(uploaded_products, service):
+    """Map existing managed Merchant offers to active storefront products.
+
+    The plan contains existing offer IDs only. It first maps an offer through
+    its historical website variant and then falls back to the landing-page URL
+    for legacy or automatically generated IDs.
+    """
+    managed_products = [
+        product
+        for product in uploaded_products
+        if product.get('offerId') and is_product_managed_by_service(product, service)
+    ]
+    offer_ids = [str(product['offerId']) for product in managed_products]
+
+    product_by_offer_id = {}
+    variants = (
+        Variant.objects.filter(
+            item_code__in=offer_ids,
+            product__available=True,
+        )
+        .select_related('product')
+        .order_by('id')
+    )
+    for variant in variants:
+        product_by_offer_id.setdefault(str(variant.item_code), variant.product_id)
+
+    product_by_path = {}
+    for product in Product.objects.filter(available=True):
+        path = _normalized_product_path(product.get_absolute_url())
+        if path:
+            product_by_path[path] = product.id
+
+    plan = []
+    seen_offer_ids = set()
+    for merchant_product in managed_products:
+        offer_id = str(merchant_product['offerId'])
+        if offer_id in seen_offer_ids:
+            continue
+
+        product_id = product_by_offer_id.get(offer_id)
+        if product_id is None:
+            attributes = merchant_product.get('productAttributes') or {}
+            product_id = product_by_path.get(
+                _normalized_product_path(attributes.get('link'))
+            )
+        if product_id is None:
+            logger.warning(
+                "Skipping existing Merchant offer %s: no storefront product match",
+                offer_id,
+            )
+            continue
+
+        seen_offer_ids.add(offer_id)
+        plan.append({'offer_id': offer_id, 'product_id': product_id})
+
+    return plan
+
 def incremental_update_optimized_single_variant(base_url='https://decopaint.fi', product_batch_size=20, max_workers=2):
     """
-    Optimized incremental update with full synchronization.
-    Updates existing products, adds missing ones, and removes products not on website.
-    Uses smaller batches and better error handling.
+    Refresh existing Merchant offers without adding or deleting products.
+
+    The historical task name is retained because the nightly Django-Q schedule
+    points to it. Every planned offer must already exist in the integration's
+    Merchant data source.
     """
+    if not getattr(settings, 'MERCHANT_SYNC_ENABLED', True):
+        return {
+            'status': 'disabled',
+            'message': 'Merchant synchronization is disabled.',
+            'total_products': 0,
+            'total_batches': 0,
+        }
+
     try:
-        logger.info("Starting optimized incremental update with full synchronization...")
+        logger.info("Starting existing-only Merchant catalogue refresh...")
 
         service = get_service()
-
-        # Step 1: Get current products from Google Merchant Center
-        logger.info("Fetching current products from Google Merchant Center...")
         uploaded_products = list_all_products(service)
-        products_by_offer_id = {
-            product.get('offerId'): product
-            for product in uploaded_products
-            if product.get('offerId')
-        }
-        uploaded_offer_ids = set(products_by_offer_id)
-        managed_offer_ids = {
-            offer_id
-            for offer_id, product in products_by_offer_id.items()
-            if is_product_managed_by_service(product, service)
-        }
-        logger.info(
-            "Found %s processed products; %s are owned by this Merchant API source",
-            len(uploaded_offer_ids),
-            len(managed_offer_ids),
-        )
-
-        # Step 2: Get active products from website
-        logger.info("Finding best variants for all active products...")
-        best_variants = get_best_variants_optimized()
-        total_products = len(best_variants)
-        logger.info(f"Found {total_products} active products on website")
-
-        if total_products == 0:
-            return {
-                'status': 'error',
-                'message': 'Ei aktiivisia tuotteita verkkosivustolla.',
-                'total_products': 0,
-                'total_batches': 0
-            }
-
-        # Step 3: Identify products to add, update, and remove
-        website_offer_ids = set()
-        best_variant_map = {}
-
-        for variant in best_variants:
-            if variant.item_code:
-                website_offer_ids.add(variant.item_code)
-                best_variant_map[variant.item_code] = variant
-
-        # Products that exist in both - need update
-        products_to_update = website_offer_ids.intersection(managed_offer_ids)
-        # Products that exist only on website - need to be added
-        products_to_add = website_offer_ids - uploaded_offer_ids
-        # Products owned by another source must never be overwritten (or "stolen")
-        # by this integration.
-        products_owned_elsewhere = (
-            website_offer_ids.intersection(uploaded_offer_ids) - managed_offer_ids
-        )
-        # Products that exist only in this source can be removed safely.
-        products_to_remove = managed_offer_ids - website_offer_ids
-
-        logger.info(
-            "Synchronization plan: Update %s, Add %s, Remove %s, Skip %s owned by another source",
-            len(products_to_update),
-            len(products_to_add),
-            len(products_to_remove),
-            len(products_owned_elsewhere),
-        )
-
-        # Step 4: Remove products that are no longer on website
-        removed_count = 0
-        for offer_id in products_to_remove:
-            try:
-                success = delete_product_by_offer_id(offer_id)
-                if success:
-                    removed_count += 1
-                    logger.info(f"Removed product {offer_id} from Google Merchant Center")
-                # Rate limiting
-                time.sleep(1)
-            except Exception as e:
-                logger.error(f"Error removing product {offer_id}: {e}")
-
-        # Step 5: Process website products (both updates and additions)
-        all_products_to_process = list(products_to_update) + list(products_to_add)
-        total_to_process = len(all_products_to_process)
-
-        if total_to_process == 0:
+        update_plan = build_existing_merchant_update_plan(uploaded_products, service)
+        total_to_process = len(update_plan)
+        if not update_plan:
             return {
                 'status': 'success',
-                'message': f'Synkronointi valmis. Poistettu {removed_count} tuotetta. Ei tuotteita päivitettäväksi tai lisättäväksi.',
-                'removed_count': removed_count,
+                'message': 'No existing Merchant offers matched storefront products.',
+                'removed_count': 0,
                 'updated_count': 0,
                 'added_count': 0,
                 'total_processed': 0,
-                'total_batches': 0
+                'total_batches': 0,
             }
 
-        # Convert to batches using variant IDs instead of offer_ids
-        all_variant_ids = []
-        for offer_id in all_products_to_process:
-            variant = best_variant_map.get(offer_id)
-            if variant:
-                all_variant_ids.append(variant.id)
-
-        # Use smaller batches for better stability
-        product_batches = [all_variant_ids[i:i + product_batch_size] for i in range(0, total_to_process, product_batch_size)]
-
+        product_batches = [
+            update_plan[i:i + product_batch_size]
+            for i in range(0, total_to_process, product_batch_size)
+        ]
         total_batches = len(product_batches)
-        logger.info(f"Splitting {total_to_process} products into {total_batches} batches (size: {product_batch_size} products/batch)")
+        logger.info(
+            "Scheduling %s existing Merchant offers in %s batches",
+            total_to_process,
+            total_batches,
+        )
 
-        # Schedule batches with longer delays for stability
-        scheduled_count = 0
         for i, batch in enumerate(product_batches):
             async_task(
-                'google_shopping.tasks.process_single_variant_batch',
+                'google_shopping.tasks.process_existing_merchant_batch',
                 batch,
                 base_url,
                 hook='google_shopping.tasks.single_variant_batch_complete_hook',
-                group=f'google_shopping_product_batch_{i // 50}'
+                group=f'google_shopping_existing_batch_{i // 50}',
             )
-
-            scheduled_count += 1
-
-            if i % 5 == 0:  # Log more frequently
-                logger.info(f"Scheduled {i}/{total_batches} product batches...")
-
-            # Longer delay between scheduling to avoid queue overload
             if i % 3 == 0:
-                time.sleep(2)
-
-        logger.info(f"All {scheduled_count} product batches scheduled successfully.")
+                time.sleep(0.2)
 
         return {
             'status': 'success',
-            'message': f'Optimoitu asynkroninen päivitys aloitettu. Päivitettäväksi/lisättäväksi {total_to_process} tuotetta, poistettu {removed_count} tuotetta. Jaettu {total_batches} erään.',
+            'message': f'Scheduled {total_to_process} existing Merchant offers.',
             'total_products': total_to_process,
             'total_batches': total_batches,
             'product_batch_size': product_batch_size,
-            'estimated_duration_minutes': (total_batches * 30) / 60,
-            'removed_count': removed_count,
-            'products_to_update': len(products_to_update),
-            'products_to_add': len(products_to_add),
-            'products_to_remove': len(products_to_remove),
-            'products_owned_elsewhere': len(products_owned_elsewhere),
+            'removed_count': 0,
+            'added_count': 0,
+            'products_to_update': total_to_process,
         }
 
     except Exception as e:
@@ -395,6 +381,63 @@ def incremental_update_optimized_single_variant(base_url='https://decopaint.fi',
             'total_products': 0,
             'total_batches': 0
         }
+
+
+def process_existing_merchant_batch(update_plan, base_url='https://decopaint.fi'):
+    """Update a batch of offers that still exist in our Merchant data source."""
+    stats = {
+        'updated': 0,
+        'errors': 0,
+        'skipped': 0,
+        'added': 0,
+        'removed': 0,
+    }
+    if not getattr(settings, 'MERCHANT_SYNC_ENABLED', True):
+        stats['skipped'] = len(update_plan)
+        stats['status'] = 'disabled'
+        return stats
+
+    try:
+        service = get_service()
+        current_products = list_all_products(service)
+        managed_offer_ids = {
+            str(product['offerId'])
+            for product in current_products
+            if product.get('offerId')
+            and is_product_managed_by_service(product, service)
+        }
+    except Exception as error:
+        logger.error("Could not verify existing Merchant offers: %s", error)
+        stats['errors'] = len(update_plan)
+        return stats
+
+    for item in update_plan:
+        offer_id = str(item.get('offer_id') or '')
+        product_id = item.get('product_id')
+        if not offer_id or offer_id not in managed_offer_ids:
+            stats['skipped'] += 1
+            continue
+
+        try:
+            storefront_variant = get_storefront_variant_for_product(product_id)
+            if storefront_variant is None:
+                stats['skipped'] += 1
+                continue
+
+            product_data = build_product_data_from_variant(
+                storefront_variant,
+                base_url,
+                storefront_variant=storefront_variant,
+                offer_id=offer_id,
+            )
+            update_product(product_data)
+            stats['updated'] += 1
+            time.sleep(1)
+        except Exception as error:
+            logger.error("Error updating existing Merchant offer %s: %s", offer_id, error)
+            stats['errors'] += 1
+
+    return stats
 
 def process_single_variant_batch(best_variant_ids, base_url='https://decopaint.fi'):
     """
@@ -876,6 +919,7 @@ def build_product_data_from_variant(
     variant,
     base_url='https://decopaint.fi',
     storefront_variant=None,
+    offer_id=None,
 ):
     """
     Build product data from a single variant for Google Merchant Center.
@@ -975,7 +1019,7 @@ def build_product_data_from_variant(
 
     # Build product data
     product_data = {
-        'offerId': variant.item_code,
+        'offerId': offer_id or variant.item_code,
         'title': title[:150],
         'description': (variant.product.description or 'Ei kuvausta')[:5000],
         'link': f'{base_url}{variant.product.get_absolute_url()}',
@@ -1028,9 +1072,4 @@ def sync_missing_products_complete_hook(task):
     """
     try:
         if task.success:
-            result = task.result
-            logger.info(f"Product synchronization completed: {result}")
-        else:
-            logger.error(f"Product synchronization failed: {task.result}")
-    except Exception as e:
-        logger.error(f"Error in product synchronization hook: {e}")
+            resul

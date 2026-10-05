@@ -5,9 +5,12 @@ from unittest.mock import MagicMock, call, patch
 from django.test import SimpleTestCase, TestCase, override_settings
 
 from google_shopping.tasks import (
+    build_existing_merchant_update_plan,
     build_product_data_from_variant,
     get_storefront_variant_for_product,
+    incremental_update_optimized_single_variant,
     normalize_product_data_for_merchant_api,
+    process_existing_merchant_batch,
     public_regular_price,
     sync_order_products,
 )
@@ -253,43 +256,34 @@ class StorefrontVariantSelectionTests(TestCase):
         self.assertEqual(selected.item_code, "W03050000E")
 
 
-class OrderTriggeredMerchantSyncTests(SimpleTestCase):
-    @override_settings(MERCHANT_SYNC_ENABLED=True)
-    @patch("google_shopping.tasks.process_single_product_update")
-    @patch("order.models.OrderItem.objects")
-    def test_syncs_distinct_order_products_without_deletion(
-        self,
-        order_items_mock,
-        process_mock,
-    ):
-        values = (
-            order_items_mock
-            .filter.return_value
-            .exclude.return_value
-            .values_list.return_value
+class ExistingOnlyMerchantSyncTests(TestCase):
+    def test_plan_matches_legacy_offer_by_landing_page(self):
+        product = Product.objects.create(
+            name="305 BioLavabile",
+            slug="305-biolavabile",
+            price=Decimal("13.00"),
+            available=True,
         )
-        values.distinct.return_value = [101, 202]
-        process_mock.side_effect = [
-            {"status": "updated"},
-            {"status": "added"},
+        service = SimpleNamespace(data_source_name="accounts/1/dataSources/2")
+        uploaded_products = [
+            {
+                "offerId": "LEGACY-305",
+                "dataSource": service.data_source_name,
+                "productAttributes": {
+                    "link": "https://decopaint.fi/product/305-biolavabile/?source=google",
+                },
+            },
+            {
+                "offerId": "OTHER-SOURCE",
+                "dataSource": "accounts/1/dataSources/999",
+                "productAttributes": {
+                    "link": "https://decopaint.fi/product/305-biolavabile/",
+                },
+            },
         ]
 
-        result = sync_order_products(55)
+        plan = build_existing_merchant_update_plan(uploaded_products, service)
 
-        self.assertEqual(result["status"], "success")
-        self.assertEqual(result["product_count"], 2)
         self.assertEqual(
-            process_mock.call_args_list,
-            [
-                call(
-                    101,
-                    "https://decopaint.fi",
-                    delete_if_unavailable=False,
-                ),
-                call(
-                    202,
-                    "https://decopaint.fi",
-                    delete_if_unavailable=False,
-                ),
-            ],
-        )
+            plan,
+            [{"offer_id": "LEGACY-305",
