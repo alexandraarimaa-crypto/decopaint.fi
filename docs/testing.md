@@ -610,3 +610,8 @@ Staging manual matrix:
 
 - The production order-confirmation template compiles successfully.
 - The GCR locale expression renders `fi`, `sv` an
+## Merchant visible-option regression suite — 2026-10-19
+
+Run `python manage.py test google_shopping.tests --settings=config.test_settings` with Merchant writes disabled and synthetic test data. Confirm 1050N retains its ID while the payload matches the initially selected white-base regular price (197.66 EUR in the fixture), not the cheaper neutral base (39.53 EUR). Test first grain/gloss selection, inactive/hidden options and missing option combinations. Run the complete CI regression suite and static validators.
+
+Closed staging must additionally compare initial DOM-selected size/base/grain/gloss and regular public price for Biomalta, Kreos, BioLavabile and a sample of products with grain/gloss. Avoid treating the discounted price shown in a logged-in or customer-specific session as an anonymous public sale price. Confirm an unmatched combination is skipped and no Merchant offer is created or deleted. Staging and live import reconciliation have not yet run.

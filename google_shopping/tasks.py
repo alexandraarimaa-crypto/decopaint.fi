@@ -6,7 +6,8 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import time
 from urllib.parse import urlsplit
 from shop.models import Category, Product, Variant, ProductImage
-from django.db.models import Min, Q
+from django.db.models import Q
+from shop.variant_options import get_storefront_options
 from google_shopping.api import (
     add_product,
     delete_all_products,
@@ -35,22 +36,20 @@ def get_storefront_variant_for_product(product_id):
     if first_variant is None:
         return None
 
-    first_size = (
-        variants.exclude(size__isnull=True)
-        .exclude(size='')
-        .values('size')
-        .annotate(min_price=Min('price'))
-        .order_by('min_price', 'size')
-        .first()
-    )
-    if first_size:
-        candidates = variants.filter(size=first_size['size'])
-    else:
-        candidates = variants.filter(Q(size='') | Q(size__isnull=True))
-
-    # The initial storefront request has no base, grain or gloss selected.
-    for field in ('base', 'grain', 'gloss'):
-        candidates = candidates.filter(Q(**{field: ''}) | Q(**{f'{field}__isnull': True}))
+    options = get_storefront_options(product_id)
+    candidates = variants
+    for field, key in (
+        ('size', 'sizes'),
+        ('base', 'bases'),
+        ('grain', 'grains'),
+        ('gloss', 'glosses'),
+    ):
+        if options[key]:
+            candidates = candidates.filter(**{field: options[key][0]})
+        else:
+            candidates = candidates.filter(
+                Q(**{field: ''}) | Q(**{f'{field}__isnull': True})
+            )
 
     product = first_variant.product
     use_color1 = bool(getattr(product, 'use_color1_palette', False))
@@ -64,10 +63,7 @@ def get_storefront_variant_for_product(product_id):
         color_field = None
 
     if color_field is None:
-        return (
-            candidates.order_by('price', 'id').first()
-            or variants.order_by('price', 'id').first()
-        )
+        return candidates.order_by('price', 'id').first()
 
     colored = candidates.exclude(**{f'{color_field}__isnull': True}).exclude(
         **{color_field: ''}
@@ -82,10 +78,9 @@ def get_storefront_variant_for_product(product_id):
     if colored_first:
         return colored_first
 
-    return (
-        candidates.order_by('price', 'id').first()
-        or variants.order_by('price', 'id').first()
-    )
+    # A different, cheaper option would disagree with the landing page. Let
+    # the existing-only sync skip this offer when no displayed combination exists.
+    return candidates.order_by('price', 'id').first()
 
 
 def public_regular_price(variant):
@@ -1005,11 +1000,12 @@ def build_product_data_from_variant(
 
     # Keep the existing stable offerId, but source price and availability from
     # the same default variant that the landing page displays.
-    storefront_variant = (
-        storefront_variant
-        or get_storefront_variant_for_product(variant.product_id)
-        or variant
-    )
+    if storefront_variant is None:
+        storefront_variant = get_storefront_variant_for_product(variant.product_id)
+    if storefront_variant is None:
+        raise ValueError(
+            f'No variant matches the initial storefront options for product {variant.product_id}'
+        )
     price_value = format(public_regular_price(storefront_variant), 'f')
 
     # Availability
