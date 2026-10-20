@@ -106,7 +106,7 @@ class VariantMaterialInfoTests(TestCase):
             f'{prefix}-1-id': str(self.large.pk), f'{prefix}-1-product': str(self.product.pk),
             f'{prefix}-1-price_per_m2': '', f'{prefix}-1-coverage_m2': '',
         }
-        formset = formset_type(data=data, instance=self.product)
+        formset = formset_type(data=data, instance=self.product, queryset=inline.get_queryset(request))
         self.assertTrue(formset.is_valid(), formset.errors)
         formset.save()
         self.small.refresh_from_db()
