@@ -1171,4 +1171,3 @@ def save_review(request, slug):
             return JsonResponse({'error': errors})
     else:
         return JsonResponse({'error': _('Invalid request')})
-
