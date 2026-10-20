@@ -555,7 +555,10 @@ display: none;
     
         {% if sizes %}
           <div class="form-group shop-swatch mb-4">
-            <span class="fw-semibold text-body-emphasis me-7">Koko: </span>
+            <div class="d-flex align-items-baseline flex-wrap gap-2">
+              <span class="fw-semibold text-body-emphasis me-7">Koko: </span>
+              <small id="variant-coverage" class="text-muted" aria-live="polite" hidden></small>
+            </div>
             <div class="d-flex flex-wrap">
               {% for size in sizes %}
               <div class="me-4 mb-4 fw-bold">
@@ -617,6 +620,7 @@ display: none;
         </div>
 
 
+    <script src="{% static 'assets/js/variant-material-info.js' %}"></script>
     <script>
     $(document).ready(function () {
         // Global price management variables
@@ -644,6 +648,7 @@ display: none;
 
         // Show price loading spinner
         function showPriceLoading() {
+            window.updateVariantMaterialInfo();
             $('#price-container').hide();
             $('#price-loading-container').show();
         }
@@ -713,6 +718,7 @@ display: none;
 
         // Update price based on selected options
         function updatePrice() {
+            window.updateVariantMaterialInfo();
             if (priceLoading) {
                 pendingPriceUpdate = true;
                 return;
@@ -750,6 +756,9 @@ display: none;
                     hidePriceLoading();
                     
                     if (data.price !== undefined) {
+                        if (!pendingPriceUpdate) {
+                            window.updateVariantMaterialInfo(data);
+                        }
                         var unit_price = parseFloat(data.price);
                         var total_price = unit_price * quantity;
                         var original_price = data.original_price !== undefined ? parseFloat(data.original_price) * quantity : null;
@@ -1137,12 +1146,13 @@ display: none;
           
           <div class="price-display">
               <div class="d-flex align-items-center flex-wrap">
-                  <div class="d-flex align-items-center me-3">
+                  <div class="d-flex align-items-center flex-wrap me-3">
                       <div id="price-loading-container" class="price-loading" style="display: none;">
                           <div class="spinner-border spinner-border-sm me-2" role="status"></div>
                           <span>Ladataan hintaa...</span>
                       </div>
                       <span class="current-price me-3" id="price-container" style="display:none;"></span>
+                      <small id="variant-price-per-m2" class="text-muted me-3" aria-live="polite" hidden></small>
                       <div id="discount-container" class="d-flex align-items-center" style="display:none;"></div>
                   </div>
                   <div id="original-price-container" class="text-muted" style="display:none;"></div>

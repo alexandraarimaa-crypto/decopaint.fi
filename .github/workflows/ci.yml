@@ -37,3 +37,11 @@ jobs:
           shop.tests_analytics shop.tests_search_engine shop.tests_search_view
           shop.tests_seo config.tests_legacy_urls
           --settings=config.test_settings
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test optional variant material information
+        run: |
+          python manage.py test shop.tests_variant_material_info --settings=config.variant_info_test_settings
+          python manage.py test shop.tests_material_calculator --settings=config.test_settings
+          node scripts/test_variant_material_info.mjs

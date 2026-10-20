@@ -842,3 +842,10 @@ Production code, DB, Paytrail, Merchant Center, orders и customer records не
 - All 12 installed manifest entries passed; Python, static validation, ten
   unit tests, six-template compile and read-only real-catalog renders passed.
 - Homepage, catalog, search, exterior category, real product, checko
+## 2026-10-20 — Optional manually entered package information (candidate)
+
+- Added nullable per-variant Hinta €/m² and Riittoisuus (m²) in Tuotteet, plus
+  corresponding product-page labels through the existing AJAX variant request.
+- Empty values hide independently; no automatic calculation or existing data
+  edits. Includes schema-only migration 0060, regression tests and CI checks.
+- Release/rollback gates: `manual-variant-material-info-2026-10-20.md`.

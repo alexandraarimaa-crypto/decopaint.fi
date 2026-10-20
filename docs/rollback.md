@@ -501,3 +501,11 @@ database, catalog or external-system rollback is required.
 3. Confirm homepage, catalog and a real product return `200`.
 
 No database, order, customer, email, payment or Merchant rollback
+## Manual package information candidate — 2026-10-20
+
+Roll back application/static code to the preceding reviewed release while
+retaining the two new nullable columns and migration history. Earlier code
+ignores them; this preserves entered values. Do not reverse migration 0060 or
+restore the production DB without separate approval and a verified private
+backup: dropping the columns deletes manual entries, and DB restore could
+lose new orders. See `manual-variant-material-info-2026-10-20.md`.
