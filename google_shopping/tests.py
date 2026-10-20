@@ -16,6 +16,7 @@ from google_shopping.tasks import (
 )
 from google_shopping.api import build_merchant_product_input
 from shop.models import Product, Variant
+from shop.variant_options import get_storefront_options
 
 
 class MerchantPayloadTests(SimpleTestCase):
@@ -255,6 +256,97 @@ class StorefrontVariantSelectionTests(TestCase):
         self.assertEqual(selected.id, storefront_variant.id)
         self.assertEqual(selected.item_code, "W03050000E")
 
+
+class VisibleOptionPriceParityTests(TestCase):
+    def make_variant(self, product, code, price, **options):
+        return Variant.objects.create(
+            product=product,
+            item_code=code,
+            price=Decimal(price),
+            customs_code=None,
+            weight=None,
+            **options,
+        )
+
+    def test_biomalta_payload_matches_initial_white_base_not_cheaper_neutral(self):
+        product = Product.objects.create(
+            name="Biomalta Extreme Fine",
+            slug="biomalta-extreme-fine",
+            price=Decimal("39.53"),
+            multiplier=Decimal("1"),
+            use_color1_palette=False,
+            use_color2_palette=False,
+        )
+        white = self.make_variant(
+            product, "WHITE-5KG", "197.66", size="5 kg", base="Valkoinen"
+        )
+        neutral = self.make_variant(
+            product, "1050N", "39.53", size="5 kg", base="Sävytettävä"
+        )
+
+        self.assertEqual(get_storefront_options(product.id)["bases"][0], "Valkoinen")
+        self.assertEqual(get_storefront_variant_for_product(product.id), white)
+        payload = build_product_data_from_variant(neutral)
+        self.assertEqual(payload["offerId"], "1050N")
+        self.assertEqual(payload["price"], {"value": "197.66", "currency": "EUR"})
+        self.assertEqual(payload["link"], "https://decopaint.fi/product/biomalta-extreme-fine/")
+
+    def test_first_visible_grain_and_gloss_are_not_replaced_by_cheapest_options(self):
+        product = Product.objects.create(
+            name="Textured coating", slug="textured-coating", price=Decimal("10"),
+            use_color1_palette=False, use_color2_palette=False,
+        )
+        first = self.make_variant(
+            product, "FINE-MATT", "40", size="1 L", grain="F", gloss="Matta"
+        )
+        self.make_variant(
+            product, "COARSE-GLOSS", "10", size="1 L", grain="G", gloss="Kiiltävä"
+        )
+
+        options = get_storefront_options(product.id)
+        self.assertEqual(options["grains"], ["F", "G"])
+        self.assertEqual(options["glosses"], ["Matta", "Kiiltävä"])
+        self.assertEqual(get_storefront_variant_for_product(product.id), first)
+
+    def test_inactive_and_hidden_base_variants_do_not_set_visible_defaults(self):
+        product = Product.objects.create(
+            name="Base options", slug="base-options", price=Decimal("1"),
+            use_color1_palette=False, use_color2_palette=False,
+        )
+        self.make_variant(
+            product, "INACTIVE", "1", active=False, size="0.1 L", base="Old"
+        )
+        self.make_variant(
+            product, "HIDDEN", "2", size="1 L", base="base"
+        )
+        visible = self.make_variant(
+            product, "VISIBLE", "20", size="1 L", base="Valkoinen"
+        )
+        self.make_variant(
+            product, "DUPLICATE", "30", size="1 L", base="Valkoinen"
+        )
+
+        options = get_storefront_options(product.id)
+        self.assertEqual(options["sizes"], ["1 L"])
+        self.assertEqual(options["bases"], ["Valkoinen"])
+        self.assertEqual(get_storefront_variant_for_product(product.id), visible)
+
+    def test_missing_displayed_combination_is_skipped_instead_of_using_wrong_price(self):
+        product = Product.objects.create(
+            name="Incompatible options", slug="incompatible-options",
+            price=Decimal("1"), use_color1_palette=False, use_color2_palette=False,
+        )
+        self.make_variant(
+            product, "LARGE-WHITE", "10", size="10 kg", base="Valkoinen"
+        )
+        neutral = self.make_variant(
+            product, "SMALL-NEUTRAL", "1", size="5 kg", base="Sävytettävä"
+        )
+
+        self.assertEqual(get_storefront_options(product.id)["sizes"][0], "5 kg")
+        self.assertIsNone(get_storefront_variant_for_product(product.id))
+        with self.assertRaisesMessage(ValueError, "No variant matches the initial storefront options"):
+            build_product_data_from_variant(neutral)
 
 class ExistingOnlyMerchantSyncTests(TestCase):
     def test_plan_matches_legacy_offer_by_landing_page(self):

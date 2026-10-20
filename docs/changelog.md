@@ -842,3 +842,11 @@ Production code, DB, Paytrail, Merchant Center, orders и customer records не
 - All 12 installed manifest entries passed; Python, static validation, ten
   unit tests, six-template compile and read-only real-catalog renders passed.
 - Homepage, catalog, search, exterior category, real product, checko
+## Merchant visible-option price parity — 2026-10-19
+
+- Issue #4: share size, base, grain and gloss radio-option ordering between product pages and Merchant selection.
+- Select the first visible base/grain/gloss instead of blank options followed by a cheapest-variant fallback. Skip unmatched combinations rather than publishing a different price.
+- Preserve existing Merchant offer IDs and existing-only synchronization. No database, order, payment callback or live-price writes.
+- Added regression coverage for Biomalta white/neutral bases, grain/gloss defaults, inactive/hidden bases and incompatible option combinations.
+- Live Merchant edit recorded separately: Kreos offer FK000TR00E brand corrected to OIKOS; product type set to Maalit ja pinnoitteet > Sisustusmaalit > Struktuurimaalit; Google category set to Paint (1361). Processing, approval not yet verified. Biomalta availability manual override removed to restore its source value; source remains in stock and needs correction against actual variant availability.
+- Production source comparison, closed staging and deployment are pending a working hosting endpoint. No deployment or budget change performed.

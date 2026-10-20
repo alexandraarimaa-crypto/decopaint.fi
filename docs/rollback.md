@@ -501,3 +501,6 @@ database, catalog or external-system rollback is required.
 3. Confirm homepage, catalog and a real product return `200`.
 
 No database, order, customer, email, payment or Merchant rollback
+## Merchant visible-option parity rollback — 2026-10-19
+
+Before deployment, back up and hash shop/views.py and google_shopping/tasks.py and record whether shop/variant_options.py exists. If smoke tests or price comparisons fail, disable Merchant writes, restore those exact files (remove the new helper only if absent before release), restart the same application/worker processes and verify product pages and checkout. No database rollback is required. Reconcile any pilot Merchant updates individually; do not delete offers or run a full-clean upload. This candidate has not been deployed; backup identity and staging evidence remain pending.

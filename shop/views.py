@@ -51,6 +51,7 @@ from .product_schema import (
     json_for_script,
 )
 from .material_calculator import build_material_calculator
+from .variant_options import get_storefront_options
 from types import SimpleNamespace
 
 
@@ -585,45 +586,11 @@ def product_detail(request, slug):
     gloss_param = request.GET.get('gloss', '')
     base_param = request.GET.get('base', '')
 
-    # Получаем уникальные варианты для фильтров
-    from django.db.models import Min
-
-    # Optimize sizes - get unique sizes sorted by minimum price using DB aggregation
-    sizes_data = (Variant.objects.filter(product=product, active=True)
-                  .exclude(size__isnull=True).exclude(size='')
-                  .values('size')
-                  .annotate(min_price=Min('price'))
-                  .order_by('min_price'))
-    
-    unique_sizes_set = []
-    size_seen = set()
-    for item in sizes_data:
-        s_stripped = item['size'].strip()
-        if s_stripped not in size_seen:
-            size_seen.add(s_stripped)
-            unique_sizes_set.append(s_stripped)
-
-    # Optimize grains - DB level distinct
-    grains_data = (Variant.objects.filter(product=product, active=True)
-                   .exclude(grain__isnull=True).exclude(grain='')
-                   .values_list('grain', flat=True)
-                   .distinct())
-    unique_grains_set = [g.strip() for g in grains_data if g.strip()]
-
-    # Optimize glosses - DB level distinct
-    glosses_data = (Variant.objects.filter(product=product, active=True)
-                    .exclude(gloss__isnull=True).exclude(gloss='')
-                    .values_list('gloss', flat=True)
-                    .distinct())
-    unique_glosses_set = [g.strip() for g in glosses_data if g.strip()]
-
-    # Optimize bases - DB level distinct
-    bases_data = (Variant.objects.filter(product=product, active=True)
-                  .exclude(base__isnull=True).exclude(base='')
-                  .exclude(base__icontains='base')
-                  .values_list('base', flat=True)
-                  .distinct())
-    unique_bases_set = [b.strip() for b in bases_data if b.strip()]
+    options = get_storefront_options(product.id)
+    unique_sizes_set = options['sizes']
+    unique_grains_set = options['grains']
+    unique_glosses_set = options['glosses']
+    unique_bases_set = options['bases']
 
     product.total_price = product.total_price(request.user)
 
@@ -1204,3 +1171,4 @@ def save_review(request, slug):
             return JsonResponse({'error': errors})
     else:
         return JsonResponse({'error': _('Invalid request')})
+

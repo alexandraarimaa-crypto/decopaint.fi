@@ -440,3 +440,10 @@ Rollback не потребовался.
 - The candidate was compiled before upload, read back byte-for-byte and then
   activated with the standard Passenger restart marker.
 - No Python, database, order
+## Merchant visible-option parity candidate — 2026-10-19
+
+Track issue #4 and branch fix/merchant-visible-options-20261019. Runtime scope: shop/variant_options.py (new), shop/views.py and google_shopping/tasks.py. Tests and documentation accompany the change. No migrations, production database edits, payment callbacks or dependency changes.
+
+Before release, compare the reviewed GitHub commit with production source, especially the storefront option/template behavior and the server purchase integration that is absent from the current GitHub snapshot. Do not overwrite unrelated server-only code. Deploy only the reviewed exact commit to closed staging with Merchant writes and real payments disabled. Run the regression suite, deploy checks and the DOM/regular-price comparison in docs/testing.md. Record hashes and a verified exact-file backup before a separate production release. After deployment, run a one-offer dry-run and owner-approved pilot, then bounded existing-only batches, preserving IDs and preventing additions/deletions. Check checkout and analytics smoke without synthetic live purchases.
+
+Status: hosting URL supplied on 19 October did not resolve, so no staging or production deployment has been performed.
