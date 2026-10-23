@@ -847,5 +847,5 @@ Production code, DB, Paytrail, Merchant Center, orders и customer records не
 - Added nullable per-variant Hinta €/m² and Riittoisuus (m²) in Tuotteet, plus
   corresponding product-page labels through the existing AJAX variant request.
 - Empty values hide independently; no automatic calculation or existing data
-  edits. Includes schema-only migration 0060, regression tests and CI checks.
+  edits. Includes schema-only migration 0061, regression tests and CI checks.
 - Release/rollback gates: `manual-variant-material-info-2026-10-20.md`.

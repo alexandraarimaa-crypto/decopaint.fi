@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     "admin_interface",
     "colorfield",
     "django.contrib.admin",
-    "django_admin_inline_paginator",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",

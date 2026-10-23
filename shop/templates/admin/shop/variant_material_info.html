@@ -1,0 +1,11 @@
+{% load variant_material_info_tags %}
+{% include 'admin/edit_inline/tabular.html' %}
+{% with page=inline_admin_formset.formset.page key=inline_admin_formset.formset.pagination_key %}
+{% if page.has_other_pages %}
+<nav aria-label="Pakkauskohtaisten lisätietojen sivut" class="paginator">
+  {% if page.has_previous %}<a href="{% variant_info_page_url request key page.previous_page_number %}">Edellinen</a>{% endif %}
+  <span>Sivu {{ page.number }} / {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a href="{% variant_info_page_url request key page.next_page_number %}">Seuraava</a>{% endif %}
+</nav>
+{% endif %}
+{% endwith %}

@@ -442,7 +442,7 @@ Rollback не потребовался.
 - No Python, database, order
 ## Manual package information candidate — 2026-10-20
 
-Schema migration `shop.0060_variant_material_info` adds two nullable columns.
+Schema migration `shop.0061_variant_material_info` adds two nullable columns.
 Deploy only after CI/review, authorized closed-staging verification, and a
 verified private DB backup. Deployed DB changes and production deployment
 require separate owner approval under AGENTS.md. Run `sqlmigrate` and inspect

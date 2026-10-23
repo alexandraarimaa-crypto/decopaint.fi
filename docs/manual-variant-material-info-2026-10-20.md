@@ -29,7 +29,7 @@ existing small muted text and wrapping Bootstrap flex containers.
 
 ## Migration and release gates
 
-`shop.0060_variant_material_info` adds only nullable Decimal/Char columns to
+`shop.0061_variant_material_info` adds only nullable Decimal/Char columns to
 Variant. It contains no data operation, default backfill or modification of
 prices, products, packages, stock, orders, customer data or external services.
 
@@ -40,9 +40,9 @@ prices, products, packages, stock, orders, customer data or external services.
    required by AGENTS.md, create a private verified DB backup, and record its
    restore verification and current release/migration state. No deployed DB
    was accessed or migrated during implementation.
-3. Check `showmigrations shop` against the expected `0059` baseline. Run
-   `sqlmigrate shop 0060`, assess MySQL table size/locking and maintenance needs,
-   then apply only the approved migration with `migrate shop 0060`.
+3. Check `showmigrations shop` against the expected deployed `0060` translation baseline. Run
+   `sqlmigrate shop 0061`, assess MySQL table size/locking and maintenance needs,
+   then apply only the approved migration with `migrate shop 0061`.
 4. Deploy matching code and collect static assets before reopening traffic.
    Test create/edit/clear on staging, desktop and mobile, with multiple sizes,
    colours and rapid switching. Check quantity, discounts, calculator, cart,
@@ -74,6 +74,47 @@ Prefer reverting to the preceding reviewed application/static release while
 leaving both nullable columns in place; prior code ignores them and manually
 entered values remain available. No DB restore is needed for this rollback.
 Retain the new migration file in migration history when comparing state.
-Dropping these columns with `migrate shop 0059` destroys entered information:
+Dropping these columns with `migrate shop 0060_attribute_a_class_en_attribute_a_class_fi_and_more` destroys entered information:
 only do so after separate approval and a verified private backup/export.
 Do not restore a full production DB over new orders for this feature rollback.
+
+## Deployed baseline audit — 22/23 October 2026
+
+The authenticated cPanel audit found that production is ahead of the recovered
+GitHub source in storefront translations, views, product schema and product
+layout. Production already contains translation migration
+`0060_attribute_a_class_en_attribute_a_class_fi_and_more`; the new migration is
+therefore **0061**, depending on that exact existing migration. The existing
+0060 file is recovered unchanged from production; do not run it as a new
+migration in production or use fake migrations to conceal a mismatch.
+
+The protected, source-only audit archive (no settings, data, uploads or secrets)
+has SHA-256 `be248cbd77e3edf711dde6850ffb0771f86d2a730a47842eb642da1ed910c7fd`.
+Models and admin match the pre-feature GitHub baseline. The reviewed runtime
+baseline for the differing product files is tracked under
+`deployments/manual-variant-info-20261023/baseline/`.
+
+Use `python scripts/build_manual_material_release.py --output <private-dir>`
+to generate the **scoped runtime release**, rather than replacing the live
+views or product template with the older recovered root files. The builder
+adds only the two response fields and the optional labels to the audited
+runtime, retaining its existing translations, schema, selection, calculator
+and cart behavior. The release manifest contains exact pre-release production
+hashes, candidate hashes and an explicit file list. Abort if current live
+hashes differ. Never copy the sanitized repository settings into production.
+The inline now uses a shop-owned pagination template/tag and requires no
+production settings edit or extra application registration.
+
+Translation and product-schema snapshots are staging support only: they are
+not production replacement files. `scripts/test_manual_material_release.py`
+builds this runtime projection with an isolated synthetic database, asserts
+that every existing view function is unchanged apart from the two extra JSON
+fields, and runs the real admin/API suite. This compatibility projection is
+explicitly limited to the audited files; it is not a claim that all historical
+production/repository drift has been reconciled.
+
+Staging must be a new immutable release assembled from the GitHub commit and
+this projection, using fresh synthetic data with outbound integrations off.
+The existing active staging is preserved as the rollback target. Record manual
+browser/responsive results before requesting production approval. No live
+schema or product value has been changed by this audit or candidate build.

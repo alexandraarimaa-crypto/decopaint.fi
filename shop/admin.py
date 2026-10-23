@@ -169,6 +169,7 @@ class VariantMaterialInfoInline(TabularInlinePaginated):
     """Edit only optional information under Tuotteet; identify variants read-only."""
 
     model = Variant
+    template = 'admin/shop/variant_material_info.html'
     form = VariantMaterialInfoForm
     verbose_name_plural = 'Pakkauskohtaiset lisätiedot'
     fields = (

@@ -620,3 +620,11 @@ package/colour changes, rapid changes, request errors, quantity and discounts,
 320/375px and desktop layouts, keyboard use, calculator and cart. No manual
 value may affect an existing price or calculated material quantity. See
 `manual-variant-material-info-2026-10-20.md` for release gates.
+
+The deployed compatibility projection is additionally checked by
+`python scripts/test_manual_material_release.py`. It preserves the audited
+runtime view AST except for the two response fields, retains schema and
+translation support unchanged, verifies the existing 0060 → new 0061 migration
+chain, and runs the admin/API tests against the projected runtime with fresh
+synthetic data. The inline uses its shop-owned template without changing
+production settings.

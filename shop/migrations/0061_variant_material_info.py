@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    dependencies = [('shop', '0059_alter_variant_options')]
+    dependencies = [('shop', '0060_attribute_a_class_en_attribute_a_class_fi_and_more')]
 
     operations = [
         migrations.AddField(

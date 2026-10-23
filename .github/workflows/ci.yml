@@ -45,3 +45,5 @@ jobs:
           python manage.py test shop.tests_variant_material_info --settings=config.variant_info_test_settings
           python manage.py test shop.tests_material_calculator --settings=config.test_settings
           node scripts/test_variant_material_info.mjs
+      - name: Test audited runtime release projection
+        run: python scripts/test_manual_material_release.py
