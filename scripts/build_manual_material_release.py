@@ -29,6 +29,7 @@ def build(output):
         'shop/migrations/0061_variant_material_info.py',
         'shop/static/assets/js/variant-material-info.js',
         'shop/templates/admin/shop/variant_material_info.html',
+        'shop/templates/admin/shop/headerless_variant_material_info.html',
         'shop/templatetags/variant_material_info_tags.py',
     ]
     for name in paths:

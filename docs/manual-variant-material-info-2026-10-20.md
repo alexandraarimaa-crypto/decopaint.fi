@@ -130,3 +130,23 @@ values. Only synthetic fixture data was used. The theme's muted text resolved
 to rgba(126,126,126,0.75), so the labels now use its existing body-emphasis
 colour for readability. No pricing/calculator/cart or product data change is
 included in this colour correction.
+
+### Production theme compatibility — 23 October
+
+The owner approved installation and migration. Migration 0061 completed and
+the pre/post fingerprint of existing variant IDs, product IDs, package sizes,
+item codes and prices matched. Every new field remained NULL.
+
+The live admin-interface theme uses inline tabs and rewrites the custom
+template name to headerless_variant_material_info.html. Initial synthetic
+tests did not enable this theme feature. The product change page exposed the
+missing template; the previous admin module was restored while retaining the
+additive schema. This fix supplies the headerless template, keeps pagination,
+and adds the real admin-interface tabbed configuration to regression tests.
+Reinstall the feature admin only after this compatibility fix passes CI and
+closed staging. No second migration or product-value edits are required.
+
+The public static directory also differs from Django STATIC_ROOT on this
+hosting. The first asset check returned 404; the prior product template was
+restored while the served path was verified. Publish and hash-check the one
+new asset through its public URL before re-enabling the product template.
