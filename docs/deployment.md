@@ -448,3 +448,10 @@ verified private DB backup. Deployed DB changes and production deployment
 require separate owner approval under AGENTS.md. Run `sqlmigrate` and inspect
 MySQL locking before approval; collect the added JS asset with the matching
 code. Full plan: `manual-variant-material-info-2026-10-20.md`.
+# Material inline theme compatibility (23 October 2026)
+
+The scoped material-information builder includes both normal and headerless
+admin inline templates. Install both before enabling the feature admin module;
+admin-interface requests the headerless name when inline tabs are enabled.
+Migration 0061 is already applied on the approved production release; this
+template compatibility update requires no further migration or settings edit.

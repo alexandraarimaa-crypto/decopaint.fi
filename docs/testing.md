@@ -633,3 +633,8 @@ Browser QA for the manual labels also checks contrast against the actual site
 theme. The labels use body-emphasis colour because muted text is translucent.
 Verify 10 L → empty 5 L → 10 L, rapid changes, and quantity changes at desktop
 and mobile widths. The manual values must remain unchanged by quantity.
+
+The material admin suite also loads the installed admin-interface app and
+enables Theme.show_inlines_as_tabs / show_fieldsets_as_tabs. The real product
+change page must return 200 and include both manual inputs in the headerless
+inline template selected by that theme. Check the normal layout as well.

@@ -509,3 +509,9 @@ ignores them; this preserves entered values. Do not reverse migration 0061 or
 restore the production DB without separate approval and a verified private
 backup: dropping the columns deletes manual entries, and DB restore could
 lose new orders. See `manual-variant-material-info-2026-10-20.md`.
+# Material inline theme fallback (23 October 2026)
+
+If the material inline fails under the live admin-interface theme, restore the
+previous admin.py from the private release backup and request an application
+restart. Keep the additive columns and storefront files. Install both reviewed
+normal/headerless templates before restoring the new feature admin module.

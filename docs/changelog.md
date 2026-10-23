@@ -855,3 +855,10 @@ Production code, DB, Paytrail, Merchant Center, orders и customer records не
 Use the existing body-emphasis colour for the two new small labels. Browser
 review found the muted theme colour was translucent and too faint. Formatting,
 variant switching, prices and data storage are unchanged.
+
+## 2026-10-23 — Material inline compatibility with admin tabs
+
+The live admin-interface theme selects a headerless inline template when
+inlines appear as tabs. Supply that template and retain the material inline
+pagination. Isolated admin tests now load admin-interface and exercise its
+tabbed layout. No additional schema or product data change.
