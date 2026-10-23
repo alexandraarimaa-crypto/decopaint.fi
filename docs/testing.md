@@ -610,3 +610,21 @@ Staging manual matrix:
 
 - The production order-confirmation template compiles successfully.
 - The GCR locale expression renders `fi`, `sv` an
+## Optional manual variant material information
+
+Run `shop.tests_variant_material_info` with `config.variant_info_test_settings`,
+`shop.tests_material_calculator` with `config.test_settings`, and
+`node scripts/test_variant_material_info.mjs`. On authorized closed staging,
+verify both fields under Tuotteet, comma decimal entry, independent clearing,
+package/colour changes, rapid changes, request errors, quantity and discounts,
+320/375px and desktop layouts, keyboard use, calculator and cart. No manual
+value may affect an existing price or calculated material quantity. See
+`manual-variant-material-info-2026-10-20.md` for release gates.
+
+The deployed compatibility projection is additionally checked by
+`python scripts/test_manual_material_release.py`. It preserves the audited
+runtime view AST except for the two response fields, retains schema and
+translation support unchanged, verifies the existing 0060 → new 0061 migration
+chain, and runs the admin/API tests against the projected runtime with fresh
+synthetic data. The inline uses its shop-owned template without changing
+production settings.

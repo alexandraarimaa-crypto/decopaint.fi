@@ -158,6 +158,35 @@ class VariantAdminForm(ModelForm):
         model = Variant
         exclude = []
 
+class VariantMaterialInfoForm(ModelForm):
+    class Meta:
+        model = Variant
+        fields = ('price_per_m2', 'coverage_m2')
+        localized_fields = ('price_per_m2',)
+
+
+class VariantMaterialInfoInline(TabularInlinePaginated):
+    """Edit only optional information under Tuotteet; identify variants read-only."""
+
+    model = Variant
+    template = 'admin/shop/variant_material_info.html'
+    form = VariantMaterialInfoForm
+    verbose_name_plural = 'Pakkauskohtaiset lisätiedot'
+    fields = (
+        'item_code', 'size', 'color1', 'color2', 'base', 'grain', 'gloss',
+        'price_per_m2', 'coverage_m2',
+    )
+    readonly_fields = ('item_code', 'size', 'color1', 'color2', 'base', 'grain', 'gloss')
+    ordering = ('size', 'item_code', 'pk')
+    per_page = 100
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 class TagInline(admin.TabularInline):
     model = Product.tags.through
     extra = 0
@@ -230,7 +259,7 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     exclude = ('tags',)
     list_per_page = 150
-    inlines = [AttributeInline, ProductImageInline, RelatedProductInline, TagInline, ProductDocumentInline, ProductYoutubeLinkInline, EffectInline]
+    inlines = [VariantMaterialInfoInline, AttributeInline, ProductImageInline, RelatedProductInline, TagInline, ProductDocumentInline, ProductYoutubeLinkInline, EffectInline]
     actions = ['assign_category_to_products']  # Register custom action
 
     def assign_category_to_products(self, request, queryset):
@@ -498,7 +527,7 @@ class VariantAdmin(admin.ModelAdmin):
     # Улучшенная форма редактирования
     fieldsets = (
         ('Perustiedot', {
-            'fields': ('product', 'item_code', 'item_description', 'barcode', 'price')
+            'fields': ('product', 'item_code', 'item_description', 'barcode', 'price', 'price_per_m2', 'coverage_m2')
         }),
         ('Värit', {
             'fields': ('color1', 'color2', 'r', 'g', 'b', 'hue', 'image', 'thumbnail')

@@ -440,3 +440,11 @@ Rollback не потребовался.
 - The candidate was compiled before upload, read back byte-for-byte and then
   activated with the standard Passenger restart marker.
 - No Python, database, order
+## Manual package information candidate — 2026-10-20
+
+Schema migration `shop.0061_variant_material_info` adds two nullable columns.
+Deploy only after CI/review, authorized closed-staging verification, and a
+verified private DB backup. Deployed DB changes and production deployment
+require separate owner approval under AGENTS.md. Run `sqlmigrate` and inspect
+MySQL locking before approval; collect the added JS asset with the matching
+code. Full plan: `manual-variant-material-info-2026-10-20.md`.

@@ -1024,6 +1024,15 @@ class Variant(models.Model):
     item_description = models.CharField(max_length=100, blank=True, default='')
     barcode = models.BigIntegerField(blank=False, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True, null=True)
+    price_per_m2 = models.DecimalField(
+        'Hinta €/m²', max_digits=10, decimal_places=2, null=True, blank=True,
+        validators=[MinValueValidator(Decimal('0'))],
+        help_text='Syötä käsin, esim. 4,85. Ei automaattista laskentaa.',
+    )
+    coverage_m2 = models.CharField(
+        'Riittoisuus (m²)', max_length=100, null=True, blank=True,
+        help_text='Syötä käsin luku tai vaihteluväli, esim. 85–135. Ilman m²-yksikköä.',
+    )
     cat_name = models.CharField(max_length=100, blank=True, default='')
     
     # Two separate color fields

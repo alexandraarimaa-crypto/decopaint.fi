@@ -1106,7 +1106,9 @@ def get_variant_price(request, slug):
                 'discount_percent': str(discount_percent),
                 'stock': variant.order_item,
                 'color': color,
-                'is_asiakas_group': is_asiakas_group
+                'is_asiakas_group': is_asiakas_group,
+                'price_per_m2': str(variant.price_per_m2) if variant.price_per_m2 is not None else None,
+                'coverage_m2': variant.coverage_m2,
             })
         else:
             # Check what variants actually exist
