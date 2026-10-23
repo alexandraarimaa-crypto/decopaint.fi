@@ -118,6 +118,9 @@ class VariantMaterialInfoTests(TestCase):
         self.assertEqual(self.small.price, Decimal('20.00'))
         self.assertEqual(self.large.price, Decimal('135.67'))
         self.assertEqual(self.large.size, '10 L')
+        self.assertEqual(self.product.variants.count(), 2)
+        self.assertFalse(inline.can_delete)
+        self.assertFalse(inline.has_add_permission(request, self.product))
 
     def test_tuotteet_renders_with_admin_interface_inline_tabs(self):
         from admin_interface.models import Theme
@@ -136,6 +139,3 @@ class VariantMaterialInfoTests(TestCase):
         self.assertContains(response, 'Riittoisuus (m²)')
         self.assertContains(response, 'test-1')
         self.assertContains(response, 'test-10')
-        self.assertEqual(self.product.variants.count(), 2)
-        self.assertFalse(inline.can_delete)
-        self.assertFalse(inline.has_add_permission(request, self.product))

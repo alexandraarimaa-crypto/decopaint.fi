@@ -455,3 +455,9 @@ admin inline templates. Install both before enabling the feature admin module;
 admin-interface requests the headerless name when inline tabs are enabled.
 Migration 0061 is already applied on the approved production release; this
 template compatibility update requires no further migration or settings edit.
+
+Verify the new JavaScript through its public URL before enabling the product
+template. On this hosting the web server serves a separate webroot/static
+directory; writing only Django STATIC_ROOT does not publish the asset. Copy
+only the reviewed new asset to that served directory, verify HTTP 200 and its
+SHA-256, then enable the template. Do not run a broad static overwrite.

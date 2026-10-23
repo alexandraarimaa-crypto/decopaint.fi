@@ -145,3 +145,8 @@ additive schema. This fix supplies the headerless template, keeps pagination,
 and adds the real admin-interface tabbed configuration to regression tests.
 Reinstall the feature admin only after this compatibility fix passes CI and
 closed staging. No second migration or product-value edits are required.
+
+The public static directory also differs from Django STATIC_ROOT on this
+hosting. The first asset check returned 404; the prior product template was
+restored while the served path was verified. Publish and hash-check the one
+new asset through its public URL before re-enabling the product template.
