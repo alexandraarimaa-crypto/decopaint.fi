@@ -118,3 +118,15 @@ this projection, using fresh synthetic data with outbound integrations off.
 The existing active staging is preserved as the rollback target. Record manual
 browser/responsive results before requesting production approval. No live
 schema or product value has been changed by this audit or candidate build.
+
+### Browser review and readable labels — 23 October
+
+A local synthetic projection using the site's theme was reviewed at desktop
+1440×1000 and mobile 375×812. Switching 1/5/10 L and rapid repeated switching
+updated the displayed manual values without navigation. The empty 5 L fixture
+hid both labels; 10 L restored 1,01 €/m² and 85–135 m². Increasing quantity to
+four changed the existing total to 542,68 € while preserving both manual
+values. Only synthetic fixture data was used. The theme's muted text resolved
+to rgba(126,126,126,0.75), so the labels now use its existing body-emphasis
+colour for readability. No pricing/calculator/cart or product data change is
+included in this colour correction.

@@ -628,3 +628,8 @@ translation support unchanged, verifies the existing 0060 → new 0061 migration
 chain, and runs the admin/API tests against the projected runtime with fresh
 synthetic data. The inline uses its shop-owned template without changing
 production settings.
+
+Browser QA for the manual labels also checks contrast against the actual site
+theme. The labels use body-emphasis colour because muted text is translucent.
+Verify 10 L → empty 5 L → 10 L, rapid changes, and quantity changes at desktop
+and mobile widths. The manual values must remain unchanged by quantity.

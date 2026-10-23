@@ -849,3 +849,9 @@ Production code, DB, Paytrail, Merchant Center, orders и customer records не
 - Empty values hide independently; no automatic calculation or existing data
   edits. Includes schema-only migration 0061, regression tests and CI checks.
 - Release/rollback gates: `manual-variant-material-info-2026-10-20.md`.
+
+## 2026-10-23 — Material information label contrast
+
+Use the existing body-emphasis colour for the two new small labels. Browser
+review found the muted theme colour was translucent and too faint. Formatting,
+variant switching, prices and data storage are unchanged.

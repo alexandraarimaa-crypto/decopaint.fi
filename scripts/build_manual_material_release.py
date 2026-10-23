@@ -57,9 +57,9 @@ def build(output):
         ('                    if (data.price !== undefined) {\n                        var unit_price',
          '                    if (data.price !== undefined) {\n                        if (!pendingPriceUpdate) {\n                            window.updateVariantMaterialInfo(data);\n                        }\n                        var unit_price'),
         ('            <span class="fw-semibold text-body-emphasis me-7">{% translate "Koko:" %} </span>',
-         '            <div class="d-flex align-items-baseline flex-wrap gap-2">\n              <span class="fw-semibold text-body-emphasis me-7">{% translate "Koko:" %} </span>\n              <small id="variant-coverage" class="text-muted" aria-live="polite" hidden></small>\n            </div>'),
+         '            <div class="d-flex align-items-baseline flex-wrap gap-2">\n              <span class="fw-semibold text-body-emphasis me-7">{% translate "Koko:" %} </span>\n              <small id="variant-coverage" class="text-body-emphasis" aria-live="polite" hidden></small>\n            </div>'),
         ('                      <span class="current-price me-3" id="price-container" style="display:none;"></span>',
-         '                      <span class="current-price me-3" id="price-container" style="display:none;"></span>\n                      <small id="variant-price-per-m2" class="text-muted me-3" aria-live="polite" hidden></small>'),
+         '                      <span class="current-price me-3" id="price-container" style="display:none;"></span>\n                      <small id="variant-price-per-m2" class="text-body-emphasis me-3" aria-live="polite" hidden></small>'),
         ('<div class="d-flex align-items-center me-3">\n                      <div id="price-loading-container"',
          '<div class="d-flex align-items-center flex-wrap me-3">\n                      <div id="price-loading-container"'),
     ]
