@@ -7,7 +7,7 @@ import subprocess
 import sys
 import tempfile
 
-from build_manual_material_release import BASELINE, ROOT, build
+from build_manual_material_release import BASELINE, PACKAGE_BASELINE, ROOT, build
 
 
 def parsed_functions(source):
@@ -45,7 +45,8 @@ with tempfile.TemporaryDirectory(prefix='manual-material-runtime-') as temporary
     for name in original:
         assert ast.dump(original[name]) == ast.dump(generated[name]), name + ' changed beyond manual response fields'
     for name in manifest['staging_support_files']:
-        assert (project / name).read_bytes() == (BASELINE / name).read_bytes(), name
+        source = PACKAGE_BASELINE if name.endswith('variant_details.html') else BASELINE
+        assert (project / name).read_bytes() == (source / name).read_bytes(), name
     assert not (project / 'shop/migrations/0060_variant_material_info.py').exists()
     assert (project / 'shop/migrations/0061_variant_material_info.py').exists()
     assert (project / 'shop/migrations/0062_packagematerialinfo.py').exists()

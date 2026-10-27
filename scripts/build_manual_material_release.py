@@ -12,6 +12,7 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / 'deployments/manual-variant-info-20261023/baseline'
+PACKAGE_BASELINE = ROOT / 'deployments/package-material-info-20261027/baseline'
 
 # Manifest of the audited deployed 7e7b662 runtime before the package correction.
 CURRENT_PRODUCTION_SHA256 = {'shop/models.py': '7c646dbde0bd906eb75cfde1c0379e14e8b6d4a65f440f0c15102b9a3d7f6dca',
@@ -26,6 +27,7 @@ CURRENT_PRODUCTION_SHA256 = {'shop/models.py': '7c646dbde0bd906eb75cfde1c0379e14
  'shop/templates/shop/product/detail.html': 'f0c5c02fec8484a47a1e773f91c9c7b92d500e85f33dd49c15cca459edaa64a1',
  'shop/translation.py': 'fd77ea5f7cb5bad9655033065f09867a3104977388b1cf5679854952f9f7ce2a',
  'shop/product_schema.py': 'e3f415d88a0be2b89a0b327fd47078a252f900a28b8a1da8614e838656ed77fc'}
+CURRENT_PRODUCTION_SHA256['shop/templates/shop/product/variant_details.html'] = '81b0456c5140d86c0ab9ecffcc8527d154137ec36f4cb8cd781281391679ba77'
 
 
 def replace_once(source, old, new):
@@ -89,11 +91,13 @@ def build(output):
 
     # These dependencies are unchanged production source. Retain them for a
     # complete staging projection and hash checks; do not overwrite them in prod.
-    support = ['shop/translation.py', 'shop/product_schema.py']
+    support = ['shop/translation.py', 'shop/product_schema.py',
+               'shop/templates/shop/product/variant_details.html']
     for name in support:
         dest = output / name
         dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(BASELINE / name, dest)
+        source = PACKAGE_BASELINE if name.endswith('variant_details.html') else BASELINE
+        shutil.copyfile(source / name, dest)
     hashes = {name: hashlib.sha256((output / name).read_bytes()).hexdigest() for name in paths + support}
     manifest = {
         'release_files': paths,

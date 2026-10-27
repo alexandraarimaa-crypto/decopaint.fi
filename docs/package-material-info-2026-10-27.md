@@ -52,6 +52,13 @@ value can transfer unambiguously. Source hashes match deployed 7e7b662.
 Original values/hashes are retained privately outside webroot. The audit did
 not change production product data or schema.
 
+The deployed colour-picker partial also differs from the recovered repository.
+Its exact audited source (SHA-256 81b0456c5140d86c0ab9ecffcc8527d154137ec36f4cb8cd781281391679ba77)
+is pinned as staging support only, just like translation/schema support. It is
+not a production replacement. Browser tests must use this unchanged deployed
+picker with the unchanged deployed variant resolver, rather than combine it
+with the repository's different colour-pagination partial.
+
 ## Checks and release gates
 
 Test single/multiple colours for single/multiple litre/kilogram packages;
