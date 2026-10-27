@@ -34,19 +34,22 @@ with tempfile.TemporaryDirectory(prefix='manual-material-runtime-') as temporary
         if isinstance(node, ast.Dict):
             pairs = []
             for key, value in zip(node.keys, node.values):
-                if isinstance(key, ast.Constant) and key.value in ('price_per_m2', 'coverage_m2'):
-                    removed.append(key.value)
+                if key is None and isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and value.func.id == 'package_material_payload':
+                    assert ast.dump(value) == ast.dump(ast.parse('package_material_payload(product.pk, variant.size)').body[0].value)
+                    removed.append('package_material_payload')
                 else:
                     pairs.append((key, value))
             node.keys = [key for key, _ in pairs]
             node.values = [value for _, value in pairs]
-    assert sorted(removed) == ['coverage_m2', 'price_per_m2']
+    assert removed == ['package_material_payload']
     for name in original:
         assert ast.dump(original[name]) == ast.dump(generated[name]), name + ' changed beyond manual response fields'
     for name in manifest['staging_support_files']:
         assert (project / name).read_bytes() == (BASELINE / name).read_bytes(), name
     assert not (project / 'shop/migrations/0060_variant_material_info.py').exists()
     assert (project / 'shop/migrations/0061_variant_material_info.py').exists()
+    assert (project / 'shop/migrations/0062_packagematerialinfo.py').exists()
+    assert (project / 'shop/migrations/0063_copy_unambiguous_package_material_info.py').exists()
 
     env = os.environ.copy()
     env.pop('DJANGO_SETTINGS_MODULE', None)

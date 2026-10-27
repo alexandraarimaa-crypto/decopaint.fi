@@ -1,5 +1,12 @@
 # Rollback
 
+## Package material correction — 27 October 2026
+
+Restore preceding application/template/static files while retaining the shared
+package table and original Variant columns. Do not reverse the schema or
+restore a full DB over new orders. Shared values entered after release remain
+preserved for reapplication; see `package-material-info-2026-10-27.md`.
+
 ## Merchant storefront price parity rollback 2026-10-05
 
 No database restore is required.

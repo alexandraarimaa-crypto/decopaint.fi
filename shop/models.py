@@ -1758,3 +1758,35 @@ class RecentProductView(models.Model):
         ordering = ['-viewed_at']
         verbose_name = 'Viimeksi katsottu'
         verbose_name_plural = 'Viimeksi katsotut'
+
+
+class PackageMaterialInfo(models.Model):
+    """The existing manual values, owned by product and package rather than colour."""
+
+    # Existing production product tables use MyISAM, which cannot be the target
+    # of an InnoDB FK constraint. Django still handles product deletion cascades.
+    product = models.ForeignKey(
+        Product, related_name='package_material_info', db_constraint=False,
+        on_delete=models.CASCADE,
+    )
+    size = models.CharField('Pakkauskoko', max_length=100)
+    price_per_m2 = models.DecimalField(
+        'Hinta €/m²', max_digits=10, decimal_places=2, null=True, blank=True,
+        validators=[MinValueValidator(Decimal('0'))],
+        help_text='Syötä käsin, esim. 4,85. Sama arvo kaikille tämän pakkauskoon sävyille.',
+    )
+    coverage_m2 = models.CharField(
+        'Riittoisuus (m²)', max_length=100, null=True, blank=True,
+        help_text='Syötä käsin luku tai vaihteluväli, esim. 85–135. Ilman m²-yksikköä.',
+    )
+
+    class Meta:
+        verbose_name = 'Pakkauskohtainen lisätieto'
+        verbose_name_plural = 'Pakkauskohtaiset lisätiedot'
+        ordering = ('size',)
+        constraints = [models.UniqueConstraint(
+            fields=('product', 'size'), name='shop_material_product_size_unique',
+        )]
+
+    def __str__(self):
+        return self.size

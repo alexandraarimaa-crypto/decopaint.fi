@@ -1,3 +1,5 @@
+from .models import PackageMaterialInfo
+from .material_info import package_sizes, legacy_material_conflicts
 from django.contrib import admin
 from django import forms
 from django.contrib.auth.models import Group
@@ -7,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from solo.admin import SingletonModelAdmin
 from django_admin_inline_paginator.admin import TabularInlinePaginated
-from django.forms import ModelForm
+from django.forms import ModelForm, BaseInlineFormSet
 from modeltranslation.admin import TranslationAdmin
 from .models import PriceUpdateFile, Variant
 from .tasks import update_variant_prices
@@ -156,35 +158,90 @@ class VariantInline(TabularInlinePaginated):
 class VariantAdminForm(ModelForm):
     class Meta:
         model = Variant
-        exclude = []
+        exclude = ['price_per_m2', 'coverage_m2']
 
 class VariantMaterialInfoForm(ModelForm):
+    size = forms.CharField(label='Pakkauskoko', disabled=True)
+
     class Meta:
-        model = Variant
-        fields = ('price_per_m2', 'coverage_m2')
+        model = PackageMaterialInfo
+        fields = ('size', 'price_per_m2', 'coverage_m2')
         localized_fields = ('price_per_m2',)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk and self.initial.get('size'):
+            self.instance.size = self.initial['size']
 
-class VariantMaterialInfoInline(TabularInlinePaginated):
-    """Edit only optional information under Tuotteet; identify variants read-only."""
 
-    model = Variant
+class PackageMaterialInfoFormSet(BaseInlineFormSet):
+    """Offer each real package exactly once, including newly imported sizes.
+
+    Missing sizes are unsaved initial forms; GET never creates database rows.
+    Disabled size values come from the product, never from the posted payload.
+    """
+
+    def __init__(self, *args, **kwargs):
+        product = kwargs.get('instance')
+        sizes = package_sizes(product)
+        existing = set(PackageMaterialInfo.objects.filter(
+            product=product, size__in=sizes,
+        ).values_list('size', flat=True)) if product and product.pk else set()
+        missing = [size for size in sizes if size not in existing]
+        queryset = kwargs.get('queryset', PackageMaterialInfo.objects.all())
+        kwargs['queryset'] = queryset.filter(size__in=sizes)
+        kwargs['initial'] = [{'size': size} for size in missing]
+        self.extra = len(missing)
+        super().__init__(*args, **kwargs)
+
+
+class VariantMaterialInfoInline(admin.TabularInline):
+    """One editable pair per product/package, with no colour-specific inputs."""
+
+    model = PackageMaterialInfo
     template = 'admin/shop/variant_material_info.html'
     form = VariantMaterialInfoForm
+    formset = PackageMaterialInfoFormSet
     verbose_name_plural = 'Pakkauskohtaiset lisätiedot'
-    fields = (
-        'item_code', 'size', 'color1', 'color2', 'base', 'grain', 'gloss',
-        'price_per_m2', 'coverage_m2',
-    )
-    readonly_fields = ('item_code', 'size', 'color1', 'color2', 'base', 'grain', 'gloss')
-    ordering = ('size', 'item_code', 'pk')
-    per_page = 100
+    fields = ('size', 'price_per_m2', 'coverage_m2')
+    readonly_fields = ('legacy_values',)
+    ordering = ('size', 'pk')
     extra = 0
     can_delete = False
-    show_change_link = True
+    show_change_link = False
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.has_perm('shop.view_product') or self.has_change_permission(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm('shop.change_product')
 
     def has_add_permission(self, request, obj=None):
-        return False
+        return bool(obj and obj.pk) and self.has_change_permission(request, obj)
+
+    def _legacy_conflicts(self, product_id):
+        if getattr(self, '_legacy_product_id', None) != product_id:
+            self._legacy_product_id = product_id
+            self._legacy_cache = legacy_material_conflicts(product_id)
+        return self._legacy_cache
+
+    def get_fields(self, request, obj=None):
+        if obj and self._legacy_conflicts(obj.pk):
+            return (*self.fields, 'legacy_values')
+        return self.fields
+
+    @admin.display(description='Aiemmat eriävät arvot')
+    def legacy_values(self, obj):
+        values = self._legacy_conflicts(obj.product_id).get(obj.size, {})
+        if not values:
+            return '—'
+        labels = {'price_per_m2': 'Hinta €/m²', 'coverage_m2': 'Riittoisuus (m²)'}
+        detail = '; '.join(labels[field] + ': ' + ' / '.join(str(v) for v in alternatives)
+                           for field, alternatives in values.items())
+        return format_html(
+            '{}. Valitse yhteinen arvo yllä oleviin kenttiin. Aiemmat sävykohtaiset arvot säilytetään.',
+            detail,
+        )
 
 
 class TagInline(admin.TabularInline):
@@ -527,7 +584,7 @@ class VariantAdmin(admin.ModelAdmin):
     # Улучшенная форма редактирования
     fieldsets = (
         ('Perustiedot', {
-            'fields': ('product', 'item_code', 'item_description', 'barcode', 'price', 'price_per_m2', 'coverage_m2')
+            'fields': ('product', 'item_code', 'item_description', 'barcode', 'price')
         }),
         ('Värit', {
             'fields': ('color1', 'color2', 'r', 'g', 'b', 'hue', 'image', 'thumbnail')

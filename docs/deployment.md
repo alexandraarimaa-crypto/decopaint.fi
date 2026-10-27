@@ -1,5 +1,14 @@
 # Deployment
 
+## Package material correction — 27 October 2026
+
+Follow `package-material-info-2026-10-27.md`: audit legacy values, verify private
+backup, then apply additive 0062/0063 before enabling shared-value code. Keep
+all colour variants and legacy columns. Publish the updated script to the
+actual served static directory and verify its versioned URL first. Use the
+reviewed runtime builder's current hash guards, normal/headerless templates
+and unchanged production settings. Production requires owner approval.
+
 ## Merchant storefront price parity 2026-10-05
 
 - Scope: `google_shopping/tasks.py`, tests and documentation only; no

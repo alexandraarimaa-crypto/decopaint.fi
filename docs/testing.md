@@ -638,3 +638,15 @@ The material admin suite also loads the installed admin-interface app and
 enables Theme.show_inlines_as_tabs / show_fieldsets_as_tabs. The real product
 change page must return 200 and include both manual inputs in the headerless
 inline template selected by that theme. Check the normal layout as well.
+
+## Package-only material fields — 27 October 2026
+
+Run the expanded material admin/API, runtime projection and Node suites.
+Check one/multiple colours for one/multiple litre and kilogram packages.
+Colours must retain both values during loading; changing package must update
+them and an empty package must hide them. Check only one input pair per size,
+no colour-form inputs, no GET writes for new sizes, disabled size tampering,
+and admin-interface tabs. Migration/admin saves must preserve every Variant
+value. Conflicts stay empty, remain reviewable and are never chosen arbitrarily.
+Retried transfer must not overwrite a later shared value. Follow
+`package-material-info-2026-10-27.md`.

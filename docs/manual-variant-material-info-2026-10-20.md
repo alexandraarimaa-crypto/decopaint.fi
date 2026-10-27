@@ -1,5 +1,9 @@
 # Optional manual material information — 20 October 2026
 
+The 27 October correction moves ownership to common product/package values.
+See `package-material-info-2026-10-27.md` for current administration and safe
+transfer. Original variant-level rollout notes below are historical.
+
 GitHub task: #6. Baseline: `6816bb7` (main at implementation start).
 
 ## Behavior and administration
