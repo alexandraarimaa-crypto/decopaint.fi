@@ -192,6 +192,8 @@ class PackageMaterialInfoFormSet(BaseInlineFormSet):
         kwargs['queryset'] = queryset.filter(size__in=sizes)
         kwargs['initial'] = [{'size': size} for size in missing]
         self.extra = len(missing)
+        self.max_num = len(sizes)
+        self.validate_max = True
         super().__init__(*args, **kwargs)
 
 

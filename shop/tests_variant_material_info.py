@@ -149,6 +149,7 @@ class VariantMaterialInfoTests(TestCase):
         self.assertContains(response, 'Riittoisuus (m²)')
         _, formset = self.inline_formset()
         self.assertEqual(len(formset.forms), 2)
+        self.assertEqual(formset.max_num, 2)
         self.assertTrue(all(form.fields['size'].disabled for form in formset.forms))
         self.assertNotIn('price_per_m2', VariantAdminForm().fields)
         self.assertNotIn('coverage_m2', VariantAdminForm().fields)
@@ -173,6 +174,13 @@ class VariantMaterialInfoTests(TestCase):
         self.assertFalse(self.large_info.coverage_m2)
         self.assertEqual(list(Variant.objects.order_by('pk').values_list(*columns)), before)
         self.assertFalse(inline.can_delete)
+
+    def test_extra_arbitrary_package_rows_are_rejected(self):
+        formset, data = self.formset_data()
+        data[f'{formset.prefix}-TOTAL_FORMS'] = str(len(formset.forms) + 1)
+        _, bound = self.inline_formset(data)
+        self.assertFalse(bound.is_valid())
+        self.assertTrue(bound.non_form_errors())
 
     def test_newly_imported_size_is_editable_without_any_get_database_write(self):
         Variant.objects.create(product=self.product, size='5 kg', price='30', weight='5', customs_code=0)
