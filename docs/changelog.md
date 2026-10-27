@@ -862,3 +862,12 @@ The live admin-interface theme selects a headerless inline template when
 inlines appear as tabs. Supply that template and retain the material inline
 pagination. Isolated admin tests now load admin-interface and exercise its
 tabbed layout. No additional schema or product data change.
+
+## 2026-10-27 — Share manual material information by package size
+
+One Hinta €/m² / Riittoisuus pair per product/package in Tuotteet, shared by
+all colours. Reuse the existing API/labels, hide colour inputs, retain labels
+during colour changes, and preserve all legacy values. Copy only unambiguous
+values; expose historical conflicts read-only for explicit admin review.
+No pricing, tinting, calculator or cart change. Release/transfer gates:
+`package-material-info-2026-10-27.md`.

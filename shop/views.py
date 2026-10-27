@@ -1,3 +1,4 @@
+from .material_info import package_material_payload
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.cache import cache_page
@@ -1107,8 +1108,7 @@ def get_variant_price(request, slug):
                 'stock': variant.order_item,
                 'color': color,
                 'is_asiakas_group': is_asiakas_group,
-                'price_per_m2': str(variant.price_per_m2) if variant.price_per_m2 is not None else None,
-                'coverage_m2': variant.coverage_m2,
+                **package_material_payload(product.pk, variant.size),
             })
         else:
             # Check what variants actually exist

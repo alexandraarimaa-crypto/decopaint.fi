@@ -2,6 +2,15 @@
 (function () {
     'use strict';
 
+    var currentPackage;
+
+    window.prepareVariantMaterialInfo = function (size) {
+        if (currentPackage !== size) {
+            currentPackage = size;
+            window.updateVariantMaterialInfo();
+        }
+    };
+
     window.updateVariantMaterialInfo = function (data) {
         data = data || {};
         var price = data.price_per_m2;

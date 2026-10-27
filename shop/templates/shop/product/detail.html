@@ -620,7 +620,7 @@ display: none;
         </div>
 
 
-    <script src="{% static 'assets/js/variant-material-info.js' %}"></script>
+    <script src="{% static 'assets/js/variant-material-info.js' %}?v=20261027-packages"></script>
     <script>
     $(document).ready(function () {
         // Global price management variables
@@ -648,7 +648,7 @@ display: none;
 
         // Show price loading spinner
         function showPriceLoading() {
-            window.updateVariantMaterialInfo();
+            window.prepareVariantMaterialInfo($('input[name=size]:checked').val());
             $('#price-container').hide();
             $('#price-loading-container').show();
         }
@@ -718,7 +718,7 @@ display: none;
 
         // Update price based on selected options
         function updatePrice() {
-            window.updateVariantMaterialInfo();
+            window.prepareVariantMaterialInfo($('input[name=size]:checked').val());
             if (priceLoading) {
                 pendingPriceUpdate = true;
                 return;
