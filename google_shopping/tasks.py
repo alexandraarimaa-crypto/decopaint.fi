@@ -73,33 +73,35 @@ def get_storefront_variant_for_product(product_id):
             )
 
     product = first_variant.product
-    use_color1 = bool(getattr(product, 'use_color1_palette', False))
-    use_color2 = bool(getattr(product, 'use_color2_palette', False))
-    palette_priority = getattr(product, 'palette_priority', 'color2')
-    if use_color2 and (not use_color1 or palette_priority == 'color2'):
+    colored_options = {}
+    for field in ('color1', 'color2'):
+        colored_options[field] = candidates.exclude(
+            **{f'{field}__isnull': True}
+        ).exclude(**{field: ''})
+    has_color1 = bool(getattr(product, 'use_color1_palette', False)) and colored_options['color1'].exists()
+    has_color2 = bool(getattr(product, 'use_color2_palette', False)) and colored_options['color2'].exists()
+    if has_color2 and (not has_color1 or product.palette_priority == 'color2'):
         color_field = 'color2'
-    elif use_color1:
-        color_field = 'color1'
     else:
-        color_field = None
+        # get_variants also falls back to color1 when no palette is available.
+        color_field = 'color1'
 
-    if color_field is None:
-        return candidates.order_by('price', 'id').first()
-
-    colored = candidates.exclude(**{f'{color_field}__isnull': True}).exclude(
-        **{color_field: ''}
-    )
-    white = colored.filter(
+    colored = colored_options[color_field]
+    chosen_color = colored.filter(
         **{f'{color_field}__iexact': 'Valkoinen'}
-    ).order_by('price', 'id').first()
-    if white:
-        return white
+    ).order_by('id').first()
+    if chosen_color is None:
+        chosen_color = colored.order_by(color_field, 'id').first()
+    if chosen_color is not None:
+        color = getattr(chosen_color, color_field)
+        # The price endpoint matches the selected name in either palette and
+        # takes the first database record, even when a cheaper duplicate exists.
+        return candidates.filter(Q(color1=color) | Q(color2=color)).order_by('id').first()
 
-    colored_first = colored.order_by(color_field, 'price', 'id').first()
-    if colored_first:
-        return colored_first
-
-    return candidates.order_by('price', 'id').first()
+    return candidates.filter(
+        (Q(color1='') | Q(color1__isnull=True))
+        & (Q(color2='') | Q(color2__isnull=True))
+    ).order_by('id').first()
 
 
 def backorder_availability_date():

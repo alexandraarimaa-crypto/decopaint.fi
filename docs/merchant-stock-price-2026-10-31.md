@@ -9,7 +9,9 @@ The owner confirmed public white prices of EUR 197.66 / 395.33 / 790.65 for
 This release does not change any catalogue price or stock flag.
 
 The task now follows the template's first visible option queries before
-choosing the palette colour. It keeps existing offer IDs. A missing default
+choosing the palette colour. Duplicate names resolve through either colour
+field to the first record, exactly as the storefront price endpoint does;
+price sorting must not choose a cheaper duplicate. It keeps existing offer IDs. A missing default
 selection fails instead of substituting a different cheaper variant.
 Orderable variants are BACKORDER with a Finnish dispatch date four weeks
 ahead, refreshed whenever the nightly job or an existing scoped task runs.

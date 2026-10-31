@@ -310,6 +310,30 @@ class StorefrontVariantSelectionTests(TestCase):
 
         self.assertEqual(get_storefront_variant_for_product(product.id).id, visible.id)
 
+    def test_duplicate_color_uses_first_record_like_price_endpoint(self):
+        product = Product.objects.create(name='Neoquarz', slug='neoquarz', price=10)
+        first = Variant.objects.create(
+            product=product, item_code='PUBLIC-WHITE', size='1 L',
+            color2='Valkoinen', price=Decimal('15'), customs_code=None, weight=None,
+        )
+        Variant.objects.create(
+            product=product, item_code='CHEAPER-DUPLICATE', size='1 L',
+            color2='Valkoinen', price=Decimal('10'), customs_code=None, weight=None,
+        )
+        self.assertEqual(get_storefront_variant_for_product(product.id).id, first.id)
+
+    def test_price_endpoint_matches_selected_name_across_both_palettes(self):
+        product = Product.objects.create(name='Paint', slug='paint', price=10)
+        first = Variant.objects.create(
+            product=product, item_code='FIRST', color1='Valkoinen',
+            color2='Other', price=Decimal('15'), customs_code=None, weight=None,
+        )
+        Variant.objects.create(
+            product=product, item_code='PALETTE-WHITE', color2='Valkoinen',
+            price=Decimal('10'), customs_code=None, weight=None,
+        )
+        self.assertEqual(get_storefront_variant_for_product(product.id).id, first.id)
+
     def test_prefers_visible_white_variant_over_hidden_base_variant(self):
         product = Product.objects.create(
             name="305 BioLavabile",
