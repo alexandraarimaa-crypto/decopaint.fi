@@ -1,4 +1,7 @@
 from decimal import Decimal
+from datetime import datetime, timezone as datetime_timezone
+from pathlib import Path
+import runpy
 from types import SimpleNamespace
 from unittest.mock import MagicMock, call, patch
 
@@ -7,6 +10,7 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from google_shopping.tasks import (
     build_existing_merchant_update_plan,
     build_product_data_from_variant,
+    backorder_availability_date,
     get_storefront_variant_for_product,
     incremental_update_optimized_single_variant,
     normalize_product_data_for_merchant_api,
@@ -107,7 +111,7 @@ class MerchantPayloadTests(SimpleTestCase):
         self.assertNotIn("storeCode", payload)
 
     @patch("google_shopping.tasks.ProductImage.objects.filter")
-    def test_builder_omits_pickup_for_out_of_stock_product(self, filter_mock):
+    def test_builder_emits_dated_backorder_without_same_day_pickup(self, filter_mock):
         filtered = filter_mock.return_value
         first_excluded = filtered.exclude.return_value
         second_excluded = first_excluded.exclude.return_value
@@ -139,14 +143,70 @@ class MerchantPayloadTests(SimpleTestCase):
             multiplier=SimpleNamespace(multi=Decimal("1")),
         )
 
-        payload = build_product_data_from_variant(
-            variant,
-            storefront_variant=variant,
-        )
+        with patch('google_shopping.tasks.timezone.now', return_value=datetime(
+            2026, 10, 29, 10, tzinfo=datetime_timezone.utc
+        )):
+            payload = build_product_data_from_variant(
+                variant,
+                storefront_variant=variant,
+            )
 
-        self.assertEqual(payload["availability"], "out of stock")
+        self.assertEqual(payload["availability"], "backorder")
+        self.assertEqual(payload["availabilityDate"], '2026-11-26T23:59:59+02:00')
         self.assertNotIn("pickupMethod", payload)
         self.assertNotIn("pickupSla", payload)
+
+    def test_backorder_date_uses_finnish_day_and_dispatch_timezone(self):
+        for now, expected in (
+            (datetime(2026, 10, 29, 23, 30, tzinfo=datetime_timezone.utc),
+             '2026-11-27T23:59:59+02:00'),
+            (datetime(2026, 3, 20, 12, tzinfo=datetime_timezone.utc),
+             '2026-04-17T23:59:59+03:00'),
+        ):
+            with self.subTest(now=now), patch(
+                'google_shopping.tasks.timezone.now', return_value=now
+            ):
+                self.assertEqual(backorder_availability_date(), expected)
+
+    def test_merchant_api_retains_backorder_date(self):
+        attributes = build_merchant_product_input({
+            'offerId': 'ORDER-ITEM',
+            'availability': 'backorder',
+            'availabilityDate': '2026-11-26T23:59:59+02:00',
+        })['productAttributes']
+        self.assertEqual(attributes['availability'], 'BACKORDER')
+        self.assertEqual(attributes['availabilityDate'], '2026-11-26T23:59:59+02:00')
+
+    def test_deployed_adapter_retains_the_same_backorder_and_price(self):
+        baseline = Path(__file__).resolve().parent.parent / (
+            'deployments/merchant-stock-price-20261031/baseline/'
+            'google_shopping/merchant_payload.py'
+        )
+        adapter = runpy.run_path(str(baseline))['legacy_to_product_input']
+        product = {
+            'offerId': '1050N',
+            'availability': 'backorder',
+            'availabilityDate': '2026-11-26T23:59:59+02:00',
+            'price': {'value': '197.66', 'currency': 'EUR'},
+        }
+        self.assertEqual(
+            adapter(product)['productAttributes'],
+            build_merchant_product_input(product)['productAttributes'],
+        )
+
+    def test_merchant_api_rejects_undated_backorder(self):
+        with self.assertRaisesRegex(ValueError, 'availabilityDate'):
+            build_merchant_product_input({
+                'offerId': 'ORDER-ITEM', 'availability': 'backorder',
+            })
+
+    def test_in_stock_payload_drops_obsolete_backorder_date(self):
+        attributes = build_merchant_product_input({
+            'offerId': 'STOCK-ITEM',
+            'availability': 'in stock',
+            'availabilityDate': '2026-11-26T23:59:59+02:00',
+        })['productAttributes']
+        self.assertNotIn('availabilityDate', attributes)
 
     @patch("google_shopping.tasks.ProductImage.objects.filter")
     def test_builder_uses_storefront_regular_price_with_stable_offer_id(
@@ -212,6 +272,44 @@ class MerchantPayloadTests(SimpleTestCase):
 
 
 class StorefrontVariantSelectionTests(TestCase):
+    def test_visible_white_base_does_not_fall_back_to_cheapest_tintable_base(self):
+        product = Product.objects.create(
+            name='Biomalta Extreme Fine', slug='biomalta-extreme-fine',
+            price=Decimal('21'),
+        )
+        white = Variant.objects.create(
+            product=product, item_code='WHITE-5', size='5 kg', base='Valkoinen',
+            price=Decimal('105'), customs_code=None, weight=None,
+        )
+        Variant.objects.create(
+            product=product, item_code='1050N', size='5 kg', base='Sävytettävä',
+            price=Decimal('21'), customs_code=None, weight=None,
+        )
+        Variant.objects.create(
+            product=product, item_code='WHITE-10', size='10 kg', base='Valkoinen',
+            price=Decimal('210'), customs_code=None, weight=None,
+        )
+
+        selected = get_storefront_variant_for_product(product.id)
+
+        self.assertEqual(selected.id, white.id)
+        self.assertEqual(selected.price, Decimal('105'))
+
+    def test_visible_grain_and_gloss_are_respected(self):
+        product = Product.objects.create(
+            name='Coating', slug='coating', price=Decimal('10')
+        )
+        visible = Variant.objects.create(
+            product=product, item_code='VISIBLE', grain='Fine', gloss='Matte',
+            price=Decimal('30'), customs_code=None, weight=None,
+        )
+        Variant.objects.create(
+            product=product, item_code='CHEAP', grain='Coarse', gloss='Glossy',
+            price=Decimal('10'), customs_code=None, weight=None,
+        )
+
+        self.assertEqual(get_storefront_variant_for_product(product.id).id, visible.id)
+
     def test_prefers_visible_white_variant_over_hidden_base_variant(self):
         product = Product.objects.create(
             name="305 BioLavabile",

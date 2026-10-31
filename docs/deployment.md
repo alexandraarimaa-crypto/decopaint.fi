@@ -470,3 +470,10 @@ template. On this hosting the web server serves a separate webroot/static
 directory; writing only Django STATIC_ROOT does not publish the asset. Copy
 only the reviewed new asset to that served directory, verify HTTP 200 and its
 SHA-256, then enable the template. Do not run a broad static overwrite.
+# Scoped Merchant stock release — 31 October 2026
+
+Use `scripts/build_merchant_stock_release.py` and the source hashes in its
+manifest. Install only google_shopping/tasks.py; retain the audited deployed
+API adapter and merchant_payload support module. No migration. Closed staging,
+read-only production payload audit, scoped backup and existing-offer-only
+refresh are required; see merchant-stock-price-2026-10-31.md.
