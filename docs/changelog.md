@@ -871,3 +871,8 @@ during colour changes, and preserve all legacy values. Copy only unambiguous
 values; expose historical conflicts read-only for explicit admin review.
 No pricing, tinting, calculator or cart change. Release/transfer gates:
 `package-material-info-2026-10-27.md`.
+# Merchant stock and price candidate — 31 October 2026
+
+Orderable variants now generate dated backorders and Merchant selection
+respects the first visible base/grain/gloss. Public catalogue prices, offer IDs,
+inventory and purchase logic remain unchanged. See merchant-stock-price-2026-10-31.md.

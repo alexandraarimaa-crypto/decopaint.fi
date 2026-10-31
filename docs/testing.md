@@ -650,3 +650,11 @@ and admin-interface tabs. Migration/admin saves must preserve every Variant
 value. Conflicts stay empty, remain reviewable and are never chosen arbitrarily.
 Retried transfer must not overwrite a later shared value. Follow
 `package-material-info-2026-10-27.md`.
+# Merchant stock regression checks — 31 October 2026
+
+Run google_shopping.tests under config.test_settings. Check that white 5 kg
+wins over a cheaper tintable base when white is the first visible option;
+grain/gloss choices are respected; stocked items keep pickup fields; orderable
+items include BACKORDER and a 28-day dispatch timestamp. Verify Finnish
+midnight/DST and parity with the audited live API adapter. Run the existing
+isolated regression suite and closed-staging payload audit before release.

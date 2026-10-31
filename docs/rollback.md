@@ -522,3 +522,9 @@ If the material inline fails under the live admin-interface theme, restore the
 previous admin.py from the private release backup and request an application
 restart. Keep the additive columns and storefront files. Install both reviewed
 normal/headerless templates before restoring the new feature admin module.
+# Merchant stock rollback — 31 October 2026
+
+Restore the verified google_shopping/tasks.py backup and restart Passenger and
+the existing managed queue workers. Leave catalogue data and the API adapter
+untouched. Restore saved Merchant inputs individually through their original
+data source if needed; never use product deletion or database restoration.

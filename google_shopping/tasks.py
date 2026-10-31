@@ -2,9 +2,12 @@
 
 from django_q.tasks import async_task
 from django.conf import settings
+from django.utils import timezone
+from datetime import datetime, time as datetime_time, timedelta
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import time
 from urllib.parse import urlsplit
+from zoneinfo import ZoneInfo
 from shop.models import Category, Product, Variant, ProductImage
 from django.db.models import Min, Q
 from google_shopping.api import (
@@ -48,9 +51,26 @@ def get_storefront_variant_for_product(product_id):
     else:
         candidates = variants.filter(Q(size='') | Q(size__isnull=True))
 
-    # The initial storefront request has no base, grain or gloss selected.
+    # The template checks the first visible base/grain/gloss radio on load.
+    # Match its option queries; blank selections previously fell back to the
+    # cheapest base even when the landing page displayed another one.
     for field in ('base', 'grain', 'gloss'):
-        candidates = candidates.filter(Q(**{field: ''}) | Q(**{f'{field}__isnull': True}))
+        options = variants.exclude(**{f'{field}__isnull': True}).exclude(
+            **{field: ''}
+        )
+        if field == 'base':
+            options = options.exclude(base__icontains='base')
+        first_option = next(
+            (value.strip() for value in options.values_list(field, flat=True).distinct()
+             if value.strip()),
+            '',
+        )
+        if first_option:
+            candidates = candidates.filter(**{field: first_option})
+        else:
+            candidates = candidates.filter(
+                Q(**{field: ''}) | Q(**{f'{field}__isnull': True})
+            )
 
     product = first_variant.product
     use_color1 = bool(getattr(product, 'use_color1_palette', False))
@@ -64,10 +84,7 @@ def get_storefront_variant_for_product(product_id):
         color_field = None
 
     if color_field is None:
-        return (
-            candidates.order_by('price', 'id').first()
-            or variants.order_by('price', 'id').first()
-        )
+        return candidates.order_by('price', 'id').first()
 
     colored = candidates.exclude(**{f'{color_field}__isnull': True}).exclude(
         **{color_field: ''}
@@ -82,10 +99,16 @@ def get_storefront_variant_for_product(product_id):
     if colored_first:
         return colored_first
 
-    return (
-        candidates.order_by('price', 'id').first()
-        or variants.order_by('price', 'id').first()
-    )
+    return candidates.order_by('price', 'id').first()
+
+
+def backorder_availability_date():
+    """Use the current storefront's four-week dispatch estimate in Finland."""
+    finland = ZoneInfo('Europe/Helsinki')
+    dispatch_day = timezone.localdate(timezone=finland) + timedelta(days=28)
+    return datetime.combine(
+        dispatch_day, datetime_time(23, 59, 59), tzinfo=finland
+    ).isoformat()
 
 
 def public_regular_price(variant):
@@ -1005,17 +1028,16 @@ def build_product_data_from_variant(
 
     # Keep the existing stable offerId, but source price and availability from
     # the same default variant that the landing page displays.
-    storefront_variant = (
-        storefront_variant
-        or get_storefront_variant_for_product(variant.product_id)
-        or variant
-    )
+    if storefront_variant is None:
+        storefront_variant = get_storefront_variant_for_product(variant.product_id)
+    if storefront_variant is None:
+        raise ValueError('No active variant matches the default storefront selection.')
     price_value = format(public_regular_price(storefront_variant), 'f')
 
     # Availability
     availability = 'in stock'
     if getattr(storefront_variant, 'order_item', False):
-        availability = 'out of stock'
+        availability = 'backorder'
 
     # Build product data
     product_data = {
@@ -1036,6 +1058,9 @@ def build_product_data_from_variant(
     # Add additional images if any
     if additional_image_links:
         product_data['additionalImageLinks'] = additional_image_links
+
+    if availability == 'backorder':
+        product_data['availabilityDate'] = backorder_availability_date()
 
     # Add local pickup info only for in-stock items
     if availability == 'in stock':

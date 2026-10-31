@@ -167,6 +167,12 @@ def build_merchant_product_input(product_data):
     if availability:
         attributes["availability"] = availability
 
+    if availability in {"BACKORDER", "PREORDER"}:
+        availability_date = data.get("availabilityDate")
+        if not availability_date:
+            raise ValueError("Backorder/preorder product must contain availabilityDate.")
+        attributes["availabilityDate"] = availability_date
+
     condition = _normalise_enum(
         data.get("condition"),
         {"new": "NEW", "used": "USED", "refurbished": "REFURBISHED"},
