@@ -48,3 +48,5 @@ check only after the processed values match.
 Rollback: restore the verified tasks.py backup and restart the same services.
 No database restore. External input rollback must use the saved per-offer
 inputs through their owning data source; preserve IDs and never delete offers.
+
+Follow-up: a public Neoquarz page exposes an Offer for TN000A000E at EUR 28.24, even while the colour widget labels its default swatch Valkoinen (343330, EUR 25.51). Prefer the exact empty-colour record when present; use palette selection only when that initial record does not exist. Google automatic price/availability corrections must remain enabled.

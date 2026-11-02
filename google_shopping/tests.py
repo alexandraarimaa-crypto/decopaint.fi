@@ -310,6 +310,20 @@ class StorefrontVariantSelectionTests(TestCase):
 
         self.assertEqual(get_storefront_variant_for_product(product.id).id, visible.id)
 
+    def test_initial_uncoloured_offer_precedes_cheaper_white_swatch(self):
+        product = Product.objects.create(name='Initial paint', slug='initial-paint', price=10)
+        visible = Variant.objects.create(
+            product=product, item_code='INITIAL', size='1 L',
+            price=Decimal('15'), order_item=False, customs_code=None, weight=None,
+        )
+        Variant.objects.create(
+            product=product, item_code='WHITE', size='1 L', color2='Valkoinen',
+            price=Decimal('10'), order_item=True, customs_code=None, weight=None,
+        )
+        selected = get_storefront_variant_for_product(product.id)
+        self.assertEqual(selected.id, visible.id)
+        self.assertFalse(selected.order_item)
+
     def test_duplicate_color_uses_first_record_like_price_endpoint(self):
         product = Product.objects.create(name='Neoquarz', slug='neoquarz', price=10)
         first = Variant.objects.create(

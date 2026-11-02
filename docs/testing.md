@@ -1,3 +1,7 @@
+## 2026-11-01 — initial landing-page offer
+
+Regression: a stocked uncoloured initial offer at 15 must precede an order-only white swatch at 10; verify both price and availability.
+
 # Testing strategy
 
 ## Merchant storefront price parity 2026-10-05

@@ -1,3 +1,7 @@
+## 2026-11-01 — initial landing-page offer
+
+Initial feed selection now prefers the exact uncoloured record used by the landing page initial price and JSON-LD Offer. This prevents Google from correcting a white-swatch price or availability back to the initial visible values.
+
 # Changelog
 
 ## 2026-10-05 - Merchant storefront price parity

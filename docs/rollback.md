@@ -1,3 +1,7 @@
+## 2026-11-01 — initial landing-page offer
+
+The initial-offer follow-up backs up the deployed 8d42fb4 tasks.py before replacement; preserve both API support modules and all offers.
+
 # Rollback
 
 ## Package material correction — 27 October 2026
