@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 BASELINE = ROOT / 'deployments/merchant-stock-price-20261031/baseline'
 RUNTIME_FILES = ('google_shopping/tasks.py',)
 EXPECTED_PRODUCTION = {
-    'google_shopping/tasks.py': '6bb172bda41139462787482047144c0ae8f0bd3b90b463fbf0f82e3e18bd107a',
+    'google_shopping/tasks.py': '7007d0c01b98d23cd1eff20c285105eff227bc1f33f1970929d1366be58dbda7',
     'google_shopping/api.py': '2ce7fa2ec9405e18494993fd531663af89d3d537679059c3d2741c35e9873298',
     'google_shopping/merchant_payload.py': 'b7100c56fb4b3dff63f4f4741ced3cb61d12a354d019f5ccec412026290e97a2',
 }

@@ -72,6 +72,16 @@ def get_storefront_variant_for_product(product_id):
                 Q(**{field: ''}) | Q(**{f'{field}__isnull': True})
             )
 
+    # The first price request and server-rendered Offer use an empty colour.
+    # If that exact record exists it is the visible initial price, even when
+    # the colour widget subsequently labels its default swatch as white.
+    uncoloured = candidates.filter(
+        (Q(color1='') | Q(color1__isnull=True))
+        & (Q(color2='') | Q(color2__isnull=True))
+    ).order_by('id').first()
+    if uncoloured is not None:
+        return uncoloured
+
     product = first_variant.product
     colored_options = {}
     for field in ('color1', 'color2'):

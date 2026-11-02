@@ -1,3 +1,7 @@
+## 2026-11-01 — initial landing-page offer
+
+Follow-up initial-offer correction retains the tasks.py-only release and pins installed hash 7007d0c01b98d23cd1eff20c285105eff227bc1f33f1970929d1366be58dbda7. Revalidate current inputs before existing-offer-only refresh.
+
 # Deployment
 
 ## Package material correction — 27 October 2026
