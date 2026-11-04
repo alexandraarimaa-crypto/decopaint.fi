@@ -481,3 +481,9 @@ manifest. Install only google_shopping/tasks.py; retain the audited deployed
 API adapter and merchant_payload support module. No migration. Closed staging,
 read-only production payload audit, scoped backup and existing-offer-only
 refresh are required; see merchant-stock-price-2026-10-31.md.
+## 2026-11-04 — scoped sales flow release
+
+Issue #17 uses `scripts/build_sales_flow_release.py` and the hash-verified source baselines under `deployments/sales-flow-20261103`. Never replace production with the whole repository checkout. Fetch the reviewed GitHub commit to a private release directory, build the projection, validate every expected production hash, back up the listed files outside the webroot, and install small batches. Publish only the release's static files and restart the existing Passenger application; do not start another Q cluster. Preserve payment, shipping-price, order, stock and Merchant modules.
+
+The optional data step is `scripts/correct_marmorino_coverage.py --project PRODUCTION --backup PRIVATE_JSON`, first as dry run, then `--apply`. It checks audited identities and old values, writes a mode-600 exclusive backup before editing only three descriptive rows, and compares every Marmorino variant field before/after. Complete closed-staging and production smoke evidence before marking the task done. Historical analytics events are not replayed or rewritten.
+

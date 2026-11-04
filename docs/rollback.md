@@ -532,3 +532,7 @@ Restore the verified google_shopping/tasks.py backup and restart Passenger and
 the existing managed queue workers. Leave catalogue data and the API adapter
 untouched. Restore saved Merchant inputs individually through their original
 data source if needed; never use product deletion or database restoration.
+## 2026-11-04 — sales flow release
+
+Restore only the release manifest's files from its verified private backup; remove a newly introduced file only when its current hash still equals this release. Restore the same static assets, restart Passenger, and verify product/cart/checkout and existing integrations. The Marmorino data rollback is `correct_marmorino_coverage.py --project PRODUCTION --backup PRIVATE_JSON --restore`; it refuses to overwrite later edits and checks all variant fields remain unchanged. Do not restore a whole database or resend historical purchases.
+

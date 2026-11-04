@@ -1,0 +1,421 @@
+{% load static i18n %}
+<footer class="dp-footer d-print-none" aria-label="{% translate 'Sivuston alatunniste' %}">
+    <style>
+        .dp-footer {
+            --dp-footer-bg: #173d2b;
+            --dp-footer-panel: #214b35;
+            --dp-footer-accent: #9bc5a3;
+            --dp-footer-muted: #c8d8cd;
+            --dp-footer-line: rgba(255, 255, 255, .14);
+            background: var(--dp-footer-bg);
+            color: #fff;
+            margin-top: 5rem;
+        }
+
+        .dp-footer a,
+        .dp-footer button {
+            color: inherit;
+        }
+
+        .dp-footer__promise-bar {
+            background: #f1f6f2;
+            color: #214b35;
+            border-top: 1px solid #d9e6dc;
+            border-bottom: 1px solid #d9e6dc;
+        }
+
+        .dp-footer__promises {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .dp-footer__promise {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .75rem;
+            min-height: 78px;
+            padding: 1rem 1.4rem;
+            font-size: .93rem;
+            font-weight: 700;
+            letter-spacing: .01em;
+            text-align: left;
+        }
+
+        .dp-footer__promise + .dp-footer__promise {
+            border-left: 1px solid #d9e6dc;
+        }
+
+        .dp-footer__promise-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border-radius: 50%;
+            background: #dcebdd;
+            color: #25563b;
+            font-size: 1rem;
+        }
+
+        .dp-footer__main {
+            padding: 4.25rem 0 3rem;
+        }
+
+        .dp-footer__grid {
+            display: grid;
+            grid-template-columns: 1.45fr .8fr .9fr 1.15fr;
+            gap: 2.25rem;
+        }
+
+        .dp-footer__brand {
+            max-width: 360px;
+        }
+
+        .dp-footer__eyebrow {
+            margin: 0 0 .65rem;
+            color: var(--dp-footer-accent);
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        .dp-footer__title {
+            margin: 0 0 1rem;
+            color: #fff;
+            font-size: clamp(1.6rem, 2.1vw, 2.15rem);
+            line-height: 1.15;
+        }
+
+        .dp-footer__intro {
+            max-width: 330px;
+            margin: 0 0 1.45rem;
+            color: var(--dp-footer-muted);
+            font-size: .93rem;
+            line-height: 1.65;
+        }
+
+        .dp-footer__heading {
+            margin: .15rem 0 1.15rem;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+
+        .dp-footer__contact,
+        .dp-footer__links {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .dp-footer__contact li {
+            display: flex;
+            gap: .75rem;
+            margin: .62rem 0;
+            color: var(--dp-footer-muted);
+            font-size: .9rem;
+            line-height: 1.5;
+        }
+
+        .dp-footer__contact i {
+            width: 17px;
+            margin-top: .2rem;
+            color: var(--dp-footer-accent);
+            text-align: center;
+        }
+
+        .dp-footer__contact a,
+        .dp-footer__links a,
+        .dp-footer__cookie-button {
+            text-decoration: none;
+            transition: color .2s ease, transform .2s ease;
+        }
+
+        .dp-footer__contact a:hover,
+        .dp-footer__links a:hover,
+        .dp-footer__cookie-button:hover {
+            color: var(--dp-footer-accent);
+        }
+
+        .dp-footer__links li {
+            margin: .76rem 0;
+            color: var(--dp-footer-muted);
+            font-size: .91rem;
+        }
+
+        .dp-footer__links a {
+            display: inline-flex;
+            align-items: center;
+            gap: .55rem;
+        }
+
+        .dp-footer__links a::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #75a77f;
+        }
+
+        .dp-footer__cookie-button {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: var(--dp-footer-muted);
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dp-footer__trust {
+            padding: 1.35rem;
+            border: 1px solid var(--dp-footer-line);
+            border-radius: 18px;
+            background: var(--dp-footer-panel);
+        }
+
+        .dp-footer__oikos {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+            padding: .75rem 1.1rem;
+            border: 1px solid rgba(255, 255, 255, .28);
+            border-radius: 10px;
+        }
+
+        .dp-footer__oikos img {
+            width: 150px;
+            height: auto;
+        }
+
+        .dp-footer__trust-copy {
+            margin: 1rem 0 1.1rem;
+            color: var(--dp-footer-muted);
+            font-size: .82rem;
+            line-height: 1.55;
+        }
+
+        .dp-footer__payment {
+            display: block;
+            padding: .45rem;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .dp-footer__payment img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .dp-footer__bottom {
+            border-top: 1px solid var(--dp-footer-line);
+        }
+
+        .dp-footer__bottom-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.25rem;
+            min-height: 78px;
+            color: var(--dp-footer-muted);
+            font-size: .8rem;
+        }
+
+        .dp-footer__legal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem 1.15rem;
+        }
+
+        .dp-footer__socials {
+            display: flex;
+            gap: .65rem;
+        }
+
+        .dp-footer__socials a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, .2);
+            border-radius: 50%;
+            text-decoration: none;
+            transition: background .2s ease, border-color .2s ease, transform .2s ease;
+        }
+
+        .dp-footer__socials a:hover {
+            border-color: #9bc5a3;
+            background: #2c6144;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 991.98px) {
+            .dp-footer__grid {
+                grid-template-columns: 1.35fr 1fr 1fr;
+            }
+
+            .dp-footer__trust-column {
+                grid-column: 1 / -1;
+            }
+
+            .dp-footer__trust {
+                display: grid;
+                grid-template-columns: .8fr 1fr 1.6fr;
+                align-items: center;
+                gap: 1.25rem;
+            }
+
+            .dp-footer__trust-copy {
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .dp-footer {
+                margin-top: 3.5rem;
+            }
+
+            .dp-footer__promises,
+            .dp-footer__grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dp-footer__promise {
+                justify-content: flex-start;
+                min-height: 68px;
+                padding: .85rem 1.25rem;
+            }
+
+            .dp-footer__promise + .dp-footer__promise {
+                border-top: 1px solid #d9e6dc;
+                border-left: 0;
+            }
+
+            .dp-footer__main {
+                padding: 3rem 0 2.25rem;
+            }
+
+            .dp-footer__grid {
+                gap: 2rem;
+            }
+
+            .dp-footer__brand {
+                max-width: none;
+            }
+
+            .dp-footer__trust-column {
+                grid-column: auto;
+            }
+
+            .dp-footer__trust {
+                display: block;
+            }
+
+            .dp-footer__trust-copy {
+                margin: 1rem 0 1.1rem;
+            }
+
+            .dp-footer__bottom-inner {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 1.35rem 0;
+            }
+        }
+    </style>
+
+    <div class="dp-footer__promise-bar">
+        <div class="container container-xxl dp-footer__promises">
+            <div class="dp-footer__promise">
+                <span class="dp-footer__promise-icon" aria-hidden="true"><i class="fa-solid fa-truck-fast"></i></span>
+                <span>{% translate "Nopea toimitus 1–3 arkipäivässä" %}</span>
+            </div>
+            <div class="dp-footer__promise">
+                <span class="dp-footer__promise-icon" aria-hidden="true"><i class="fa-solid fa-rotate-left"></i></span>
+                <span>{% translate "Maksuton palautus" %}</span>
+            </div>
+            <div class="dp-footer__promise">
+                <span class="dp-footer__promise-icon" aria-hidden="true"><i class="fa-solid fa-comments"></i></span>
+                <span>{% translate "Asiantuntija-apu 0400 414 838" %}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dp-footer__main">
+        <div class="container container-xxl">
+            <div class="dp-footer__grid">
+                <section class="dp-footer__brand" aria-labelledby="footer-company-title">
+                    <p class="dp-footer__eyebrow">{% translate "OIKOS · Finland" %}</p>
+                    <h2 class="dp-footer__title" id="footer-company-title">{% translate "Deco Paint Finland Oy" %}</h2>
+                    <p class="dp-footer__intro">{% translate "Värit, maalit ja sisustuspinnoitteet kestävään ja yksilölliseen kotiin – asiantuntevalla palvelulla." %}</p>
+                    <address class="mb-0" style="font-style:normal;">
+                        <ul class="dp-footer__contact">
+                            <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{% translate "Asessorinkatu 12" %}<br>{% translate "20780 Kaarina" %}</span></li>
+                            <li><i class="fa-solid fa-phone" aria-hidden="true"></i><a href="tel:+358400414838">0400 414 838</a></li>
+                            <li><i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:info@decopaint.fi">{% translate "info@decopaint.fi" %}</a></li>
+                        </ul>
+                    </address>
+                </section>
+
+                <nav aria-labelledby="footer-shopping-title">
+                    <h2 class="dp-footer__heading" id="footer-shopping-title">{% translate "Tutustu" %}</h2>
+                    <ul class="dp-footer__links">
+                        <li><a href="/catalog/">{% translate "Tuotekatalogi" %}</a></li>
+                        <li><a href="/blog/">{% translate "Blogi ja inspiraatio" %}</a></li>
+                        <li><a href="/kurssit/">{% translate "Kurssit" %}</a></li>
+                        <li><a href="/palvelut/">{% translate "Palvelut" %}</a></li>
+                    </ul>
+                </nav>
+
+                <nav aria-labelledby="footer-service-title">
+                    <h2 class="dp-footer__heading" id="footer-service-title">{% translate "Asiakaspalvelu" %}</h2>
+                    <ul class="dp-footer__links">
+                        <li><a href="{% url 'b2b:start' %}">{% translate "Yritysmyynti" %}</a></li>
+                        <li><a href="{% url 'shop:contact' %}">{% translate "Ota yhteyttä" %}</a></li>
+                        <li><a href="{% url 'shop:terms' %}">{% translate "Tietosuoja ja evästeet" %}</a></li>
+                        <li><a href="/user/orders/">{% translate "Tilaushistoria" %}</a></li>
+                        <li><button type="button" class="dp-footer__cookie-button" onclick="openCookieSettings()">{% translate "Muuta evästeasetuksia" %}</button></li>
+                    </ul>
+                </nav>
+
+                <section class="dp-footer__trust-column" aria-labelledby="footer-trust-title">
+                    <h2 class="dp-footer__heading" id="footer-trust-title">{% translate "Turvallinen asiointi" %}</h2>
+                    <div class="dp-footer__trust">
+                        <a class="dp-footer__oikos" href="https://www.oikos-paint.fi/" target="_blank" rel="noopener noreferrer" aria-label="OIKOS Paint Finland">
+                            <img src="{% static 'assets/images/footer/logo-footer.svg' %}" width="194" height="50" alt="OIKOS">
+                        </a>
+                        <p class="dp-footer__trust-copy">{% translate "Luotettavat suomalaiset maksutavat Paytrailin kautta." %}</p>
+                        <div class="dp-footer__payment">
+                            <img src="{% static 'assets/images/footer/paytrail.webp' %}" width="320" height="64" loading="lazy" alt="Paytrailin turvalliset maksutavat">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="dp-footer__bottom">
+        <div class="container container-xxl dp-footer__bottom-inner">
+            <div class="dp-footer__legal">
+                <span>© {% now "Y" %} Deco Paint Finland Oy</span>
+                <span>{% translate "Y-tunnus" %} 3367753-6</span>
+            </div>
+            <div class="dp-footer__socials" aria-label="{% translate 'Sosiaalinen media' %}">
+                <a href="https://www.facebook.com/DecoPaintFinland" target="_blank" rel="noopener noreferrer" aria-label="Deco Paint Facebookissa"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                <a href="https://www.instagram.com/deco_paint_finland/" target="_blank" rel="noopener noreferrer" aria-label="Deco Paint Instagramissa"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div class="position-fixed z-index-10 bottom-0 end-0 p-10">
+    <a href="#"
+       class="gtf-back-to-top text-decoration-none bg-body text-primary bg-primary-hover text-light-hover shadow square p-0 rounded-circle d-flex align-items-center justify-content-center"
+       title="{% translate 'Takaisin ylös' %}" aria-label="{% translate 'Takaisin sivun alkuun' %}" style="--square-size: 48px"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></a>
+</div>

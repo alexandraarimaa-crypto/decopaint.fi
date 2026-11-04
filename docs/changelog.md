@@ -880,3 +880,7 @@ No pricing, tinting, calculator or cart change. Release/transfer gates:
 Orderable variants now generate dated backorders and Merchant selection
 respects the first visible base/grain/gloss. Public catalogue prices, offer IDs,
 inventory and purchase logic remain unchanged. See merchant-stock-price-2026-10-31.md.
+## 2026-11-04 — sales flow and purchase measurement
+
+Scoped release for issue #17: one server-side GA4 purchase owner, canonical web client/session identities, campaign location allowlist, and no repeated page view on user-context updates. Catalogue availability facets and material-group links, explicit total-coat package calculation, successful-cart event reporting, and visible checkout backorder estimates. Marmorino descriptive coverage correction has a separate guarded backup/apply/restore operation; sale prices are unchanged.
+

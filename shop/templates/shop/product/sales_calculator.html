@@ -1,0 +1,17 @@
+{% load sales_flow_tags static %}
+{% sales_calculator product as calculator %}
+{% if calculator %}
+{{ calculator|json_script:"sales-calculator-data" }}
+<section class="dp-sales-box" id="sales-calculator" aria-labelledby="sales-calculator-title">
+  <h2 id="sales-calculator-title" class="fs-18px">Laske materiaalin määrä</h2>
+  <p>Laskenta perustuu tuotteen kokonaismenekkiin: {{ calculator.raw }}. Pohjan tasaisuus ja työtapa vaikuttavat menekkiin.</p>
+  <div class="dp-sales-inputs">
+    <label>Pinta-ala (m²)<input id="sales-area" type="number" min="0.1" max="100000" step="0.1" inputmode="decimal" placeholder="Esim. 12"></label>
+    <label>Hukkavara (%)<input id="sales-reserve" type="number" min="0" max="30" step="1" value="0" inputmode="decimal"></label>
+  </div>
+  <p id="sales-calculator-result" role="status" aria-live="polite">Valitse pakkauskoko ja syötä pinta-ala.</p>
+  <button type="button" class="btn btn-outline-primary" id="sales-apply-quantity" disabled>Käytä määrää</button>
+  <p class="small mt-3 mb-0">Arvio koskee valittua pintamateriaalia. Pohjusteet ja mahdolliset suojatuotteet valitaan erikseen. <a href="{% url 'shop:contact' %}">Pyydä apua materiaalivalintaan</a>.</p>
+</section>
+{% endif %}
+<script defer src="{% static 'assets/js/sales-product.js' %}?v=20261104"></script>
