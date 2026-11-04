@@ -27,6 +27,12 @@ class SalesMeasurementReleaseTests(SimpleTestCase):
         spec.loader.exec_module(module)
         return module
 
+    def test_smoke_followup_only_changes_delivery_copy(self):
+        from scripts.build_sales_smoke_followup import build as build_followup
+        result = build_followup(self.root / "followup")
+        self.assertEqual(result["release_files"], ["shop/templatetags/sales_flow_tags.py"])
+        self.assertEqual(result["expected_production_sha256"][result["release_files"][0]], "344cdf45c1d4b63b935b902750c2e8b2f8dda3dd62e5bfbeb5ca0bcfa2501755")
+
     def test_installer_checks_drift_backs_up_and_restores_only_release_files(self):
         from scripts.install_sales_release import main
         source = self.root / "synthetic_candidate"

@@ -884,3 +884,7 @@ inventory and purchase logic remain unchanged. See merchant-stock-price-2026-10-
 
 Scoped release for issue #17: one server-side GA4 purchase owner, canonical web client/session identities, campaign location allowlist, and no repeated page view on user-context updates. Catalogue availability facets and material-group links, explicit total-coat package calculation, successful-cart event reporting, and visible checkout backorder estimates. Marmorino descriptive coverage correction has a separate guarded backup/apply/restore operation; sale prices are unchanged.
 
+
+## 2026-11-04 — production smoke follow-up
+
+The sales-flow release is deployed. Public assets are served from `/home/decpai/public_html/static`, which differs from Django STATIC_ROOT; publication was corrected through verified rollback/reinstall and public content hashes. The custom top-bar rich text encodes its dash as an HTML entity, so the stock qualifier now matches the delivery phrase without decoding HTML. Sale prices and variant fields are unchanged.

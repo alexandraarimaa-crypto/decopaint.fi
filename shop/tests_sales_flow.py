@@ -35,6 +35,12 @@ class CatalogueAvailabilityTests(TestCase):
 
 
 class SalesFlowHelpersTests(SimpleTestCase):
+    def test_stock_delivery_qualifier_preserves_rich_text_entities(self):
+        from shop.templatetags.sales_flow_tags import qualify_stock_delivery
+        for dash in ["–", "-", "&#8211;", "&ndash;"]:
+            html = f"<p>Nopea toimitus 1{dash}3 arkipäivässä • Asiantuntija-apu</p>"
+            self.assertEqual(qualify_stock_delivery(html), html.replace("Nopea toimitus", "Varastotuotteiden toimitus"))
+
     def test_marmorino_data_correction_is_descriptive_and_guarded(self):
         from scripts.correct_marmorino_coverage import corrected
         before = {

@@ -9,3 +9,7 @@ Marmorino FINE technical sheet: https://decopaint.fi/media/product_documents/mar
 The calculator is deliberately eligible only for explicit full-coat rates and compatible active package labels, rounds package counts upward, uses current selected unit price and requires a separate Apply quantity button. No generic material consumption assumption or automatic checkout action.
 
 Validation and deployment evidence must be appended after completion. Success should be judged over a subsequent complete period by unique paid transactions, product→cart and checkout→paid conversion, acquisition source consistency and cost per paid order. This release does not promise a sales increase or change ad budget/primary keywords.
+
+## Release evidence
+
+PR #18 merged as `65b82d0`; CI 41873815094 passed. Exact-source private staging passed 13 new tests. Source/static installation verified 25 targets and private backups, and the three descriptive Marmorino rows changed with every variant field unchanged. Smoke uncovered the hosting's separate public static alias and entity-encoded rich-text delivery copy; public assets were republished with exact HTTP content hashes, and the one-file top-bar follow-up fixes the encoded copy without unescaping arbitrary HTML. Catalogue stock filtering, canonical/noindex and selected-package calculation were verified on the live site. Remaining live checkout/debug checks are recorded separately after completion.

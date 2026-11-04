@@ -666,3 +666,7 @@ isolated regression suite and closed-staging payload audit before release.
 
 Run the sales-flow CI job, isolated catalogue/measurement tests and Node analytics/calculation tests. Build the audited runtime projection, compile all changed Python and Django templates, then exercise synthetic variants on closed staging. Verify stock/order facets without duplicate products; preserve facet pagination and noindex. Verify zero, invalid and changed variant selections cannot add stale prices; a 10 m² Marmorino job at 1.5 kg/m² requires three 5 kg packs (four with 10% reserve). Cart event unit price must not be quantity-total multiplied twice. Backorder estimate must appear on mobile and desktop checkout. No synthetic paid order, real collection request, customer copy or email is allowed.
 
+
+## Sales-flow production smoke evidence
+
+CI 41873815094 passed all jobs. Private exact-commit staging passed 13 new Python tests and rendered synthetic fragments. Production stock facet returns 103 of 154 products, preserves pagination, and has noindex/follow with unfiltered canonical. The calculator rounds a 10 m² Marmorino job to three 5 kg packs, four with 10% reserve, or one 20 kg pack; Apply quantity changes the cart quantity, and selecting a new variant disables buying during loading. Public JS/CSS hashes match the GitHub candidate after correcting the static alias. Existing Django deploy checks return success with pre-existing secure-cookie/SSL and legacy email-uniqueness warnings. No payment, customer-email test or historical purchase replay was performed.
