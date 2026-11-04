@@ -54,3 +54,4 @@ jobs:
           python -m compileall -q /tmp/sales-flow-candidate
           node scripts/test_sales_analytics.mjs
           node scripts/test_sales_product.mjs
+          python scripts/render_sales_preview.py /tmp/sales-flow-preview

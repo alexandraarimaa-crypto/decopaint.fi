@@ -26,6 +26,7 @@
         document.addEventListener("decopaint:price-loading", function () {
             selection = null;
             submitButtons().forEach(button => { button.disabled = true; });
+            document.querySelectorAll('[data-mobile-price]').forEach(label => { label.textContent = 'Ladataan hintaa…'; });
             update();
         });
         document.addEventListener("decopaint:price-ready", function (event) {

@@ -39,10 +39,14 @@ def main():
     if args.restore:
         records = json.loads((args.backup / "files.json").read_text())
         for record in records:
-            if digest(Path(record["target"])) != record["installed"]:
+            if digest(Path(record["target"])) not in (record["before"], record["installed"]):
                 raise ValueError("Later edits exist; refuse to overwrite " + record["name"])
+            if record["before"] is not None:
+                assert digest(args.backup / record["copy"]) == record["before"]
         for record in records:
             target = Path(record["target"])
+            if digest(target) == record["before"]:
+                continue  # A preflight/partial install may not have touched this file.
             if record["before"] is None:
                 target.unlink()
             else:

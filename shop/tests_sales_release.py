@@ -1,5 +1,8 @@
 import importlib.util
 import json
+import hashlib
+import subprocess
+import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -24,6 +27,30 @@ class SalesMeasurementReleaseTests(SimpleTestCase):
         spec.loader.exec_module(module)
         return module
 
+    def test_installer_checks_drift_backs_up_and_restores_only_release_files(self):
+        from scripts.install_sales_release import main
+        source = self.root / "synthetic_candidate"
+        project = self.root / "synthetic_project"
+        source.mkdir()
+        project.mkdir()
+        (source / "example.py").write_text("VALUE = 2\n")
+        (project / "example.py").write_text("VALUE = 1\n")
+        sha = lambda value: hashlib.sha256(value.encode()).hexdigest()
+        (source / "sales-flow-release.json").write_text(json.dumps({
+            "release_files": ["example.py"], "sha256": {"example.py": sha("VALUE = 2\n")},
+            "expected_production_sha256": {"example.py": sha("VALUE = 1\n")},
+        }))
+        argv = ["installer", "--candidate", str(source), "--project", str(project), "--backup", str(self.root / "backup"), "--static-root", str(self.root / "static")]
+        with patch.object(sys, "argv", argv + ["--apply"]):
+            main()
+        self.assertEqual((project / "example.py").read_text(), "VALUE = 2\n")
+        with patch.object(sys, "argv", argv + ["--restore"]):
+            main()
+        self.assertEqual((project / "example.py").read_text(), "VALUE = 1\n")
+        (project / "example.py").write_text("OWNER_LATER_EDIT = True\n")
+        with patch.object(sys, "argv", argv), self.assertRaises(ValueError):
+            main()
+
     def test_measurement_release_leaves_payment_and_feed_code_untouched(self):
         self.assertNotIn("pk_paytrail/views.py", self.manifest["release_files"])
         self.assertNotIn("order/models.py", self.manifest["release_files"])
@@ -42,6 +69,8 @@ class SalesMeasurementReleaseTests(SimpleTestCase):
         self.assertNotIn("track('add_to_cart'", detail)
         self.assertIn('decopaint:price-loading', detail)
         self.assertIn('decopaint:price-ready', detail)
+        checkout = (self.root / "cart/templates/cart/checkout.html").read_text()
+        self.assertIn("{% block content %}\n{% sales_dispatch_date as sales_dispatch %}", checkout)
         view = (self.root / "cart/views.py").read_text()
         self.assertGreater(view.index("queue_successful_add(request"), view.index("cart.add("))
         self.assertIn("if not cleaned_data['update']:", view)

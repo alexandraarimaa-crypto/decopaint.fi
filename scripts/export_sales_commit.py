@@ -20,4 +20,4 @@ FILES = [
 FILES += [str(path.relative_to(ROOT)) for path in sorted((ROOT / "deployments/sales-flow-20261103").rglob("*")) if path.is_file() and "__pycache__" not in path.parts]
 if __name__ == "__main__":
     selected = FILES[int(sys.argv[1]):int(sys.argv[2])] if len(sys.argv) > 1 else FILES
-    print(json.dumps([{"path": name, "mode": "100644", "type": "blob", "content": (ROOT / name).read_text()} for name in selected]))
+    print(json.dumps([{"path": name, "mode": "100644", "type": "blob", "content": (ROOT / name).read_bytes().decode("utf-8")} for name in selected]))

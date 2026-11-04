@@ -111,7 +111,8 @@ def build(output):
 
     name = "cart/templates/cart/checkout.html"
     text = baseline(name)
-    text = "{% load sales_flow_tags %}\n" + text if not text.startswith("{% extends") else text.replace("\n", "\n{% load sales_flow_tags %}\n{% sales_dispatch_date as sales_dispatch %}\n", 1)
+    text = text.replace("\n", "\n{% load sales_flow_tags %}\n", 1)
+    text = replace_once(text, "{% block content %}", "{% block content %}\n{% sales_dispatch_date as sales_dispatch %}")
     # Both mobile and desktop order-line badges get the same visible estimate.
     anchor = '{% translate "Tilaustuote" %}</span>'
     if text.count(anchor) != 2:
