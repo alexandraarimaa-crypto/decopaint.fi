@@ -662,3 +662,7 @@ grain/gloss choices are respected; stocked items keep pickup fields; orderable
 items include BACKORDER and a 28-day dispatch timestamp. Verify Finnish
 midnight/DST and parity with the audited live API adapter. Run the existing
 isolated regression suite and closed-staging payload audit before release.
+## 2026-11-04 — sales flow release
+
+Run the sales-flow CI job, isolated catalogue/measurement tests and Node analytics/calculation tests. Build the audited runtime projection, compile all changed Python and Django templates, then exercise synthetic variants on closed staging. Verify stock/order facets without duplicate products; preserve facet pagination and noindex. Verify zero, invalid and changed variant selections cannot add stale prices; a 10 m² Marmorino job at 1.5 kg/m² requires three 5 kg packs (four with 10% reserve). Cart event unit price must not be quantity-total multiplied twice. Backorder estimate must appear on mobile and desktop checkout. No synthetic paid order, real collection request, customer copy or email is allowed.
+

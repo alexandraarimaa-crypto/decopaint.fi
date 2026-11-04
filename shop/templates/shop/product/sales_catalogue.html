@@ -1,0 +1,20 @@
+<section class="container container-xxl dp-sales-box" aria-label="Löydä sopiva materiaali">
+  <h2 class="fs-18px">Mitä pintaa olet tekemässä?</h2>
+  <nav class="dp-sales-links" aria-label="Materiaaliryhmät">
+    <a href="{% url 'shop:product_list_by_category' 'sisustusmaali' %}">Seinämaalit</a>
+    <a href="{% url 'shop:product_list_by_category' 'koristemaali' %}">Koristemaalit</a>
+    <a href="{% url 'shop:product_list_by_category' 'sisustuslaasti' %}">Sisustuslaastit</a>
+    <a href="{% url 'shop:product_list_by_category' 'hartsit' %}">Hartsipinnoitteet</a>
+    <a href="{% url 'shop:product_list_by_category' 'ulkomaalit' %}">Ulkopinnat</a>
+  </nav>
+  <form method="get" class="dp-sales-inputs mt-4">
+    <label for="sales-availability">Saatavuus</label>
+    <select id="sales-availability" name="availability">
+      <option value="" {% if not sales_availability %}selected{% endif %}>Kaikki tilattavat tuotteet</option>
+      <option value="stock" {% if sales_availability == 'stock' %}selected{% endif %}>Varastovaihtoehtoja · 1–3 arkipäivää</option>
+      <option value="order" {% if sales_availability == 'order' %}selected{% endif %}>Tilausvaihtoehtoja · noin 2–4 viikkoa</option>
+    </select>
+    <button type="submit" class="btn btn-outline-primary">Näytä tuotteet</button>
+  </form>
+  <p class="small mt-3 mb-0">Saatavuus riippuu pakkauskoosta ja sävystä. Tarkka toimitusarvio näkyy valitun vaihtoehdon kohdalla ja kassalla.</p>
+</section>

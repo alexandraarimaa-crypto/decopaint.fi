@@ -47,3 +47,10 @@ jobs:
           node scripts/test_variant_material_info.mjs
       - name: Test audited runtime release projection
         run: python scripts/test_manual_material_release.py
+      - name: Test sales flow and measurement release
+        run: |
+          python manage.py test shop.tests_measurement_identity shop.tests_sales_release shop.tests_sales_flow --settings=config.test_settings
+          python scripts/build_sales_flow_release.py --output /tmp/sales-flow-candidate
+          python -m compileall -q /tmp/sales-flow-candidate
+          node scripts/test_sales_analytics.mjs
+          node scripts/test_sales_product.mjs

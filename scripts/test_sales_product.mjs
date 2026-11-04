@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const context = {window: {}, document: {addEventListener() {}}};
+vm.runInNewContext(fs.readFileSync('shop/static/assets/js/sales-product.js', 'utf8'), context);
+const packs = context.window.DecoPaintSalesPacks;
+assert.equal(packs(10, 0, 1.5, 5), 3);
+assert.equal(packs(10, 10, 1.5, 5), 4);
+assert.equal(packs(10, 0, 1.5, 20), 1);
+assert.equal(packs(0, 0, 1.5, 5), null);
+assert.equal(packs(10, -1, 1.5, 5), null);
+assert.equal(packs(10, 31, 1.5, 5), null);
+assert.equal(packs(10, 0, 1.5, 0), null);
+assert.equal(packs(NaN, 0, 1.5, 5), null);
+console.log('Sales material calculation boundary cases passed.');

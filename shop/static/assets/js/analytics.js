@@ -9,7 +9,6 @@
         "begin_checkout",
         "add_shipping_info",
         "add_payment_info",
-        "purchase",
         "view_search_results",
         "login",
         "sign_up",
@@ -103,26 +102,14 @@
         return undefined;
     }
 
-    function dedupeKey(name, params) {
-        if (name === "purchase" && params && params.transaction_id) {
-            return "decopaint_ga4_purchase_" + params.transaction_id;
-        }
-        return "";
-    }
-
     function send(name, params) {
         if (!allowedEvents.has(name) || typeof window.gtag !== "function") {
             return false;
         }
         const cleanParams = sanitize(params || {}, "");
-        const storageKey = dedupeKey(name, cleanParams);
-        if (storageKey && window.sessionStorage.getItem(storageKey)) {
-            return false;
-        }
+        // Paid purchases have one durable owner: order.ga4, after confirmed
+        // payment and analytics consent. Never also collect them in the browser.
         window.gtag("event", name, cleanParams);
-        if (storageKey) {
-            window.sessionStorage.setItem(storageKey, "sent");
-        }
         return true;
     }
 
@@ -148,7 +135,8 @@
         const userContext = sanitize(config.user, "");
         if (userContext.user_id) {
             window.gtag("config", config.measurement_id, {
-                user_id: userContext.user_id
+                user_id: userContext.user_id,
+                send_page_view: false
             });
         }
         window.gtag("set", "user_properties", {
@@ -171,6 +159,10 @@
         const event = readJsonElement("ga4-page-event");
         if (event && event.name && event.params) {
             track(event.name, event.params);
+        }
+        const cartEvent = readJsonElement("ga4-cart-event");
+        if (cartEvent && cartEvent.name === "add_to_cart" && cartEvent.params) {
+            track(cartEvent.name, cartEvent.params);
         }
     }
 
