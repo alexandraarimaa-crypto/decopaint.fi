@@ -31,5 +31,10 @@
     "1367",
     "1340",
     "1342"
-  ]
+  ],
+  "status": "published",
+  "published_on": "2026-11-05",
+  "published_url": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
+  "verification": "publication-verification.json",
+  "template_release_status": "not_deployed"
 }

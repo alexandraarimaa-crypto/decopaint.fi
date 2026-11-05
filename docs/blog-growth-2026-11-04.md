@@ -71,7 +71,8 @@ and queries before creating a second page for the same search intent.
 
 ## Release gate and runtime reconciliation
 
-Status: local tested candidate only. No production CMS, database, order, price,
+Status: code/template candidate only. The scoped article content publication is
+recorded separately in blog-growth-2026-11-05-content.md. No schema, order, price,
 stock, payment, email, Merchant or analytics configuration was changed.
 
 The live admin has translations and a view counter that are not present in the

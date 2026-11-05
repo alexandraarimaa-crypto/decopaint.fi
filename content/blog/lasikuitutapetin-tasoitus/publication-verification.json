@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-05",
+  "article_url": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
+  "cms_record": 11,
+  "locales": [
+    {
+      "language": "fi",
+      "http": 200,
+      "title": "Lasikuitutapetin tasoitus: ohje, materiaalit ja hinta",
+      "source_sha256": "a0f272f0bf4794cf6c4e1d957d2f6578266829504ee84538d404fb70b881d4c5",
+      "public_matches_saved_source": true,
+      "original_images": 5,
+      "original_text_preserved": true,
+      "canonical": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
+      "robots": "index,follow"
+    },
+    {
+      "language": "sv",
+      "http": 200,
+      "title": "Spackla glasfiberväv: guide, material och pris",
+      "source_sha256": "47b550b30f4921b6e8896321b59dc02f6443fd10ec9e24d8b0f04f093beba136",
+      "public_matches_saved_source": true,
+      "original_images": 5,
+      "original_text_preserved": true,
+      "canonical": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
+      "robots": "index,follow"
+    },
+    {
+      "language": "en",
+      "http": 200,
+      "title": "Skim coating fiberglass wallpaper: guide, materials and cost",
+      "source_sha256": "1650e9e7fec117b791d7e8c4eeba38c8130463d8701a9fbd85b288083ae90980",
+      "public_matches_saved_source": true,
+      "original_images": 5,
+      "original_text_preserved": true,
+      "canonical": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
+      "robots": "index,follow"
+    }
+  ],
+  "category_unchanged": true,
+  "product_associations_unchanged": true,
+  "slug_unchanged": true,
+  "code_pr": "https://github.com/alexandraarimaa-crypto/decopaint.fi/pull/21",
+  "code_ci": "https://github.com/alexandraarimaa-crypto/decopaint.fi/actions/runs/42012376957",
+  "template_release_status": "not_deployed"
+}

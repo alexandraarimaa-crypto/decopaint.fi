@@ -1,9 +1,11 @@
-## 2026-11-05 — Fiberglass wallpaper guide content (candidate)
+## 2026-11-05 — Fiberglass wallpaper guide content (published)
 
 - Add a dated 10 m² material/pack-cost example, project-enquiry checklist and
   related-guide links in Finnish, Swedish and English.
 - Preserve the existing URL, article instructions, images and product links.
 - See `blog-growth-2026-11-05-content.md` for source checks and publication status.
+- CMS save and exact public FI/SV/EN source matches verified; the separate
+  template/metadata release remains a draft in PR #21.
 
 ## 2026-11-04 — Blog search and project enquiries (candidate)
 

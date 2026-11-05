@@ -699,3 +699,10 @@ rebasing onto main 9906abc. SEO/mobile/search validators and diff whitespace
 checks passed. FI/SV/EN retain all five original image references and original
 links; HTML and decimal arithmetic checks passed. The Finnish local noindex
 preview has no horizontal page overflow at desktop and 390 px mobile width.
+
+Published article verification: FI/SV/EN each returned HTTP 200 with the expected
+title, self-canonical and index,follow. Public bodies exactly match reloaded CMS
+content; all original words remain in order, with five original images and
+original links. Slug/category/seven product associations/publication date were
+preserved. Desktop and 390 px production checks passed. Code CI run 42012376957
+passed; the template release remains undeployed pending closed hosting staging.
