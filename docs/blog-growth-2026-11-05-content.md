@@ -78,3 +78,12 @@ all three cost-table rows and the direct calculator link are present.
 The template metadata changes are still in draft PR #21. The live article
 continues to inherit the existing generic shop description until that separate
 release is reconciled and validated on closed hosting staging.
+
+## Layout follow-up
+
+Reserve each existing image's measured intrinsic aspect ratio with width/height
+attributes, retaining its source, responsive CSS, alt text, lazy loading and
+credits. Add 160 px scroll-margin-top to the calculation section for the sticky
+header. The follow-up source is committed before the scoped CMS save. Verify
+the public sources, reserved dimensions and direct fragment link after saving;
+this does not claim a measured Core Web Vitals improvement.
