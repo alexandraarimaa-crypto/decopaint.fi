@@ -536,3 +536,9 @@ data source if needed; never use product deletion or database restoration.
 
 Restore only the release manifest's files from its verified private backup; remove a newly introduced file only when its current hash still equals this release. Restore the same static assets, restart Passenger, and verify product/cart/checkout and existing integrations. The Marmorino data rollback is `correct_marmorino_coverage.py --project PRODUCTION --backup PRIVATE_JSON --restore`; it refuses to overwrite later edits and checks all variant fields remain unchanged. Do not restore a whole database or resend historical purchases.
 
+
+## Sales-flow published installation
+
+Use the `sales-flow-20261104-65b82d0-public-static` backup for the final published installation, with static root `/home/decpai/public_html/static`. The earlier backup used the unused Django STATIC_ROOT and was already restored before reinstalling. Keep the Marmorino data backup separate. A later delivery-copy follow-up must be rolled back before attempting the older whole-release rollback, because later-edit guards intentionally refuse different hashes.
+
+The owner-requested range-only follow-up backs up three runtime files (delivery template tag, checkout, product detail). Use that latest scoped backup first when rolling back; the original 65b82d0 backup intentionally rejects these later hashes.

@@ -27,6 +27,12 @@ class SalesMeasurementReleaseTests(SimpleTestCase):
         spec.loader.exec_module(module)
         return module
 
+    def test_smoke_followup_only_changes_delivery_copy(self):
+        from scripts.build_sales_smoke_followup import build as build_followup
+        result = build_followup(self.root / "followup")
+        self.assertEqual(result["release_files"], ["shop/templatetags/sales_flow_tags.py", "cart/templates/cart/checkout.html", "shop/templates/shop/product/detail.html"])
+        self.assertEqual(result["expected_production_sha256"][result["release_files"][0]], "344cdf45c1d4b63b935b902750c2e8b2f8dda3dd62e5bfbeb5ca0bcfa2501755")
+
     def test_installer_checks_drift_backs_up_and_restores_only_release_files(self):
         from scripts.install_sales_release import main
         source = self.root / "synthetic_candidate"
@@ -70,7 +76,11 @@ class SalesMeasurementReleaseTests(SimpleTestCase):
         self.assertIn('decopaint:price-loading', detail)
         self.assertIn('decopaint:price-ready', detail)
         checkout = (self.root / "cart/templates/cart/checkout.html").read_text()
-        self.assertIn("{% block content %}\n{% sales_dispatch_date as sales_dispatch %}", checkout)
+        self.assertNotIn("Arvioitu lähetyspäivä", checkout)
+        self.assertNotIn("Arvioitu lähetyspäivä", detail)
+        self.assertNotIn("estimatedAvailability", detail)
+        self.assertIn("Toimitusaika noin 2–4 viikkoa.", checkout)
+        self.assertIn("Toimitusaika noin 2–4 viikkoa.", detail)
         view = (self.root / "cart/views.py").read_text()
         self.assertGreater(view.index("queue_successful_add(request"), view.index("cart.add("))
         self.assertIn("if not cleaned_data['update']:", view)

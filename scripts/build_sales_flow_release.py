@@ -107,17 +107,29 @@ def build(output):
                         if (!pendingPriceUpdate && Number.isFinite(unit_price) && unit_price > 0) {
                             document.dispatchEvent(new CustomEvent("decopaint:price-ready", {detail: {price: unit_price, size: size}}));
                         }''')
+    before = '''                            var estimatedAvailability = new Date();
+                            estimatedAvailability.setDate(estimatedAvailability.getDate() + 28);
+                            var estimatedAvailabilityText = new Intl.DateTimeFormat('fi-FI', {
+                                day: 'numeric',
+                                month: 'numeric',
+                                year: 'numeric'
+                            }).format(estimatedAvailability);
+                            $('#delivery-container').html(
+                                'Toimitusaika on n. 2-4 viikkoa. ' +
+                                'Arvioitu lähetyspäivä viimeistään ' +
+                                estimatedAvailabilityText + '.'
+                            );'''
+    text = replace_once(text, before, "                            $('#delivery-container').text('Toimitusaika noin 2–4 viikkoa.');")
     files[name] = text
 
     name = "cart/templates/cart/checkout.html"
     text = baseline(name)
-    text = text.replace("\n", "\n{% load sales_flow_tags %}\n", 1)
-    text = replace_once(text, "{% block content %}", "{% block content %}\n{% sales_dispatch_date as sales_dispatch %}")
-    # Both mobile and desktop order-line badges get the same visible estimate.
-    anchor = '{% translate "Tilaustuote" %}</span>'
+    # Put the note in each product's text column, never the narrow thumbnail.
+    anchor = '{% if item.variant_info.id and item.variant_info.id != 0 %}'
     if text.count(anchor) != 2:
         raise ValueError("Checkout delivery anchors changed")
-    text = text.replace(anchor, anchor + '<p class="dp-sales-delivery">Toimitusaika noin 2–4 viikkoa. Arvioitu lähetyspäivä viimeistään {{ sales_dispatch|date:"j.n.Y" }}.</p>')
+    note = '{% if item.variant_info.order_item %}<p class="dp-sales-delivery">Toimitusaika noin 2–4 viikkoa.</p>{% endif %}\n'
+    text = text.replace(anchor, note + anchor)
     files[name] = text
 
     name = "shop/templates/shop/base/top_bar.html"
