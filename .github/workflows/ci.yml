@@ -35,7 +35,7 @@ jobs:
           python manage.py test
           users.tests pk_paytrail.tests google_shopping.tests
           shop.tests_analytics shop.tests_search_engine shop.tests_search_view
-          shop.tests_seo config.tests_legacy_urls
+          shop.tests_seo config.tests_legacy_urls blog.tests_growth
           --settings=config.test_settings
       - uses: actions/setup-node@v4
         with:

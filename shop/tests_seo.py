@@ -169,7 +169,8 @@ class SeoTemplateContractTests(SimpleTestCase):
     def test_base_template_has_language_unique_meta_and_safe_canonical(self):
         template = self.read("shop/templates/shop/base/base.html")
         self.assertIn('lang="{{ current_language|default:\'fi\' }}"', template)
-        self.assertIn('name="description" content="{{ seo.description', template)
+        self.assertIn('name="description" content="{% block meta_description %}', template)
+        self.assertIn('{{ seo.description|default:', template)
         self.assertIn('name="robots" content="{{ seo_robots', template)
         self.assertNotIn('name="keywords"', template)
         self.assertNotIn('href="{{ request.build_absolute_uri }}"', template)

@@ -1,0 +1,96 @@
+# Fiberglass wallpaper guide — published content, 5 November 2026
+
+Issue #19. Improve the existing guide, preserving its URL, category, publication
+date, linked products, existing instructions, image credits and translations.
+
+## Content change
+
+- FI/SV/EN titles describe the guide, materials and cost without promising a
+  finished wall for the price of a coating pack.
+- Add a short jump link, a 10 m² Marmorino Naturale Fine worked calculation,
+  pack-cost comparison, direct product-calculator link, a project-enquiry
+  checklist and links to the finish comparison and quantity guide.
+- Label the calculation as an example, not a completed customer project.
+  Keep the original credited images. Genuine project photos remain an input
+  for a later content update; none were invented.
+
+## Sources and arithmetic
+
+Public Marmorino Naturale Fine technical data and the linked manufacturer
+mn/10/en sheet specify 1–1.5 kg/m² TOTAL for two coats. At the upper value,
+10 m² needs 15 kg; adding the example's optional 10% reserve gives 16.5 kg.
+Do not multiply by the coat count again.
+
+Public white-product prices checked 5 November 2026: 5 kg EUR 49.32 and
+20 kg EUR 178.56. Three 5 kg packs cost EUR 147.96; one 20 kg pack EUR 178.56;
+four 5 kg packs EUR 197.28. The latter two options each cover the reserve.
+Prices are a dated snapshot; the live product page remains the current source.
+Repairs, levelling compound, primer, tools, protection, delivery and labour are
+excluded. Substrate and system compatibility must be assessed separately.
+
+## Controlled content and release
+
+Candidates are in content/blog/lasikuitutapetin-tasoitus/. publication.json
+identifies exactly one article and the unchanged slug/category/product links.
+All three original sources were exported locally and matched to the admin form
+before editing; Finnish default and translation were identical. Backups remain
+in the task workspace and must be preserved for a scoped content rollback.
+
+Review localized content and a local noindex preview, validate links, image
+references and arithmetic, and pass CI/review before the bounded CMS update.
+Do not overwrite a concurrent edit: compare the live source with the verified
+baseline immediately before saving. Save only this article's title/content
+fields, then reopen the form and public pages to verify the result and unchanged
+associations. No image replacement, product edit, pricing update, order,
+customer, Merchant or analytics-setting operation is included.
+
+Status: the scoped article content was saved in the CMS on 5 November 2026,
+following the owner's instruction to implement the improvements. The separate
+code/template release in the earlier dated plan remains undeployed.
+
+## Candidate verification
+
+The rebased isolated regression suite passed 106 tests on 5 November 2026.
+SEO, mobile UI and search static validators passed. All three candidates retain
+the five original image references and every original link. Static HTML checks
+found no scripts, event handlers, forms or duplicate IDs. Decimal arithmetic
+verified the three pack totals and the optional 16.5 kg reserve calculation.
+The full Finnish noindex preview was reviewed at desktop and 390 px width;
+the page did not overflow horizontally. This is local content-preview evidence,
+not evidence that the separate template release reached hosted staging.
+
+## Publication verification
+
+CI run 42012376957 passed for reviewed source commit 683c78e. Immediately before
+editing, all four CMS content fields matched the verified baseline. The CMS
+confirmed the save; its reloaded fields retained the slug, category and all
+seven product associations. The publication date remains 24 August 2026.
+
+Public FI/SV/EN requests returned HTTP 200, the expected localized titles,
+self-canonical URL and index,follow. Each public article body matched its
+reloaded CMS field exactly. Original text remains in order and the five
+original image references and original links are unchanged in every language.
+The content sources now record the CMS editor's normal entity/whitespace and
+relative-link serialization. publication-verification.json records hashes.
+Desktop and 390 px production checks found no horizontal page overflow;
+all three cost-table rows and the direct calculator link are present.
+
+The template metadata changes are still in draft PR #21. The live article
+continues to inherit the existing generic shop description until that separate
+release is reconciled and validated on closed hosting staging.
+
+## Layout follow-up
+
+Reserve each existing image's measured intrinsic aspect ratio with width/height
+attributes, retaining its source, responsive CSS, alt text, lazy loading and
+credits. Add 160 px scroll-margin-top to the calculation section for the sticky
+header. The follow-up source is committed before the scoped CMS save. Verify
+the public sources, reserved dimensions and direct fragment link after saving;
+this does not claim a measured Core Web Vitals improvement.
+
+The follow-up was published after CI run 42014439132 passed for ecb3e9f.
+The CMS reordered attributes when saving; source fixtures record that exact
+serialization. Public FI/SV/EN bodies again matched their saved fields, all five
+image dimensions were present, and the original text/image/link checks passed.
+The calculation link settled at the intended 160 px offset on desktop; at
+390 px the table was 360 px wide with no horizontal page overflow.

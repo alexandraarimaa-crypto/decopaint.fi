@@ -1,3 +1,25 @@
+## 2026-11-05 — Fiberglass wallpaper guide content (published)
+
+- Add a dated 10 m² material/pack-cost example, project-enquiry checklist and
+  related-guide links in Finnish, Swedish and English.
+- Preserve the existing URL, article instructions, images and product links.
+- See `blog-growth-2026-11-05-content.md` for source checks and publication status.
+- CMS save and exact public FI/SV/EN source matches verified; the separate
+  template/metadata release remains a draft in PR #21.
+- Reserve the five article images' intrinsic aspect ratios and offset the
+  calculation fragment below the sticky menu; retain responsive image styling.
+
+## 2026-11-04 — Blog search and project enquiries (candidate)
+
+- Add article-specific descriptions, article Open Graph/BlogPosting data and
+  clean blog pagination canonicals without CMS migrations.
+- Link related guides and their products using existing relationships; retain
+  guide context in the existing contact form with FI/SV/EN project prompts.
+- Preserve deployed view-counting, translation, commerce and mail handlers.
+- Record baseline, measurement limits and mandatory runtime reconciliation,
+  closed-staging, backup and owner-approval gates in
+  `docs/blog-growth-2026-11-04.md`. This is not a production-release record.
+
 ## 2026-11-01 — initial landing-page offer
 
 Initial feed selection now prefers the exact uncoloured record used by the landing page initial price and JSON-LD Offer. This prevents Google from correcting a white-swatch price or availability back to the initial visible values.

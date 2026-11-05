@@ -542,3 +542,12 @@ Restore only the release manifest's files from its verified private backup; remo
 Use the `sales-flow-20261104-65b82d0-public-static` backup for the final published installation, with static root `/home/decpai/public_html/static`. The earlier backup used the unused Django STATIC_ROOT and was already restored before reinstalling. Keep the Marmorino data backup separate. A later delivery-copy follow-up must be rolled back before attempting the older whole-release rollback, because later-edit guards intentionally refuse different hashes.
 
 The owner-requested range-only follow-up backs up three runtime files (delivery template tag, checkout, product detail). Use that latest scoped backup first when rolling back; the original 65b82d0 backup intentionally rejects these later hashes.
+
+## Blog growth candidate — 4 November 2026
+
+Before activation, identify the exact previous release and verify hashes of
+affected templates/helpers in the release backup. If rendering, contact forms
+or commerce regress, reactivate that previous release and restart via the
+existing hosting procedure. Restore only this release's changed files when the
+host does not use release symlinks. Do not roll back the database or overwrite
+orders/content: this candidate performs no schema or CMS-record migration.

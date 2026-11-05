@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if guides %}
+<div class="border-top py-6">
+  <h2 class="fs-4">{{ ui.product_guides_title }}</h2>
+  <ul>
+    {% for guide in guides %}<li class="mb-3"><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a></li>{% endfor %}
+  </ul>
+</div>
+{% endif %}

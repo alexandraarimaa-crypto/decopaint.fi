@@ -1,0 +1,40 @@
+{
+  "post_id": 11,
+  "slug": "lasikuitutapetin-tasoitus-kalkkipinnoite",
+  "titles_before": {
+    "fi": "Lasikuitutapetin tasoitus. Sileä seinä ilman purkua",
+    "sv": "Spackla över glasfiberväv. Slät vägg utan rivning",
+    "en": "Skim coating fiberglass wallpaper for a smooth wall"
+  },
+  "titles_after": {
+    "fi": "Lasikuitutapetin tasoitus: ohje, materiaalit ja hinta",
+    "sv": "Spackla glasfiberväv: guide, material och pris",
+    "en": "Skim coating fiberglass wallpaper: guide, materials and cost"
+  },
+  "price_checked": "2026-11-05",
+  "prices": {
+    "5 kg": "49.32",
+    "20 kg": "178.56"
+  },
+  "calculation": {
+    "area_m2": 10,
+    "kg_per_m2_total_for_two_coats": "1.5",
+    "kg_without_reserve": "15",
+    "kg_with_10_percent_reserve": "16.5"
+  },
+  "expected_unchanged_category": "2",
+  "expected_unchanged_products": [
+    "1291",
+    "1306",
+    "1310",
+    "1311",
+    "1367",
+    "1340",
+    "1342"
+  ],
+  "status": "published",
+  "published_on": "2026-11-05",
+  "published_url": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
+  "verification": "publication-verification.json",
+  "template_release_status": "not_deployed"
+}
