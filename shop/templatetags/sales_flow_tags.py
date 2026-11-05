@@ -1,6 +1,6 @@
 from django import template
 
-from shop.sales_flow import backorder_dispatch_date, product_calculator
+from shop.sales_flow import product_calculator
 
 register = template.Library()
 
@@ -8,11 +8,6 @@ register = template.Library()
 @register.simple_tag
 def sales_calculator(product):
     return product_calculator(product)
-
-
-@register.simple_tag
-def sales_dispatch_date():
-    return backorder_dispatch_date()
 
 
 @register.filter
