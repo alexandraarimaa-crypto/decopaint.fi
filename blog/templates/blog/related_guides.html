@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if guides %}
+<nav class="border-top pt-6 my-8" aria-labelledby="related-guides-title">
+  <h2 id="related-guides-title" class="fs-4">{{ ui.related_title }}</h2>
+  <ul>
+    {% for guide in guides %}<li class="mb-3"><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a></li>{% endfor %}
+  </ul>
+</nav>
+{% endif %}

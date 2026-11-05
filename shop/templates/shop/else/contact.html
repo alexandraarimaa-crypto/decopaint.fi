@@ -1,9 +1,11 @@
 {% extends "shop/base/base.html" %}
-{% load static %}
+{% load static i18n blog_growth_tags %}
 {% block title %}
 Ota yhteyttä
 {% endblock %}
 {% block content %}
+{% blog_enquiry_context request as enquiry %}
+{% blog_ui as ui %}
 
 <section class="z-index-2 position-relative pb-2 mb-12">
   <div class="bg-body-secondary mb-3">
@@ -148,9 +150,15 @@ Ota yhteyttä
 </section>
 {% endif %}
 
-<section class="pb-16 pt-lg-14 pb-lg-18 mx-auto">
+<section id="project-enquiry" class="pb-16 pt-lg-14 pb-lg-18 mx-auto">
   <div class="container">
+    {% if enquiry.post %}
+    <h2 class="mb-4 fs-3">{{ ui.enquiry_title }}</h2>
+    <p>{{ ui.topic }}: <a href="{{ enquiry.post.get_absolute_url }}">{{ enquiry.post.title }}</a></p>
+    <p>{{ ui.enquiry_instructions }}</p>
+    {% else %}
     <h2 class="mb-4 fs-3">Yhteydenottolomake</h2>
+    {% endif %}
     <p class="mb-6">Ota yhteyttä meihin minkä tahansa kysymyksen tai yhteistyömahdollisuuden suhteen.</p>
     <form class="contact-form" method="post" action="#">
       {% csrf_token %}
@@ -165,7 +173,7 @@ Ota yhteyttä
           <input type="phone" class="form-control input-focus" name="phone" value="{% if request.user.is_authenticated %}{{ request.user.phone }}{% endif %}" placeholder="Puhelinnumero">
         </div>
       </div>
-      <textarea class="form-control mb-6 input-focus" name="message" placeholder="Viesti" rows="7" required=""></textarea>
+      <textarea class="form-control mb-6 input-focus" name="message" placeholder="Viesti" rows="9" required="" aria-label="{{ ui.message_label }}">{{ enquiry.message }}</textarea>
       <button type="submit" class="btn btn-dark btn-hover-bg-primary btn-hover-border-primary px-11 float-end">Lähetä</button>
     </form>
 

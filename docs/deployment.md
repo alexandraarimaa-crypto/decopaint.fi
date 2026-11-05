@@ -493,3 +493,11 @@ The optional data step is `scripts/correct_marmorino_coverage.py --project PRODU
 Merged source `65b82d0ff30b61fb852fce437b6e16848eeeb56c` was verified identical to tested head `933a8ac`. The actual public static root is `/home/decpai/public_html/static`; Django's `/home/decpai/public_html/deco/static` is not the web-server alias. Use the public root explicitly and verify public HTTP 200 plus content hashes against the candidate. The corrected installation backup is `/home/decpai/release-backups/sales-flow-20261104-65b82d0-public-static`. Marmorino's three-row data backup remains private under the audit directory; all variant fields were fingerprinted unchanged. Follow-up `build_sales_smoke_followup.py` produces only the top-bar template-tag module and checkout template, guarded against the deployed prior SHA.
 
 The final smoke follow-up also includes the product detail template, guarded against deployed SHA `9d17b2de19cdc1f2c94c0ce28f1dd24585d0d7d87e00812a1533ba3e83c3f57a`. Three runtime targets remove the visible exact-date promise and retain the approximate range. No database or Merchant API update is part of this follow-up.
+
+## Blog growth candidate — 4 November 2026
+
+Follow `blog-growth-2026-11-04.md`. Reconcile the deployed template source with
+GitHub before building an immutable release. Do not deploy the sanitized blog
+model/view or replace the sales-flow runtime with older repository templates.
+This change needs no database/content migration. CI/review, closed-staging
+validation, verified file backup and separate owner approval precede production.

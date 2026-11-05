@@ -1,8 +1,19 @@
 {% extends "shop/base/base.html" %}
-{% load static %}
+{% load static blog_growth_tags %}
 {% block title %}
 {{ post.title }}
 {% endblock %}
+{% block meta_description %}{% blog_metadata post request as blog_meta %}{{ blog_meta.description }}{% endblock %}
+{% block canonical_href %}{% blog_metadata post request as blog_meta %}{{ blog_meta.canonical }}{% endblock %}
+{% block open_graph %}
+{% blog_metadata post request as blog_meta %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ post.title }}">
+<meta property="og:description" content="{{ blog_meta.description }}">
+<meta property="og:url" content="{{ blog_meta.canonical }}">
+{% if blog_meta.image %}<meta property="og:image" content="{{ blog_meta.image }}">{% endif %}
+{% endblock %}
+{% block schema_markup %}{% blog_metadata post request as blog_meta %}<script type="application/ld+json">{{ blog_meta.schema_json|safe }}</script>{% endblock %}
 {% block content %}
 
 <section class="z-index-2 position-relative pb-2 mb-12">
@@ -36,10 +47,13 @@
     </div>
     <div class="">
         <div class="px-0">
-            <p class="text-body-emphasis mt-4 mb-6">{{ post.content|safe }}</p>
+            <div class="text-body-emphasis mt-4 mb-6">{{ post.content|safe }}</div>
         </div>
     </div>
 
+
+    {% related_blog_guides post %}
+    {% blog_project_help post %}
 
     <!-- Related Products -->
     {% if post.products.all %}

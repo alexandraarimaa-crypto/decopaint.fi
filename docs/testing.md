@@ -674,3 +674,28 @@ CI 41873815094 passed all jobs. Private exact-commit staging passed 13 new Pytho
 Mobile smoke at 390 px confirms the calculator, quantity transfer and sticky price agree. Both desktop and mobile checkout show the 28-day backorder dispatch estimate. The first mobile note was squeezed into the 60 px thumbnail column; the follow-up moves it to the product text column. Google debug validation of the synthetic purchase payload returned zero messages without collecting an event. Anonymous package-price checks remain 49.32/178.56 EUR. One temporary cart line was used for checkout smoke; no order was created.
 
 Owner-requested delivery-copy regression: projected product and checkout templates must contain the approximate 2–4-week range and must not contain `Arvioitu lähetyspäivä` or the browser date calculation. Manually verify the range in the product text column and mobile checkout after deployment.
+
+## 2026-11-04 — Blog growth candidate
+
+Run `python manage.py test blog.tests_growth users.tests pk_paytrail.tests
+google_shopping.tests shop.tests_analytics shop.tests_search_engine
+shop.tests_search_view shop.tests_seo config.tests_legacy_urls
+shop.tests_measurement_identity shop.tests_sales_release shop.tests_sales_flow
+--settings=config.test_settings --noinput`. Run the SEO static validator, compile
+changed templates, `check --deploy`, and the existing CI jobs. See
+`blog-growth-2026-11-04.md` for mandatory live-runtime reconciliation and staging
+checks. Never interpret local preview or test success as hosted-staging evidence.
+
+## 2026-11-05 — Fiberglass wallpaper guide content
+
+Validate the FI/SV/EN source candidates, unchanged original image references,
+internal link status, 15 kg / 16.5 kg calculations and all three pack totals.
+Review the local noindex preview at desktop and mobile widths before the
+bounded CMS update, then verify the actual published article and associations.
+No real email, order or payment is used as a test.
+
+Candidate verification on 5 November: 106 isolated regression tests passed after
+rebasing onto main 9906abc. SEO/mobile/search validators and diff whitespace
+checks passed. FI/SV/EN retain all five original image references and original
+links; HTML and decimal arithmetic checks passed. The Finnish local noindex
+preview has no horizontal page overflow at desktop and 390 px mobile width.

@@ -65,7 +65,8 @@ def main():
     base = (ROOT / "shop/templates/shop/base/base.html").read_text(encoding="utf-8")
     required_base_markers = [
         "current_language|default:'fi'",
-        'name="description" content="{{ seo.description',
+        'name="description" content="{% block meta_description %}',
+        '{{ seo.description|default:',
         'name="robots" content="{{ seo_robots',
         "{{ request.path }}",
     ]
