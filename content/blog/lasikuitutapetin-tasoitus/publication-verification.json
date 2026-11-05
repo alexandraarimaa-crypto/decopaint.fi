@@ -7,10 +7,12 @@
       "language": "fi",
       "http": 200,
       "title": "Lasikuitutapetin tasoitus: ohje, materiaalit ja hinta",
-      "source_sha256": "a0f272f0bf4794cf6c4e1d957d2f6578266829504ee84538d404fb70b881d4c5",
+      "source_sha256": "3acc2da329c8f5ba51ffc150e106a5159fa5ed9da0372a78f37795d92fca288f",
       "public_matches_saved_source": true,
       "original_images": 5,
       "original_text_preserved": true,
+      "image_space_reserved": true,
+      "calculation_scroll_margin": "160px",
       "canonical": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
       "robots": "index,follow"
     },
@@ -18,10 +20,12 @@
       "language": "sv",
       "http": 200,
       "title": "Spackla glasfiberväv: guide, material och pris",
-      "source_sha256": "47b550b30f4921b6e8896321b59dc02f6443fd10ec9e24d8b0f04f093beba136",
+      "source_sha256": "ba4f4a2945272d903c15f74396825ff444b383c5a50aa60a221131be136591bf",
       "public_matches_saved_source": true,
       "original_images": 5,
       "original_text_preserved": true,
+      "image_space_reserved": true,
+      "calculation_scroll_margin": "160px",
       "canonical": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
       "robots": "index,follow"
     },
@@ -29,10 +33,12 @@
       "language": "en",
       "http": 200,
       "title": "Skim coating fiberglass wallpaper: guide, materials and cost",
-      "source_sha256": "1650e9e7fec117b791d7e8c4eeba38c8130463d8701a9fbd85b288083ae90980",
+      "source_sha256": "5271e132b08fa5ba8e125cd573098bb9d150b81639043d03c6b648f21c55fa52",
       "public_matches_saved_source": true,
       "original_images": 5,
       "original_text_preserved": true,
+      "image_space_reserved": true,
+      "calculation_scroll_margin": "160px",
       "canonical": "https://decopaint.fi/blog/oikos-maalit/lasikuitutapetin-tasoitus-kalkkipinnoite/",
       "robots": "index,follow"
     }
@@ -41,6 +47,6 @@
   "product_associations_unchanged": true,
   "slug_unchanged": true,
   "code_pr": "https://github.com/alexandraarimaa-crypto/decopaint.fi/pull/21",
-  "code_ci": "https://github.com/alexandraarimaa-crypto/decopaint.fi/actions/runs/42012376957",
+  "code_ci": "https://github.com/alexandraarimaa-crypto/decopaint.fi/actions/runs/42014439132",
   "template_release_status": "not_deployed"
 }

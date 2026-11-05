@@ -87,3 +87,10 @@ credits. Add 160 px scroll-margin-top to the calculation section for the sticky
 header. The follow-up source is committed before the scoped CMS save. Verify
 the public sources, reserved dimensions and direct fragment link after saving;
 this does not claim a measured Core Web Vitals improvement.
+
+The follow-up was published after CI run 42014439132 passed for ecb3e9f.
+The CMS reordered attributes when saving; source fixtures record that exact
+serialization. Public FI/SV/EN bodies again matched their saved fields, all five
+image dimensions were present, and the original text/image/link checks passed.
+The calculation link settled at the intended 160 px offset on desktop; at
+390 px the table was 360 px wide with no horizontal page overflow.

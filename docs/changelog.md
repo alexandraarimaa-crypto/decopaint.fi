@@ -6,6 +6,8 @@
 - See `blog-growth-2026-11-05-content.md` for source checks and publication status.
 - CMS save and exact public FI/SV/EN source matches verified; the separate
   template/metadata release remains a draft in PR #21.
+- Reserve the five article images' intrinsic aspect ratios and offset the
+  calculation fragment below the sticky menu; retain responsive image styling.
 
 ## 2026-11-04 — Blog search and project enquiries (candidate)
 

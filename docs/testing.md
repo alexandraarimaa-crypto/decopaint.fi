@@ -706,3 +706,9 @@ content; all original words remain in order, with five original images and
 original links. Slug/category/seven product associations/publication date were
 preserved. Desktop and 390 px production checks passed. Code CI run 42012376957
 passed; the template release remains undeployed pending closed hosting staging.
+
+The article layout follow-up passed CI 42014439132 before publication. All three
+public bodies matched the saved source after editor serialization; intrinsic
+dimensions and 160 px fragment offset are present. Desktop calculation-link
+navigation settled at that offset. At 390 px the table was 360 px wide and the
+page did not overflow horizontally. No measured Core Web Vitals gain is claimed.
