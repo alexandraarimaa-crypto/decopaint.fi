@@ -51,7 +51,6 @@ from .product_schema import (
     build_product_data,
     json_for_script,
 )
-from .material_calculator import build_material_calculator
 from types import SimpleNamespace
 
 
@@ -632,15 +631,6 @@ def product_detail(request, slug):
     family = family_attribute.family if family_attribute else ''
     display_name = f"{family} {product.name}".strip()
     canonical_url = build_canonical(request)
-    material_calculator = build_material_calculator(
-        family_attribute.sufficiency if family_attribute else '',
-        unique_sizes_set,
-        product.description,
-        product.tech_info,
-        product.properties,
-        density=family_attribute.density if family_attribute else '',
-    )
-
     product_data = build_product_data(
         request=request,
         product=product,
@@ -679,7 +669,6 @@ def product_detail(request, slug):
         'canonical_url': canonical_url,
         'product_image_url': product_image_url,
         'product_structured_data_json': json_for_script(product_data),
-        'material_calculator': material_calculator,
         'variants_with_colors': False,
         'color_variants_json': '[]',
     }

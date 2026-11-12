@@ -9,7 +9,7 @@ FILES = [
     "shop/tests_measurement_identity.py", "shop/tests_sales_release.py", "shop/tests_sales_flow.py",
     "shop/templatetags/sales_flow_tags.py", "shop/static/assets/js/analytics.js",
     "shop/static/assets/js/analytics-location.js", "shop/static/assets/js/sales-product.js",
-    "shop/static/assets/css/sales-flow.css", "shop/templates/shop/product/sales_calculator.html",
+    "shop/static/assets/css/sales-flow.css",
     "shop/templates/shop/product/sales_catalogue.html", "scripts/build_sales_flow_release.py",
     "scripts/correct_marmorino_coverage.py", "scripts/test_sales_product.mjs",
     "scripts/test_sales_analytics.mjs", "scripts/export_sales_commit.py",
