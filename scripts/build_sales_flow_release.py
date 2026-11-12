@@ -27,8 +27,7 @@ def build(output):
     files = {}
     for name in ["shop/measurement_identity.py", "shop/static/assets/js/analytics.js",
                  "shop/static/assets/js/analytics-location.js", "shop/sales_flow.py",
-                 "shop/material_calculator.py", "shop/templatetags/sales_flow_tags.py",
-                 "shop/templates/shop/product/sales_calculator.html",
+                 "shop/templatetags/sales_flow_tags.py",
                  "shop/templates/shop/product/sales_catalogue.html",
                  "shop/static/assets/js/sales-product.js", "shop/static/assets/css/sales-flow.css"]:
         files[name] = (ROOT / name).read_text()
@@ -101,7 +100,12 @@ def build(output):
     text = text[:start] + "<!-- add_to_cart is emitted only after a successful server cart write. -->" + text[end:]
     text = replace_once(text, '      <div class="d-flex align-items-center fs-15px mb-6">', '      <div class="d-flex align-items-center fs-15px mb-6">\n        {% if total_reviews %}')
     text = replace_once(text, '          <a href="#reviews" class="border-start', '        {% endif %}\n          <a href="#reviews" class="border-start')
-    text = replace_once(text, '        <div class="quantity-price-row">', '        {% include "shop/product/sales_calculator.html" %}\n        <div class="quantity-price-row">')
+    text = replace_once(
+        text,
+        '        <div class="quantity-price-row">',
+        '        <script defer src="{% static \'assets/js/sales-product.js\' %}?v=20261112-clean"></script>\n'
+        '        <div class="quantity-price-row">',
+    )
     text = replace_once(text, '        function showPriceLoading() {', '        function showPriceLoading() {\n            document.dispatchEvent(new Event("decopaint:price-loading"));')
     text = replace_once(text, '                        var unit_price = parseFloat(data.price);', '''                        var unit_price = parseFloat(data.price);
                         if (!pendingPriceUpdate && Number.isFinite(unit_price) && unit_price > 0) {

@@ -4,7 +4,6 @@ from datetime import timedelta
 from django.db.models import Exists, OuterRef
 from django.utils import timezone
 
-from .material_calculator import build_material_calculator
 from .models import Variant
 
 
@@ -26,20 +25,6 @@ def prepare_catalogue(request, products):
         "sales_page_prefix": "availability=" + availability + "&" if availability else "",
         **({"seo_robots": "noindex,follow"} if availability else {}),
     }
-
-
-def product_calculator(product):
-    attribute = product.attributes.first()
-    if not attribute:
-        return None
-    result = build_material_calculator(
-        attribute.sufficiency,
-        product.variants.filter(active=True).values_list("size", flat=True),
-    )
-    # Never turn an ambiguous per-coat rate into an apparently complete quote.
-    if not result or not result["rate_includes_coats"]:
-        return None
-    return result
 
 
 def backorder_dispatch_date():

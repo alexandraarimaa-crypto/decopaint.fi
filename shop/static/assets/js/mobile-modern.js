@@ -1,37 +1,6 @@
 (function () {
   "use strict";
 
-  function initMaterialCalculator() {
-    var calculator = document.querySelector(".dp-material-calculator");
-    if (!calculator) return;
-
-    var input = calculator.querySelector("#dp-area-input");
-    var minus = calculator.querySelector("[data-area-minus]");
-    var plus = calculator.querySelector("[data-area-plus]");
-    var result = calculator.querySelector(".dp-calculator-result strong");
-    var coverage = Number(calculator.getAttribute("data-coverage")) || 9;
-    var coats = Number(calculator.getAttribute("data-coats")) || 2;
-
-    function update(nextValue) {
-      var area = Math.max(1, Number(nextValue) || 1);
-      var litres = Math.ceil((area * coats) / coverage);
-      input.value = String(area);
-      result.textContent = litres + (litres === 1 ? " litra" : " litraa");
-    }
-
-    minus.addEventListener("click", function () {
-      update(Number(input.value) - 1);
-    });
-    plus.addEventListener("click", function () {
-      update(Number(input.value) + 1);
-    });
-    input.addEventListener("input", function () {
-      update(input.value);
-    });
-
-    update(input.value);
-  }
-
   function initStickyProductPrice() {
     var source = document.getElementById("price-container");
     var target = document.querySelector("[data-mobile-price]");
@@ -83,7 +52,6 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    initMaterialCalculator();
     initStickyProductPrice();
     improveMenuState();
     improveCheckoutSelection();
