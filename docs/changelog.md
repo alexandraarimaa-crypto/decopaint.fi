@@ -913,3 +913,5 @@ The sales-flow release is deployed. Public assets are served from `/home/decpai/
 ## 2026-11-05 — approximate lead time only
 
 At the owner's request, product pages and checkout show only `Toimitusaika noin 2–4 viikkoa.` for order-only variants. Remove the specific latest-dispatch date from visible customer copy. The Merchant backorder API contract and its required structured date are unchanged.
+
+- Mobile followup: show dated showroom contact information before legacy photos so the directions anchor stays stable while images load.
