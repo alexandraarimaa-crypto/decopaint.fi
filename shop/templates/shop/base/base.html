@@ -1,6 +1,7 @@
-{% load static analytics_tags i18n %}
+{% load static analytics_tags i18n relocation_tags %}
 {% analytics_config as analytics %}
 {% get_current_language as current_language %}
+{% showroom_relocation as showroom %}
 <!doctype html>
 <html lang="{{ current_language|default:'fi' }}" data-bs-theme="light">
 <head>
@@ -311,6 +312,7 @@
 {% include 'shop/base/header.html' %}
 
 <main id="content" class="wrapper layout-page">
+{% include "shop/base/relocation_notice.html" %}
 {% block content %}{% endblock %}
 </main>
 

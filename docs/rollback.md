@@ -1,3 +1,7 @@
+## Showroom relocation — 17 November 2026
+
+Use install_sales_release.py --restore with the same relocation candidate, project, static-root and verified private backup. The installer refuses later edits and restores only this release. Restart existing Passenger and smoke-test homepage/contact/checkout. No database restoration is needed.
+
 ## Product calculator removal rollback — 12 November 2026
 
 No database rollback is involved. Restore only the exact production files from

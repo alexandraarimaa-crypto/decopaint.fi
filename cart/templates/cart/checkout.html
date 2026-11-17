@@ -229,6 +229,7 @@ Kassa
                                         {% if cart.selected_shipping_method == 'pickup' %}checked{% endif %}>
                                     <label class="form-check-label" for="delivery_pickup">
                                         <strong>Nouto myymälästä</strong><br>
+                                        <span class="d-block mt-2 mb-2" style="max-width:42rem;font-size:.9rem;line-height:1.5;">{{ showroom.pickup_notice }}</span>
                                         <small class="text-muted">Nouto myymälästä - ILMAINEN</small>
                                     </label>
                                 </div>

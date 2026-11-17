@@ -1,3 +1,7 @@
+## 2026-11-17 — showroom relocation
+
+Add owner-confirmed FI/SV/EN moving/opening notice, dated new contact/footer address, directions and pickup description. Switch on the Helsinki opening date; preserve all commerce data and checkout logic.
+
 ## 2026-11-12 — remove product consumption calculators
 
 ### Removed

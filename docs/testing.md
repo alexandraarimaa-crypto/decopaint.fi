@@ -1,3 +1,7 @@
+## Showroom relocation — 17 November 2026
+
+Run python manage.py test shop.tests_showroom --settings=config.test_settings. Check Helsinki 30 Nov/1 Dec switch, January banner expiry with permanent new address, FI/SV/EN continuity, all projected template syntax and byte-equivalent checkout JavaScript. Public smoke must verify the future-address label before opening and contact/footer/pickup at desktop/390 px.
+
 ## Product calculator removal verification 2026-11-12
 
 - `scripts/validate_mobile_ui.py` passes all 11 static UI checks.
