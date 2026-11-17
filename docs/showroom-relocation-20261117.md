@@ -55,3 +55,7 @@ checkout behavior. Do not create a real order/payment or send test customer emai
 Implementation in progress. Do not treat a prepared asset or merged PR as proof
 of deployment/publication. Record exact commit, private checks, backup and public
 results in the PR and task completion receipt.
+
+## Mobile followup
+
+Production mobile smoke found that legacy lazy photos above the contact section change its scroll position. Move the existing contact section above the gallery and anchor directly to its address row with a sticky-header offset. One-file guarded followup, six relocation tests, same private deployment/rollback process. Owner approved only free publication of the shown original-logo creative; do not activate any paid campaign.

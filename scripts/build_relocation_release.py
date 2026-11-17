@@ -25,6 +25,20 @@ def replace_once(text, old, new):
     return text.replace(old, new, 1)
 
 
+def contact_details_first(text):
+    """Keep the directions anchor ahead of legacy photos that change height."""
+    match = re.search(r'<section id="showroom">.*?</section>', text, flags=re.S)
+    if not match:
+        raise ValueError("Expected the showroom contact section")
+    details = match[0].replace('<section id="showroom">', '<section class="pb-12">', 1)
+    details = replace_once(details, '<div class="row">', '<div class="row" id="showroom" style="scroll-margin-top:140px;">')
+    gallery = '<section class="mb-13 px-8">'
+    if text.index(gallery) > match.start():
+        raise ValueError("Contact section order differs from the audited layout")
+    text = replace_once(text, match[0], '')
+    return replace_once(text, gallery, details + '\n\n' + gallery)
+
+
 def project(name, text):
     newline = "\r\n" if text.count("\r\n") > text.count("\n") / 2 else "\n"
     if name.endswith("base/base.html"):
@@ -58,6 +72,7 @@ def project(name, text):
         text, count = re.subn(r'{% block javascript %}.*?{% endblock %}', '', text, flags=re.S)
         if count != 1:
             raise ValueError("Contact map script anchor changed")
+        text = contact_details_first(text)
     elif name.endswith("cart/checkout.html"):
         anchor = '<strong>{% translate "Nouto myymälästä" %}</strong><br>'
         if anchor not in text:

@@ -692,3 +692,5 @@ CI 41873815094 passed all jobs. Private exact-commit staging passed 13 new Pytho
 Mobile smoke at 390 px confirms the calculator, quantity transfer and sticky price agree. Both desktop and mobile checkout show the 28-day backorder dispatch estimate. The first mobile note was squeezed into the 60 px thumbnail column; the follow-up moves it to the product text column. Google debug validation of the synthetic purchase payload returned zero messages without collecting an event. Anonymous package-price checks remain 49.32/178.56 EUR. One temporary cart line was used for checkout smoke; no order was created.
 
 Owner-requested delivery-copy regression: projected product and checkout templates must contain the approximate 2–4-week range and must not contain `Arvioitu lähetyspäivä` or the browser date calculation. Manually verify the range in the product text column and mobile checkout after deployment.
+
+Mobile relocation followup: the contact anchor must appear before the lazy photos and land on the address without being covered by the sticky header.

@@ -14,6 +14,14 @@ from shop.showroom import showroom_information
 
 
 class ShowroomTests(SimpleTestCase):
+    def test_contact_details_precede_lazy_photos(self):
+        with tempfile.TemporaryDirectory() as directory:
+            build(directory)
+            contact = (Path(directory) / "shop/templates/shop/else/contact.html").read_text()
+            self.assertLess(contact.index('id="showroom"'), contact.index('contact1.jpg'))
+            self.assertIn('scroll-margin-top:140px', contact)
+            self.assertEqual(contact.count('id="showroom"'), 1)
+
     def test_opening_day_switch_and_permanent_address(self):
         before = showroom_information("fi", date(2026, 11, 30))
         after = showroom_information("fi", date(2026, 12, 1))
