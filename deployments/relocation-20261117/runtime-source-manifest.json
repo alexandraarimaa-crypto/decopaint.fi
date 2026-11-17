@@ -1,0 +1,14 @@
+{
+  "production_sha256": {
+    "shop/templates/shop/base/base.html": "80e944f4f533bfc160babb63da3a447710316b4d2a423473fa182da3d9b0123c",
+    "shop/templates/shop/base/footer.html": "b2307bd7ccbac2396981f31cf39acc329dbf792ca67e59d7c5f62b06194c67d9",
+    "shop/templates/shop/else/contact.html": "cab15a9ddc96d2b946698f4bea6ebeffa741b57ac083b6953b069e7f841e21a8",
+    "cart/templates/cart/checkout.html": "970e701958aeb7990180004d79f36618039ccb910c1fb4217e3c1dbcbc4c38f1"
+  },
+  "baseline_sha256": {
+    "shop/templates/shop/base/base.html": "80e944f4f533bfc160babb63da3a447710316b4d2a423473fa182da3d9b0123c",
+    "shop/templates/shop/base/footer.html": "b2307bd7ccbac2396981f31cf39acc329dbf792ca67e59d7c5f62b06194c67d9",
+    "shop/templates/shop/else/contact.html": "920c38c6264be1f2223a0990fb99853f04788d63f1ff67dd6e5ffff4bca08fc4",
+    "cart/templates/cart/checkout.html": "970e701958aeb7990180004d79f36618039ccb910c1fb4217e3c1dbcbc4c38f1"
+  }
+}

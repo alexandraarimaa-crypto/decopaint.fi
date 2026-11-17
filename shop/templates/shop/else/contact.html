@@ -65,7 +65,7 @@ Ota yhteyttä
 </section>
 
 
-<section>
+<section id="showroom">
 
   <div class="container">
     <div class="text-center">
@@ -92,11 +92,10 @@ Ota yhteyttä
             <h3 class="fs-5 mb-6">Osoite</h3>
             <div class="fs-6">
               <p class="mb-2 pb-4 fs-6">
-                Asessorinkatu 12<br>
-                20780 Kaarina
+                {{ showroom.address_label }}<br><strong>{{ showroom.new_street }}<br>{{ showroom.postcode_city }}</strong>{% if not showroom.moved %}<br>{{ showroom.old_location }}{% endif %}
               </p>
             </div>
-            <a href="https://maps.app.goo.gl/wo27UgDj9JZRmNYq7" target="_blank" class="text-decoration-none border-bottom border-currentColor fw-semibold fs-6">Reittiohjeet</a>
+            <a href="{{ showroom.directions_url }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none border-bottom border-currentColor fw-semibold fs-6">{{ showroom.map_label }}</a>
           </div>
         </div>
 
@@ -127,7 +126,7 @@ Ota yhteyttä
             </svg>
           </div>
           <div>
-            {{ open_time|safe }}
+            <h3 class="fs-5 mb-4">{{ showroom.hours_title }}</h3>{% if not showroom.moved %}<p><strong>{{ showroom.closed }}</strong></p>{% endif %}<p>{{ showroom.weekdays }}: 9:00–17:00<br>{{ showroom.weekend }}: {{ showroom.appointment }}</p><p>{{ showroom.online }}</p>
           </div>
         </div>
 
@@ -136,17 +135,7 @@ Ota yhteyttä
   </div>
 </section>
 
-{% if mapbox_public_token %}
-<section class="pt-9 pt-md-16 pt-lg-18">
-  <div class="container">
-    <div id="map" class="mapbox-gl map-point-animate map-box-has-effect " style="height:530px"
-      data-mapbox-access-token="{{ mapbox_public_token|escape }}"
-      data-mapbox-options='{&#34;center&#34;:[22.362801, 60.420849],&#34;setLngLat&#34;:[22.362801, 60.420849],&#34;style&#34;:&#34;mapbox://styles/mapbox/light-v10&#34;,&#34;zoom&#34;:11}'
-      data-mapbox-marker='[{&#34;backgroundImage&#34;:&#34;/assets/images/others/marker.png&#34;,&#34;backgroundRepeat&#34;:&#34;no-repeat&#34;,&#34;className&#34;:&#34;marker&#34;,&#34;height&#34;:&#34;70px&#34;,&#34;position&#34;:[22.362801, 60.420849],&#34;width&#34;:&#34;70px&#34;}]'>
-    </div>
-  </div>
-</section>
-{% endif %}
+
 
 <section class="pb-16 pt-lg-14 pb-lg-18 mx-auto">
   <div class="container">
@@ -174,9 +163,7 @@ Ota yhteyttä
 
 
 
-{% block javascript %}
-  <script src="{% static "assets/vendors/mapbox-gl/mapbox-gl.js" %}"></script>
-{% endblock %}
+
 
 
 {% endblock %}

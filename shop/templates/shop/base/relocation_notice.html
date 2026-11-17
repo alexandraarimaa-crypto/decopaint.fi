@@ -1,0 +1,31 @@
+{% if showroom.show_banner %}
+<style>
+  .dp-relocation { background: #eef4ed; color: #173d2b; border-bottom: 1px solid #cadbc9; }
+  .dp-relocation__inner { max-width: 1360px; margin: auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .dp-relocation__title { display: block; font-size: 17px; line-height: 1.35; margin: 0 0 3px; color: inherit; }
+  .dp-relocation__copy { font-size: 14px; line-height: 1.5; margin: 0; }
+  .dp-relocation__address { font-weight: 650; }
+  .dp-relocation__links { display: flex; flex-wrap: wrap; flex-shrink: 0; gap: 8px; }
+  .dp-relocation__links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 13px; border: 1px solid #173d2b; border-radius: 4px; color: #173d2b; font-size: 14px; font-weight: 650; text-decoration: none; }
+  .dp-relocation__links a:first-child { background: #173d2b; color: #fff; }
+  .dp-relocation__links a:focus-visible { outline: 3px solid #087a38; outline-offset: 3px; }
+  @media (max-width: 767.98px) {
+    .dp-relocation__inner { display: block; padding: 12px 20px; }
+    .dp-relocation__title { font-size: 16px; }
+    .dp-relocation__copy { font-size: 13px; }
+    .dp-relocation__links { margin-top: 9px; }
+  }
+</style>
+<aside class="dp-relocation" aria-labelledby="dp-relocation-title">
+  <div class="dp-relocation__inner">
+    <div>
+      <strong class="dp-relocation__title" id="dp-relocation-title">{{ showroom.title }} · {{ showroom.new_street }}, Kaarina</strong>
+      <p class="dp-relocation__copy">{{ showroom.text }}</p>
+    </div>
+    <div class="dp-relocation__links">
+      <a href="/catalog/">{{ showroom.shop }}</a>
+      <a href="/contact/#showroom">{{ showroom.details }}</a>
+    </div>
+  </div>
+</aside>
+{% endif %}

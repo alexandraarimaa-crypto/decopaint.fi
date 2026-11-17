@@ -1,3 +1,7 @@
+## Showroom relocation — 17 November 2026
+
+Follow docs/showroom-relocation-20261117.md. Deploy the exact reviewed commit using build_relocation_release.py and the existing guarded installer. Seven display-only files; audited runtime hashes and private backup are required. No database or static publication step. Verify desktop/mobile and calendar transitions.
+
 ## Product calculator removal — 12 November 2026
 
 Deploy only the reviewed removal commit. Back up the exact current production

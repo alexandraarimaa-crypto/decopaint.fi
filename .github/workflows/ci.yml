@@ -37,6 +37,8 @@ jobs:
           shop.tests_analytics shop.tests_search_engine shop.tests_search_view
           shop.tests_seo config.tests_legacy_urls
           --settings=config.test_settings
+      - name: Test showroom relocation
+        run: python manage.py test shop.tests_showroom --settings=config.test_settings
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
