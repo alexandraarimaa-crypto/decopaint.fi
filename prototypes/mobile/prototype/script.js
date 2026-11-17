@@ -26,23 +26,6 @@ document.querySelector(".category-trigger").addEventListener("click", () => show
 document.querySelector(".home-trigger").addEventListener("click", () => showScreen("home"));
 document.querySelector(".cart-trigger").addEventListener("click", () => showScreen("checkout"));
 
-const areaInput = document.querySelector(".area-input");
-const result = document.querySelector(".calculation-result strong");
-
-function updateCalculation(nextValue) {
-  const area = Math.max(1, Number(nextValue) || 1);
-  areaInput.value = area;
-  result.textContent = `${Math.ceil((area * 2) / 9)} litraa`;
-}
-
-document.querySelector(".area-minus").addEventListener("click", () => {
-  updateCalculation(Number(areaInput.value) - 1);
-});
-document.querySelector(".area-plus").addEventListener("click", () => {
-  updateCalculation(Number(areaInput.value) + 1);
-});
-areaInput.addEventListener("input", () => updateCalculation(areaInput.value));
-
 document.querySelectorAll(".size-picker label").forEach((label) => {
   label.addEventListener("click", () => {
     document.querySelectorAll(".size-picker label").forEach((item) => item.classList.remove("is-selected"));
@@ -55,13 +38,6 @@ document.querySelectorAll(".shipping-option").forEach((label) => {
     document.querySelectorAll(".shipping-option").forEach((item) => item.classList.remove("is-selected"));
     label.classList.add("is-selected");
   });
-});
-
-document.querySelector(".open-calculator").addEventListener("click", () => {
-  showScreen("product");
-  window.setTimeout(() => {
-    document.querySelector(".inline-calculator").scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 50);
 });
 
 const toast = document.querySelector(".toast");

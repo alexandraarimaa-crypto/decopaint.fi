@@ -1,3 +1,17 @@
+## Product calculator removal verification 2026-11-12
+
+- `scripts/validate_mobile_ui.py` passes all 11 static UI checks.
+- Python compilation passes for the edited application, scripts and generated
+  19-file sales release.
+- JavaScript syntax checks pass for mobile, product-selection and prototype
+  assets.
+- Product-selection and analytics regression scripts pass without network
+  calls.
+- The generated sales release contains no calculator module, template, markup,
+  copy or JavaScript.
+- Production smoke must check default, Finnish and Swedish Tiepolo pages after
+  the scoped install and Passenger restart.
+
 ## 2026-11-01 — initial landing-page offer
 
 Regression: a stocked uncoloured initial offer at 15 must precede an order-only white swatch at 10; verify both price and availability.

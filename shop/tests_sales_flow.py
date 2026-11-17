@@ -8,7 +8,7 @@ from django.test import RequestFactory, TestCase, SimpleTestCase
 
 from shop.models import Product, Variant
 from shop.sales_flow import (
-    prepare_catalogue, product_calculator, queue_successful_add,
+    prepare_catalogue, queue_successful_add,
     consume_cart_event, backorder_dispatch_date,
 )
 
@@ -56,16 +56,6 @@ class SalesFlowHelpersTests(SimpleTestCase):
         before["packages"][0]["coverage_m2"] = "owner later edit"
         with self.assertRaises(ValueError):
             corrected(before)
-
-    def test_calculator_refuses_ambiguous_coat_rates(self):
-        attributes = SimpleNamespace(first=lambda: SimpleNamespace(sufficiency="0.5–0.75 kg/m2"))
-        variants = SimpleNamespace(filter=lambda **kw: SimpleNamespace(values_list=lambda *a, **kw: ["5 kg", "20 kg"]))
-        product = SimpleNamespace(attributes=attributes, variants=variants)
-        self.assertIsNone(product_calculator(product))
-        attributes.first = lambda: SimpleNamespace(sufficiency="1–1,5 kg/m² / 2 kerrosta")
-        result = product_calculator(product)
-        self.assertEqual(result["calculation_rate"], 1.5)
-        self.assertEqual(result["packages"][1]["amount"], 20)
 
     def test_success_event_uses_actual_unit_price_and_is_consumed_once(self):
         request = RequestFactory().get("/product/")

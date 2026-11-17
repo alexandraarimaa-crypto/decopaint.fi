@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 import sys
-from types import SimpleNamespace, ModuleType
+from types import ModuleType
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -16,10 +16,6 @@ from django.urls import include, path
 def main(output):
     directory = Path(output)
     directory.mkdir(parents=True, exist_ok=True)
-    product = SimpleNamespace(
-        attributes=SimpleNamespace(first=lambda: SimpleNamespace(sufficiency="1–1,5 kg/m² / 2 kerrosta")),
-        variants=SimpleNamespace(filter=lambda **kw: SimpleNamespace(values_list=lambda *a, **kw: ["5 kg", "20 kg"])),
-    )
     # URL reversal only; do not import production views or make network calls.
     preview_patterns = [
         path("contact/", lambda request: None, name="contact"),
@@ -28,10 +24,9 @@ def main(output):
     preview_urlconf = ModuleType("sales_preview_urls")
     preview_urlconf.urlpatterns = [path("", include((preview_patterns, "shop")))]
     with override_settings(ROOT_URLCONF=preview_urlconf):
-        calculator = render_to_string("shop/product/sales_calculator.html", {"product": product})
         catalogue = render_to_string("shop/product/sales_catalogue.html", {})
     html = '''<!doctype html><html lang="fi"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Synthetic sales-flow preview</title><link rel="stylesheet" href="/static/assets/css/sales-flow.css"><style>body{font:16px/1.55 system-ui;margin:0 auto;max-width:1050px;padding:20px}button,select,input{font:inherit}button{padding:12px;cursor:pointer}button:disabled{opacity:.5}h1{font-size:28px}.small{font-size:14px}</style></head><body><h1>Materiaalin valinta — suljettu testi</h1><p>Synteettiset tuotteet. Ei maksuja, tilauksia tai analytiikkalähetyksiä.</p>'''
-    html += catalogue + '<form id="cart_form"><label>Pakkauskoko <select id="preview-size"><option value="5 kg">5 kg</option><option value="20 kg">20 kg</option><option value="invalid">Virheellinen vaihtoehto (testi)</option></select></label>' + calculator
+    html += catalogue + '<form id="cart_form"><label>Pakkauskoko <select id="preview-size"><option value="5 kg">5 kg</option><option value="20 kg">20 kg</option><option value="invalid">Virheellinen vaihtoehto (testi)</option></select></label>'
     html += '<label>Määrä <input id="quantity" type="number" min="1" value="1"></label> <button type="submit">Lisää koriin</button><p id="preview-status" role="status"></p></form>'
     html += '''<section class="dp-sales-box"><h2>Toimitusarvio kassalla</h2><p>Tilaustuote</p><p class="dp-sales-delivery">Toimitusaika noin 2–4 viikkoa. Tarkka lähetysarvio säilyy näkyvissä.</p></section><script>document.addEventListener('DOMContentLoaded',function(){var size=document.getElementById('preview-size');function ready(){document.dispatchEvent(new Event('decopaint:price-loading'));if(size.value!=='invalid')document.dispatchEvent(new CustomEvent('decopaint:price-ready',{detail:{size:size.value,price:size.value==='5 kg'?49.32:178.56}}));}size.addEventListener('change',ready);document.getElementById('quantity').addEventListener('change',ready);document.getElementById('cart_form').addEventListener('submit',function(e){var blocked=e.defaultPrevented;e.preventDefault();if(blocked)return;document.getElementById('preview-status').textContent='Synteettinen testi: määrä '+document.getElementById('quantity').value;});setTimeout(ready,0);});</script></body></html>'''
     (directory / "index.html").write_text(html, encoding="utf-8")

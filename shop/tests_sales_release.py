@@ -73,8 +73,16 @@ class SalesMeasurementReleaseTests(SimpleTestCase):
                     engine.from_string((self.root / name).read_text())
         detail = (self.root / "shop/templates/shop/product/detail.html").read_text()
         self.assertNotIn("track('add_to_cart'", detail)
+        self.assertNotIn("sales_calculator", detail)
+        self.assertNotIn("material_calculator", detail)
+        self.assertNotIn("MENEKKILASKURI", detail)
         self.assertIn('decopaint:price-loading', detail)
         self.assertIn('decopaint:price-ready', detail)
+        self.assertNotIn("shop/material_calculator.py", self.manifest["release_files"])
+        self.assertNotIn(
+            "shop/templates/shop/product/sales_calculator.html",
+            self.manifest["release_files"],
+        )
         checkout = (self.root / "cart/templates/cart/checkout.html").read_text()
         self.assertNotIn("Arvioitu lähetyspäivä", checkout)
         self.assertNotIn("Arvioitu lähetyspäivä", detail)

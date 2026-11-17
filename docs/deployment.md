@@ -1,3 +1,14 @@
+## Product calculator removal — 12 November 2026
+
+Deploy only the reviewed removal commit. Back up the exact current production
+files before replacing the product detail, views, sales-flow helpers and static
+JavaScript. Remove only the obsolete calculator module, calculator template and
+dedicated calculator asset when their hashes match the audited copies. Publish
+the clean product JavaScript to `/home/decpai/public_html/static`, restart the
+existing Passenger application and verify product, cart and checkout HTTP 200.
+No migration, database write, product edit, price edit, stock edit, Merchant
+operation or payment change belongs to this release.
+
 ## 2026-11-01 — initial landing-page offer
 
 Follow-up initial-offer correction retains the tasks.py-only release and pins installed hash 7007d0c01b98d23cd1eff20c285105eff227bc1f33f1970929d1366be58dbda7. Revalidate current inputs before existing-offer-only refresh.

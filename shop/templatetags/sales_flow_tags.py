@@ -1,13 +1,6 @@
 from django import template
 
-from shop.sales_flow import product_calculator
-
 register = template.Library()
-
-
-@register.simple_tag
-def sales_calculator(product):
-    return product_calculator(product)
 
 
 @register.filter

@@ -1,3 +1,20 @@
+## 2026-11-12 — remove product consumption calculators
+
+### Removed
+
+- Removed both the original product material calculator and the later
+  sales-flow calculator from product pages, mobile assets, prototypes and
+  release builders.
+- Removed their server helpers, template tags, templates and obsolete tests.
+- Kept variant price readiness, cart submission, analytics, package metadata
+  and all product data unchanged.
+
+### Safety
+
+- No migration or database write is required.
+- Regression checks reject calculator markup or code in the generated sales
+  release while continuing to test variant selection and analytics.
+
 ## 2026-11-01 — initial landing-page offer
 
 Initial feed selection now prefers the exact uncoloured record used by the landing page initial price and JSON-LD Offer. This prevents Google from correcting a white-swatch price or availability back to the initial visible values.

@@ -568,10 +568,6 @@
     margin-top: 14px;
   }
 
-  .dp-calculator-card {
-    background: var(--dp-green-soft);
-  }
-
   .dp-tool-icon {
     width: 44px;
     height: 44px;
@@ -1113,71 +1109,6 @@
     border: 1px solid #cbd1ca !important;
     border-radius: 5px;
     font-size: 13px;
-  }
-
-  .dp-material-calculator {
-    margin: 22px 0;
-    padding: 20px 16px;
-    display: block;
-    border-radius: 7px;
-    background: var(--dp-green-soft);
-  }
-
-  .dp-material-calculator h2 {
-    margin: 4px 0 7px;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 24px;
-    font-weight: 400;
-    letter-spacing: -0.03em;
-  }
-
-  .dp-material-calculator > p {
-    color: #48534b;
-    font-size: 11px;
-    line-height: 1.45;
-  }
-
-  .dp-area-control {
-    height: 52px;
-    display: grid;
-    grid-template-columns: 52px 1fr 52px;
-    border: 1px solid #9ebaa6;
-    border-radius: 5px;
-    background: var(--dp-white);
-  }
-
-  .dp-area-control button {
-    border: 0;
-    background: transparent;
-    color: var(--dp-green-dark);
-    font-size: 23px;
-  }
-
-  .dp-area-control label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-inline: 1px solid #d0ddd3;
-  }
-
-  .dp-area-control input {
-    width: 58px;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    text-align: right;
-    font-weight: 800;
-  }
-
-  .dp-area-control span {
-    margin-left: 4px;
-    color: var(--dp-muted);
-    font-size: 12px;
-  }
-
-  .dp-calculator-result {
-    margin: 10px 0 0 !important;
   }
 
   .dp-product-page .product-info-cell {

@@ -1,3 +1,12 @@
+## Product calculator removal rollback — 12 November 2026
+
+No database rollback is involved. Restore only the exact production files from
+the scoped pre-release backup, republish the prior static files and restart
+Passenger. Do not restore a database, product data, prices, stock, orders,
+Merchant state or payment code. Roll back only for a product/cart/checkout 5xx
+or broken variant-price selection; the absence of the removed calculator is the
+intended result.
+
 ## 2026-11-01 — initial landing-page offer
 
 The initial-offer follow-up backs up the deployed 8d42fb4 tasks.py before replacement; preserve both API support modules and all offers.

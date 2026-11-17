@@ -18,7 +18,7 @@ FILES = {
     "cart": ROOT / "cart/templates/cart/cart.html",
     "checkout": ROOT / "cart/templates/cart/checkout.html",
     "css": ROOT / "shop/static/assets/css/mobile-modern-20260801-equal-cards.css",
-    "js": ROOT / "shop/static/assets/js/mobile-modern-20260820-calculator.js",
+    "js": ROOT / "shop/static/assets/js/mobile-modern.js",
 }
 
 
@@ -124,7 +124,7 @@ def main() -> int:
         "Versioned mobile CSS is not linked",
     )
     require(
-        "mobile-modern-20260820-calculator.js" in texts["base"],
+        "mobile-modern.js" in texts["base"],
         "Versioned mobile JS is not linked",
     )
     require("Vain välttämättömät" in texts["base"], "Essential-only consent action is missing")
@@ -138,7 +138,8 @@ def main() -> int:
         "kylpyhuoneen seinä" not in texts["home"],
         "Home search placeholder must not advertise a zero-result query",
     )
-    require("MATERIAALILASKURI" in texts["home"], "Home calculator CTA is missing")
+    require("MATERIAALILASKURI" not in texts["home"], "Removed home calculator CTA returned")
+    require("dp-calculator-card" not in texts["home"], "Removed home calculator card returned")
     require("ASIANTUNTIJA APUNA" in texts["home"], "Home consultation block is missing")
     require("Sujuvampi ostokokemus" in texts["home"], "Mobile benefits heading is missing")
     require("Laatuominaisuudet" in texts["home"], "Mobile values heading is missing")
@@ -166,7 +167,8 @@ def main() -> int:
     require('id="cart_form"' in texts["product"], "Product cart form contract changed")
     require('form="cart_form"' in texts["product"], "Sticky CTA is not connected to cart form")
     require('id="price-container"' in texts["product"], "Dynamic price contract changed")
-    require("dp-material-calculator" in texts["product"], "Product calculator is missing")
+    require("dp-material-calculator" not in texts["product"], "Removed product calculator returned")
+    require("MENEKKILASKURI" not in texts["product"], "Removed product calculator copy returned")
 
     for contract in (
         'id="paymentForm"',
@@ -185,6 +187,7 @@ def main() -> int:
     require("fetch(" not in texts["js"], "Mobile JS must not add network writes")
     require("email" not in texts["js"].lower(), "Mobile JS must not process email/PII")
     require("localStorage" not in texts["js"], "Mobile JS must not add persistent tracking")
+    require("initMaterialCalculator" not in texts["js"], "Removed calculator JavaScript returned")
 
     print("MOBILE_UI_STATIC_CHECKS_OK=1")
     print(f"CHECKED_FILES={len(FILES)}")
