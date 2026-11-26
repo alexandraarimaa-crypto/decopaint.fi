@@ -515,3 +515,5 @@ Relocation mobile followup: build_relocation_layout_followup.py projects only co
 ## 2026-11-26 — scoped mobile offers link
 
 Release only shop/templates/shop/base/modal.html from the reviewed exact GitHub commit. Compare its deployed SHA-256 with the audited base before applying; stop on drift. Save and verify a private copy of that template outside webroot, then atomically install the candidate and restart the existing Passenger application. No database migration, settings edit or static publication. Verify the mobile drawer at 320/390/768 px, direct offers navigation and desktop header. Closed staging and separate production approval under AGENTS.md remain required.
+
+The live modal differs from the recovered root template: it includes translated strings, the language selector and registration-submit protection. Preserve all of these via scripts/build_mobile_sales_release.py and the exact audited baseline (SHA-256 70a7ea1df3769f5b2127c710704c82044c0e49c0fb469c50c7c2969c326bad15). Release only its one-file projection through the existing install_sales_release.py; do not deploy the recovered root modal directly. No other live template is replaced.
