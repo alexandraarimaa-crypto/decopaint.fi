@@ -510,3 +510,8 @@ Merged source `65b82d0ff30b61fb852fce437b6e16848eeeb56c` was verified identical 
 The final smoke follow-up also includes the product detail template, guarded against deployed SHA `9d17b2de19cdc1f2c94c0ce28f1dd24585d0d7d87e00812a1533ba3e83c3f57a`. Three runtime targets remove the visible exact-date promise and retain the approximate range. No database or Merchant API update is part of this follow-up.
 
 Relocation mobile followup: build_relocation_layout_followup.py projects only contact.html and guards the first relocation release hash. Use a fresh verified private backup and the same installer.
+
+
+## 2026-11-26 — scoped mobile offers link
+
+Release only shop/templates/shop/base/modal.html from the reviewed exact GitHub commit. Compare its deployed SHA-256 with the audited base before applying; stop on drift. Save and verify a private copy of that template outside webroot, then atomically install the candidate and restart the existing Passenger application. No database migration, settings edit or static publication. Verify the mobile drawer at 320/390/768 px, direct offers navigation and desktop header. Closed staging and separate production approval under AGENTS.md remain required.

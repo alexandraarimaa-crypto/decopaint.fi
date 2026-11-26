@@ -50,32 +50,37 @@
 
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
-                                    href="{% url 'b2b:start' %}"><span><small>03</small> Ammattilaisille</span></a>
+                                    href="{% url 'shop:product_list_by_category' category_slug='tarjoukset' %}"><span><small>03</small> Tarjoukset</span></a>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
-                                    href="{% url 'courses:course_list' %}"><span><small>04</small> Kurssit</span></a>
+                                    href="{% url 'b2b:start' %}"><span><small>04</small> Ammattilaisille</span></a>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
-                                    href="{% url 'services:service_list' %}"><span><small>05</small> Palvelut</span></a>
+                                    href="{% url 'courses:course_list' %}"><span><small>05</small> Kurssit</span></a>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
-                                    href="{% url 'blog:blog_list' %}"><span><small>06</small> Ideat ja ohjeet</span></a>
+                                    href="{% url 'services:service_list' %}"><span><small>06</small> Palvelut</span></a>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
-                                    href="{% url 'shop:terms' %}"><span><small>07</small> Toimitus ja palautukset</span></a>
+                                    href="{% url 'blog:blog_list' %}"><span><small>07</small> Ideat ja ohjeet</span></a>
                             </li>
 
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
-                                    href="{% url 'shop:contact' %}"><span><small>08</small> Yhteystiedot</span></a>
+                                    href="{% url 'shop:terms' %}"><span><small>08</small> Toimitus ja palautukset</span></a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                    href="{% url 'shop:contact' %}"><span><small>09</small> Yhteystiedot</span></a>
                             </li>
                         </ul>
                     </div>

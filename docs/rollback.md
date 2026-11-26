@@ -557,3 +557,8 @@ Use the `sales-flow-20261104-65b82d0-public-static` backup for the final publish
 The owner-requested range-only follow-up backs up three runtime files (delivery template tag, checkout, product detail). Use that latest scoped backup first when rolling back; the original 65b82d0 backup intentionally rejects these later hashes.
 
 The relocation contact-order followup restores one contact template from its own private backup; do not restore the earlier seven-file release to undo only the layout correction.
+
+
+## 2026-11-26 — mobile offers link
+
+Restore only the verified modal.html backup if its current hash still matches this release, restart the existing Passenger application, and check the mobile menu opens and closes. Preserve all product/category data, settings, static assets and later unrelated releases.

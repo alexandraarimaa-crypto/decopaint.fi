@@ -694,3 +694,8 @@ Mobile smoke at 390 px confirms the calculator, quantity transfer and sticky pri
 Owner-requested delivery-copy regression: projected product and checkout templates must contain the approximate 2–4-week range and must not contain `Arvioitu lähetyspäivä` or the browser date calculation. Manually verify the range in the product text column and mobile checkout after deployment.
 
 Mobile relocation followup: the contact anchor must appear before the lazy photos and land on the address without being covered by the sticky header.
+
+
+## 2026-11-26 — mobile offers navigation
+
+At 320, 390 and 768 px, open the hamburger menu: Etusivu (01), Tuotteet (02), Tarjoukset (03), then the existing items numbered 04–09. Activate Tarjoukset by tap and keyboard Enter; it must open the existing /catalog/tarjoukset/ category with its current products. Verify scrolling reaches Yhteystiedot, close/reopen and the Tuotteet submenu/back action still work. On the offers page, existing active-link highlighting applies. At desktop width, navigation and dropdown remain unchanged. Compile/render the Django template and run the existing mobile UI validator and required CI.

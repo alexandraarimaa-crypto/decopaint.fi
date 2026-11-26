@@ -915,3 +915,8 @@ The sales-flow release is deployed. Public assets are served from `/home/decpai/
 At the owner's request, product pages and checkout show only `Toimitusaika noin 2–4 viikkoa.` for order-only variants. Remove the specific latest-dispatch date from visible customer copy. The Merchant backorder API contract and its required structured date are unchanged.
 
 - Mobile followup: show dated showroom contact information before legacy photos so the directions anchor stays stable while images load.
+
+
+## 2026-11-26 — Tarjoukset in the mobile main menu
+
+Add a direct Tarjoukset link after Tuotteet, using the existing category route and menu styling. Renumber the remaining items 04–09. Only modal.html changes at runtime; desktop navigation, search, category data, prices and checkout remain unchanged. Issue #26.
